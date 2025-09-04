@@ -1,13 +1,17 @@
 #include "lisp.h"
+#include "tokenizer.h"
 
 #include <cstdio>
 #include <string>
+#include <vector>
 
 namespace lisp {
 
-Expr *parse(const std::string &source) { return make_nil(); }
+Tokens tokenize(const std::string &source) { return {}; }
 
-int eval(const std::string &source) { return 0; }
+Expr *parse(const Tokens &tokens) { return make_nil(); }
+
+Expr *parse(const std::string &source) { return make_nil(); }
 
 Expr *eval(Expr *expr, Context &context, const IO &io) {
   switch (expr->type) {
@@ -16,6 +20,7 @@ Expr *eval(Expr *expr, Context &context, const IO &io) {
     return expr;
   }
   case LIST: {
+    // TODO
     Cons cons = expr->cons;
     Expr *op = eval(cons.car, context, io);
     return make_nil();
@@ -45,7 +50,9 @@ void print(Expr *expr, const IO &io) {
 
 int eval(const std::string &source, Context &context, const IO &io) {
 
-  Expr *exp = parse(source);
+  Tokens tokens = tokenize(source);
+
+  Expr *exp = parse(tokens);
   if (!exp) {
     return 1;
   }
@@ -70,11 +77,13 @@ int repl() {
 
   do {
     std::cout << "> ";
+
     if (!std::getline(std::cin, line)) {
       break;
     }
 
     res = eval(line, ctx, io);
+
   } while (res == 0);
 
   return 0;
