@@ -28,7 +28,13 @@ private:
 
 class Context {
 public:
-  std::map<std::string, Expr *> env;
+  Expr *lookup(const char *symbol);
+  void set(const char *symbol, Expr *expr);
+
+  void load_runtime();
+
+private:
+  std::map<std::string, Expr *> m_env;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,8 +45,14 @@ void print(Expr *expr, const IO &io);
 
 Expr *eval(Expr *expr, Context &context, const IO &io);
 
+int eval_print(Expr *expr, Context &context, const IO &io, bool newline = false);
+
 int eval(const std::string &source, Context &context, const IO &io);
 
+void load_runtime(Context &context);
+
 int repl();
+
+void print_expr(Expr *expr, const IO &io);
 
 } // namespace lisp

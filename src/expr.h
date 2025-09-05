@@ -1,5 +1,6 @@
 #pragma once
 
+#include "builtin.h"
 #include <cassert>
 #include <cstring>
 
@@ -12,8 +13,8 @@ struct Expr;
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Cons {
-  Expr *car;
-  Expr *cdr;
+  Expr *car; // data
+  Expr *cdr; // next
   Cons(Expr *a, Expr *b) : car(a), cdr(b) {}
 };
 
@@ -29,6 +30,11 @@ struct Symbol {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+struct NativeFn {
+  NativeFunction fn;
+  Expr *operator()(Expr *args, Context& context, const IO& io);
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +52,8 @@ struct Atom {
   union {
     double number;
     char *symbol;
+    char* string;
+    NativeFn native;
   };
 
   Atom() : type(ATOM_NIL) {}
@@ -78,6 +86,13 @@ inline Expr *make_cons(Expr *a, Expr *b) { return new Expr(Cons(a, b)); }
 inline Expr *make_number(double num) { return new Expr(Atom(num)); }
 
 inline Expr *make_symbol(const char *symbol) { return new Expr(Atom(symbol)); }
+
+inline Expr *make_native(NativeFunction fn) {
+  Atom atom;
+  atom.type = Atom::ATOM_NATIVE;
+  atom.native = NativeFn{fn};
+  return new Expr(atom);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "expr.h"
 #include "util.h"
 
 namespace lisp {
+
+struct Expr;
 
 class Context;
 

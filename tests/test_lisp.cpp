@@ -12,8 +12,9 @@ TEST(lisp, test_01) {
 
   Expr exp(2.5);
 
-  print(eval(&exp, ctx, io), io);
+  eval_print(&exp, ctx, io);
 
+  EXPECT_EQ(err.str(), "");
   EXPECT_EQ(out.str(), "2.5");
 }
 
@@ -23,9 +24,30 @@ TEST(lisp, test_02) {
   std::ostringstream out, err;
   IO io(out, err);
 
-  Expr *exp = make_list(make_number(5), make_list(make_number(2), make_nil()));
+  ctx.load_runtime();
 
-  print(eval(exp, ctx, io), io);
+  Expr *exp = make_cons(
+      make_symbol("+"),
+      make_cons(make_number(2), make_cons(make_number(5), make_nil())));
 
-  EXPECT_EQ(out.str(), "2.5");
+  print_expr(exp, io);
+
+  eval_print(exp, ctx, io);
+
+  EXPECT_EQ(err.str(), "");
+  EXPECT_EQ(out.str(), "");
+}
+
+TEST(lisp, test_03) {
+
+  Context ctx;
+  std::ostringstream out, err;
+  IO io(out, err);
+
+  std::string src = "(+ 2 3)";
+
+  (void)eval(src, ctx, io);
+
+  EXPECT_EQ(err.str(), "");
+  EXPECT_EQ(out.str(), "5");
 }
