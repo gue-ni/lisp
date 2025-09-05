@@ -4,7 +4,8 @@
 #include <cassert>
 #include <cstring>
 
-namespace lisp {
+namespace lisp
+{
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -12,98 +13,154 @@ struct Expr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct Cons {
-  Expr *car; // data
-  Expr *cdr; // next
-  Cons(Expr *a, Expr *b) : car(a), cdr(b) {}
+struct Cons
+{
+   Expr * car; // data
+   Expr * cdr; // next
+   Cons( Expr * a, Expr * b )
+       : car( a )
+       , cdr( b )
+   {
+   }
 };
 
-inline Expr *car(Cons *c) { return c->car; }
+inline Expr * car( Cons * c )
+{
+   return c->car;
+}
 
-inline Expr *cdr(Cons *c) { return c->cdr; }
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct Symbol {
-  char *lexeme;
-  Symbol(const char *str) { lexeme = strdup(str); }
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct NativeFn {
-  NativeFunction fn;
-  Expr *operator()(Expr *args, Context& context, const IO& io);
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct Atom {
-  enum Type {
-    ATOM_NIL,
-    ATOM_NUMBER,
-    ATOM_SYMBOL,
-    ATOM_STRING, // TODO
-    ATOM_LAMBDA, // TODO
-    ATOM_NATIVE, // TODO
-  };
-
-  Type type;
-  union {
-    double number;
-    char *symbol;
-    char* string;
-    NativeFn native;
-  };
-
-  Atom() : type(ATOM_NIL) {}
-  Atom(const char *sym) : type(ATOM_SYMBOL), symbol(strdup(sym)) {}
-  Atom(double num) : type(ATOM_NUMBER), number(num) {}
-};
-
-struct Expr {
-
-  enum Type {
-    EXPR_ATOM,
-    EXPR_CONS,
-  };
-
-  Type type;
-
-  union {
-    Atom atom;
-    Cons cons;
-  };
-
-  Expr(Atom a) : type(EXPR_ATOM), atom(a) {}
-  Expr(Cons c) : type(EXPR_CONS), cons(c) {}
-};
-
-inline Expr *make_nil() { return new Expr(Atom()); }
-
-inline Expr *make_cons(Expr *a, Expr *b) { return new Expr(Cons(a, b)); }
-
-inline Expr *make_number(double num) { return new Expr(Atom(num)); }
-
-inline Expr *make_symbol(const char *symbol) { return new Expr(Atom(symbol)); }
-
-inline Expr *make_native(NativeFunction fn) {
-  Atom atom;
-  atom.type = Atom::ATOM_NATIVE;
-  atom.native = NativeFn{fn};
-  return new Expr(atom);
+inline Expr * cdr( Cons * c )
+{
+   return c->cdr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-inline Expr *car(Expr *e) {
-  assert(e->type == Expr::EXPR_CONS);
-  return e->cons.car;
+struct Symbol
+{
+   char * lexeme;
+   Symbol( const char * str )
+   {
+      lexeme = strdup( str );
+   }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct NativeFn
+{
+   NativeFunction fn;
+   Expr * operator()( Expr * args, Context & context, const IO & io );
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct Atom
+{
+   enum Type
+   {
+      ATOM_NIL,
+      ATOM_NUMBER,
+      ATOM_SYMBOL,
+      ATOM_STRING, // TODO
+      ATOM_LAMBDA, // TODO
+      ATOM_NATIVE, // TODO
+   };
+
+   Type type;
+   union
+   {
+      double number;
+      char * symbol;
+      char * string;
+      NativeFn native;
+   };
+
+   Atom()
+       : type( ATOM_NIL )
+   {
+   }
+   Atom( const char * sym )
+       : type( ATOM_SYMBOL )
+       , symbol( strdup( sym ) )
+   {
+   }
+   Atom( double num )
+       : type( ATOM_NUMBER )
+       , number( num )
+   {
+   }
+};
+
+struct Expr
+{
+
+   enum Type
+   {
+      EXPR_ATOM,
+      EXPR_CONS,
+   };
+
+   Type type;
+
+   union
+   {
+      Atom atom;
+      Cons cons;
+   };
+
+   Expr( Atom a )
+       : type( EXPR_ATOM )
+       , atom( a )
+   {
+   }
+   Expr( Cons c )
+       : type( EXPR_CONS )
+       , cons( c )
+   {
+   }
+};
+
+inline Expr * make_nil()
+{
+   return new Expr( Atom() );
 }
 
-inline Expr *cdr(Expr *e) {
-  assert(e->type == Expr::EXPR_CONS);
-  return e->cons.cdr;
+inline Expr * make_cons( Expr * a, Expr * b )
+{
+   return new Expr( Cons( a, b ) );
+}
+
+inline Expr * make_number( double num )
+{
+   return new Expr( Atom( num ) );
+}
+
+inline Expr * make_symbol( const char * symbol )
+{
+   return new Expr( Atom( symbol ) );
+}
+
+inline Expr * make_native( NativeFunction fn )
+{
+   Atom atom;
+   atom.type   = Atom::ATOM_NATIVE;
+   atom.native = NativeFn{ fn };
+   return new Expr( atom );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+inline Expr * car( Expr * e )
+{
+   assert( e->type == Expr::EXPR_CONS );
+   return e->cons.car;
+}
+
+inline Expr * cdr( Expr * e )
+{
+   assert( e->type == Expr::EXPR_CONS );
+   return e->cons.cdr;
 }
 
 } // namespace lisp

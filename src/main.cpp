@@ -1,3 +1,6 @@
 #include "lisp.h"
 
-int main() { return lisp::repl(); }
+int main()
+{
+   return lisp::repl();
+}
