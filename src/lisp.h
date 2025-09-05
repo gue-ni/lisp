@@ -31,13 +31,13 @@ class GC
 class Context
 {
  public:
+   Context();
    Expr * lookup( const char * symbol );
    void set( const char * symbol, Expr * expr );
 
-   void load_runtime();
-
  private:
    std::map<std::string, Expr *> m_env;
+   void load_runtime();
 };
 
 ///////////////////////////////////////////////////////////////////////////////

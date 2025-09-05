@@ -2,20 +2,21 @@
 
 #include "util.h"
 
-namespace lisp {
+namespace lisp
+{
 
 struct Expr;
 
 class Context;
 
-typedef Expr *(*NativeFunction)(void *param, Context &context, const IO &io,
-                                Expr *args);
+typedef Expr * ( *NativeFunction )( void *, Context &, const IO & io, Expr * );
 
-namespace builtin {
+namespace builtin
+{
 
-Expr *print(void *param, Context &context, const IO &io, Expr *args);
+Expr * add( void * param, Context & context, const IO & io, Expr * arg );
 
-Expr *add(void *param, Context &context, const IO &io, Expr *args);
+Expr * mult( void * param, Context & context, const IO & io, Expr * arg );
 
 } // namespace builtin
 

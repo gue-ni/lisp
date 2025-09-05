@@ -141,6 +141,14 @@ inline Expr * make_symbol( const char * symbol )
    return new Expr( Atom( symbol ) );
 }
 
+inline Expr * make_string( const char * string )
+{
+   Atom atom;
+   atom.type   = Atom::ATOM_STRING;
+   atom.string = strdup( string );
+   return new Expr( atom );
+}
+
 inline Expr * make_native( NativeFunction fn )
 {
    Atom atom;

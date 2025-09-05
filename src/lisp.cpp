@@ -10,6 +10,11 @@
 namespace lisp
 {
 
+Context::Context()
+{
+   load_runtime();
+}
+
 Expr * Context::lookup( const char * symbol )
 {
 
@@ -35,6 +40,7 @@ void Context::set( const char * symbol, Expr * expr )
 void Context::load_runtime()
 {
    set( "+", make_native( builtin::add ) );
+   set( "*", make_native( builtin::mult ) );
 }
 
 Tokens tokenize( const std::string & source )
@@ -189,7 +195,7 @@ void print_atom( const Atom & atom, const IO & io )
          }
       case Atom::ATOM_NATIVE :
          {
-            io.out << "<native>";
+            io.out << "<native-fn>";
             break;
          }
    }
@@ -201,15 +207,12 @@ void print_cons( Cons cons, const IO & io )
    io.out << "(";
    print_expr( cons.car, io );
 
-#if 1
    while( cons.cdr->type == Expr::EXPR_CONS )
    {
       cons = cons.cdr->cons;
-
       io.out << " ";
       print_expr( cons.cdr, io );
    }
-#endif
 
    io.out << " )";
 }
@@ -228,36 +231,36 @@ void print_expr( Expr * expr, const IO & io )
 
 int eval( const std::string & source, Context & context, const IO & io )
 {
-
    Tokens tokens = tokenize( source );
+   if( tokens.empty() )
+   {
+      return 1;
+   }
 
    Expr * exp = parse( tokens );
    if( !exp )
    {
-      return 1;
+      return 2;
    }
 
    Expr * res = eval( exp, context, io );
    if( !res )
    {
-      return 2;
+      return 3;
    }
 
-   print( res, io );
+   print_expr( res, io );
    io.out << std::endl;
    return 0;
 }
 
 int repl()
 {
-
    IO io;
    Context ctx;
    std::string line;
 
    int res = 0;
-
-   ctx.load_runtime();
 
    do
    {

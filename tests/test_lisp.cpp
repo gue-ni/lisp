@@ -10,7 +10,6 @@ class LispTest : public ::testing::Test
    LispTest()
        : io( out, err )
    {
-      ctx.load_runtime();
    }
 
    void SetUp() override
@@ -27,7 +26,7 @@ class LispTest : public ::testing::Test
    IO io;
 };
 
-TEST_F( LispTest, test_01 )
+TEST_F( LispTest, test_eval_number_01 )
 {
    Expr * exp = make_number( 2.5 );
 
@@ -37,9 +36,8 @@ TEST_F( LispTest, test_01 )
    EXPECT_EQ( out.str(), "2.5" );
 }
 
-TEST_F( LispTest, test_04 )
+TEST_F( LispTest, test_eval_nil_01 )
 {
-
    Expr * exp = make_nil();
 
    eval_print( exp, ctx, io );
@@ -48,9 +46,38 @@ TEST_F( LispTest, test_04 )
    EXPECT_EQ( out.str(), "nil" );
 }
 
-TEST_F( LispTest, test_02 )
+TEST_F( LispTest, test_eval_string_01 )
 {
+   Expr * exp = make_string( "Hello, LISP!" );
 
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "\"Hello, LISP!\"" );
+}
+
+TEST_F( LispTest, test_eval_symbol_01 )
+{
+   Expr * exp = make_symbol( "+" );
+
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "<native-fn>" );
+}
+
+TEST_F( LispTest, test_eval_non_existing_symbol_01 )
+{
+   Expr * exp = make_symbol( "does-not-exist" );
+
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "nil" );
+}
+
+TEST_F( LispTest, test_eval_exp_with_native_fn_add_01 )
+{
    Expr * exp
        = make_cons( make_symbol( "+" ), make_cons( make_number( 2 ), make_cons( make_number( 3 ), make_nil() ) ) );
 
@@ -58,4 +85,15 @@ TEST_F( LispTest, test_02 )
 
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "5" );
+}
+
+TEST_F( LispTest, test_eval_exp_with_native_fn_mult_01 )
+{
+   Expr * exp
+       = make_cons( make_symbol( "*" ), make_cons( make_number( 2 ), make_cons( make_number( 3 ), make_nil() ) ) );
+
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "6" );
 }
