@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+namespace lisp {
+
 enum TokenType {};
 
 struct Token {
@@ -11,3 +13,10 @@ struct Token {
 };
 
 using Tokens = std::vector<Token>;
+
+class Tokenizer {
+public:
+private:
+};
+
+} // namespace lisp

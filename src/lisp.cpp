@@ -1,4 +1,5 @@
 #include "lisp.h"
+#include "expr.h"
 #include "tokenizer.h"
 
 #include <cstdio>
@@ -13,20 +14,23 @@ Expr *parse(const Tokens &tokens) { return make_nil(); }
 
 Expr *parse(const std::string &source) { return make_nil(); }
 
+Expr *eval_atom(Expr *atom, Context &context, const IO &io) { return atom; }
+
+Expr *eval_all(Expr *atom, Context &context, const IO &io) { return nullptr; }
+
 Expr *eval(Expr *expr, Context &context, const IO &io) {
   switch (expr->type) {
   case NIL:
   case NUMBER: {
-    return expr;
+    return eval_atom(expr, context, io);
   }
-  case LIST: {
-    // TODO
-    Cons cons = expr->cons;
-    Expr *op = eval(cons.car, context, io);
-    return make_nil();
+  case CONS: {
+    Expr *car = eval(expr->cons.car, context, io);
+    Expr *cdr = eval(expr->cons.cdr, context, io);
+    return make_cons(car, cdr);
   }
   default:
-    io.err << "Unhandled type" << std::endl;
+    io.err << "unhandled-type" << std::endl;
     return make_nil();
   }
 }
@@ -42,7 +46,7 @@ void print(Expr *expr, const IO &io) {
     break;
   }
   default: {
-    io.err << "unprintable";
+    io.err << "unprintable-expr";
     break;
   }
   }
