@@ -4,51 +4,57 @@
 
 using namespace lisp;
 
-TEST( lisp, test_01 )
+class LispTest : public ::testing::Test
 {
+ public:
+   LispTest()
+       : io( out, err )
+   {
+      ctx.load_runtime();
+   }
 
+   void SetUp() override
+   {
+   }
+
+   void TearDown() override
+   {
+   }
+
+ protected:
    Context ctx;
    std::ostringstream out, err;
-   IO io( out, err );
+   IO io;
+};
 
-   Expr exp( 2.5 );
+TEST_F( LispTest, test_01 )
+{
+   Expr * exp = make_number( 2.5 );
 
-   eval_print( &exp, ctx, io );
+   eval_print( exp, ctx, io );
 
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "2.5" );
 }
 
-TEST( lisp, test_02 )
+TEST_F( LispTest, test_04 )
 {
 
-   Context ctx;
-   std::ostringstream out, err;
-   IO io( out, err );
-
-   ctx.load_runtime();
-
-   Expr * exp
-       = make_cons( make_symbol( "+" ), make_cons( make_number( 2 ), make_cons( make_number( 5 ), make_nil() ) ) );
-
-   print_expr( exp, io );
+   Expr * exp = make_nil();
 
    eval_print( exp, ctx, io );
 
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "" );
+   EXPECT_EQ( out.str(), "nil" );
 }
 
-TEST( lisp, test_03 )
+TEST_F( LispTest, test_02 )
 {
 
-   Context ctx;
-   std::ostringstream out, err;
-   IO io( out, err );
+   Expr * exp
+       = make_cons( make_symbol( "+" ), make_cons( make_number( 2 ), make_cons( make_number( 3 ), make_nil() ) ) );
 
-   std::string src = "(+ 2 3)";
-
-   ( void ) eval( src, ctx, io );
+   eval_print( exp, ctx, io );
 
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "5" );
