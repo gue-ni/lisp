@@ -1,24 +1,37 @@
 #pragma once
 
+#include "builtin.h"
 #include "expr.h"
+#include "util.h"
 
 #include <iostream>
+#include <map>
 #include <ostream>
+#include <vector>
 
 namespace lisp {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct Context {};
+class GC {
+public:
+  Expr *alloc();
+
+  void mark();
+  void sweep();
+
+private:
+  std::vector<Expr *> m_heap;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct IO {
-  std::ostream &out;
-  std::ostream &err;
-  IO(std::ostream &o = std::cout, std::ostream &e = std::cerr)
-      : out(o), err(e) {}
+class Context {
+public:
+  std::map<std::string, Expr *> env;
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -16,7 +16,15 @@ Expr *parse(const std::string &source) { return make_nil(); }
 
 Expr *eval_atom(Expr *atom, Context &context, const IO &io) { return atom; }
 
-Expr *eval_all(Expr *atom, Context &context, const IO &io) { return nullptr; }
+Expr *eval_cons(Expr *car, Expr* cdr, Context &context, const IO &io) {
+
+  Expr* callable_result = eval(car, context, io);
+
+  //Expr* args_result = eval_all(cdr, context, io);
+
+
+  return make_nil();
+}
 
 Expr *eval(Expr *expr, Context &context, const IO &io) {
   switch (expr->type) {
@@ -27,7 +35,7 @@ Expr *eval(Expr *expr, Context &context, const IO &io) {
   case CONS: {
     Expr *car = eval(expr->cons.car, context, io);
     Expr *cdr = eval(expr->cons.cdr, context, io);
-    return make_cons(car, cdr);
+    return eval_cons(car, cdr, context, io);
   }
   default:
     io.err << "unhandled-type" << std::endl;

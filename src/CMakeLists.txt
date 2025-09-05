@@ -1,5 +1,5 @@
 
-set(SRC_FILES "lisp.cpp")
+set(SRC_FILES "lisp.cpp" "builtin.cpp" "expr.cpp" "parser.cpp" "tokenizer.cpp")
 
 set(INC_FILES "lisp.h")
 
