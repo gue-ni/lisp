@@ -1,4 +1,5 @@
 #include "lisp.h"
+#include "builtin.h"
 #include "expr.h"
 #include "tokenizer.h"
 
@@ -16,23 +17,21 @@ Expr *parse(const std::string &source) { return make_nil(); }
 
 Expr *eval_atom(Expr *atom, Context &context, const IO &io) { return atom; }
 
-Expr *eval_cons(Expr *car, Expr* cdr, Context &context, const IO &io) {
+Expr *eval_cons(Expr *car, Expr *cdr, Context &context, const IO &io) {
 
-  Expr* callable_result = eval(car, context, io);
+  Expr *callable_result = eval(car, context, io);
 
-  //Expr* args_result = eval_all(cdr, context, io);
-
+  // Expr* args_result = eval_all(cdr, context, io);
 
   return make_nil();
 }
 
 Expr *eval(Expr *expr, Context &context, const IO &io) {
   switch (expr->type) {
-  case NIL:
-  case NUMBER: {
+  case Expr::EXPR_ATOM: {
     return eval_atom(expr, context, io);
   }
-  case CONS: {
+  case Expr::EXPR_CONS: {
     Expr *car = eval(expr->cons.car, context, io);
     Expr *cdr = eval(expr->cons.cdr, context, io);
     return eval_cons(car, cdr, context, io);
@@ -45,16 +44,26 @@ Expr *eval(Expr *expr, Context &context, const IO &io) {
 
 void print(Expr *expr, const IO &io) {
   switch (expr->type) {
-  case NUMBER: {
-    io.out << (expr->number);
+
+  case Expr::EXPR_ATOM: {
+    Atom atom = expr->atom;
+    switch (atom.type) {
+    case Atom::ATOM_NIL: {
+      io.out << "nil";
+      break;
+    }
+    case Atom::ATOM_NUMBER: {
+      io.out << (atom.number);
+      break;
+    }
+    default:
+      io.out << "unprintable-atom";
+      break;
+    }
     break;
   }
-  case NIL: {
-    io.out << "nil";
-    break;
-  }
-  default: {
-    io.err << "unprintable-expr";
+  case Expr::EXPR_CONS: {
+    io.err << "unprintable-cons";
     break;
   }
   }
@@ -79,6 +88,11 @@ int eval(const std::string &source, Context &context, const IO &io) {
   return 0;
 }
 
+void load_runtime(Context &context) {
+
+  // context.env["+"] = make_native(builtin::add);
+}
+
 int repl() {
 
   IO io;
@@ -86,6 +100,8 @@ int repl() {
   std::string line;
 
   int res = 0;
+
+  load_runtime(ctx);
 
   do {
     std::cout << "> ";

@@ -34,70 +34,60 @@ struct Symbol {
 
 struct Atom {
   enum Type {
-    ATOM_STRING,
+    ATOM_NIL,
     ATOM_NUMBER,
     ATOM_SYMBOL,
-    ATOM_LAMBDA,
-    ATOM_NATIVE,
+    ATOM_STRING, // TODO
+    ATOM_LAMBDA, // TODO
+    ATOM_NATIVE, // TODO
   };
 
   Type type;
   union {
-    char *string;
     double number;
     char *symbol;
   };
-};
 
-enum ExprType {
-  NIL,
-#if 0
-  ATOM,
-#else
-  NUMBER,
-  SYMBOL,
-  STRING,
-#endif
-  CONS,
+  Atom() : type(ATOM_NIL) {}
+  Atom(const char *sym) : type(ATOM_SYMBOL), symbol(strdup(sym)) {}
+  Atom(double num) : type(ATOM_NUMBER), number(num) {}
 };
 
 struct Expr {
-  ExprType type;
+
+  enum Type {
+    EXPR_ATOM,
+    EXPR_CONS,
+  };
+
+  Type type;
+
   union {
-#if 0
     Atom atom;
-#else
-    Symbol symbol;
-    double number;
-#endif
     Cons cons;
   };
 
-  Expr() : type(NIL) {}
-  Expr(Symbol s) : type(SYMBOL), symbol(s) {}
-  Expr(double v) : type(NUMBER), number(v) {}
-  Expr(Cons c) : type(CONS), cons(c) {}
+  Expr(Atom a) : type(EXPR_ATOM), atom(a) {}
+  Expr(Cons c) : type(EXPR_CONS), cons(c) {}
 };
 
-inline Expr *make_nil() { return new Expr(); }
+inline Expr *make_nil() { return new Expr(Atom()); }
 
 inline Expr *make_cons(Expr *a, Expr *b) { return new Expr(Cons(a, b)); }
 
-inline Expr *make_number(double num) { return new Expr(num); }
+inline Expr *make_number(double num) { return new Expr(Atom(num)); }
 
-inline Expr *make_symbol(const char *symbol) {
-  return new Expr(Symbol(symbol));
-}
+inline Expr *make_symbol(const char *symbol) { return new Expr(Atom(symbol)); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 inline Expr *car(Expr *e) {
-  assert(e->type == CONS);
+  assert(e->type == Expr::EXPR_CONS);
   return e->cons.car;
 }
 
 inline Expr *cdr(Expr *e) {
-  assert(e->type == CONS);
+  assert(e->type == Expr::EXPR_CONS);
   return e->cons.cdr;
 }
 
