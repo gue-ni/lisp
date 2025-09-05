@@ -8,4 +8,9 @@ Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
    return fn( nullptr, context, io, args );
 }
 
+Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
+{
+   return make_nil();
+}
+
 } // namespace lisp

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "lisp.h"
+#include "tokenizer.h"
 
 using namespace lisp;
 
@@ -96,4 +97,37 @@ TEST_F( LispTest, test_eval_exp_with_native_fn_mult_01 )
 
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "6" );
+}
+
+TEST_F( LispTest, test_tokenizer_01 )
+{
+   {
+      std::string source = "(+ 3.14 5)";
+      auto tokens        = tokenize( source );
+      EXPECT_EQ( tokens.size(), 6 );
+   }
+   {
+      std::string source = "(lambda (arg) (+ arg 1))";
+      auto tokens        = tokenize( source );
+   }
+   {
+      std::string source = "123";
+      auto tokens        = tokenize( source );
+   }
+   {
+      std::string source = "abc";
+      auto tokens        = tokenize( source );
+   }
+   {
+      std::string source = "(+ 2 (* 3 4))";
+      auto tokens        = tokenize( source );
+   }
+}
+
+TEST_F( LispTest, test_parser_01 )
+{
+   {
+      // std::string source = "5";
+      // Expr* expr = parse(source);
+   }
 }

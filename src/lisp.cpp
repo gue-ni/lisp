@@ -2,6 +2,7 @@
 #include "builtin.h"
 #include "expr.h"
 #include "tokenizer.h"
+#include "parser.h"
 
 #include <cstdio>
 #include <string>
@@ -43,20 +44,11 @@ void Context::load_runtime()
    set( "*", make_native( builtin::mult ) );
 }
 
-Tokens tokenize( const std::string & source )
-{
-   return {};
-}
 
-Expr * parse( const Tokens & tokens )
-{
-   return make_nil();
-}
 
-Expr * parse( const std::string & source )
-{
-   return make_nil();
-}
+
+
+
 
 Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 {
@@ -236,6 +228,12 @@ int eval( const std::string & source, Context & context, const IO & io )
    {
       return 1;
    }
+
+   io.out << "Got " << tokens.size() << " tokens!" << std::endl;
+   for (const Token& tkn : tokens) {
+     io.out << tkn.lexeme << ", ";
+   }
+   io.out << std::endl;
 
    Expr * exp = parse( tokens );
    if( !exp )

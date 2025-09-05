@@ -11,10 +11,10 @@ Expr * add( void * param, Context & context, const IO & io, Expr * arg )
 {
    assert( arg->type == Expr::EXPR_CONS );
 
-   double result = 0;
+   double result  = 0;
    Expr * current = arg;
 
-   while( ( current->type == Expr::EXPR_CONS ) && ( current->cons.car->type == Expr::EXPR_ATOM )
+   while( ( has_type( current, Expr::EXPR_CONS ) ) && has_type( current->cons.car, Expr::EXPR_ATOM )
           && ( current->cons.car->atom.type == Atom::ATOM_NUMBER ) )
    {
       result += current->cons.car->atom.number;
@@ -28,7 +28,7 @@ Expr * mult( void * param, Context & context, const IO & io, Expr * arg )
 {
    assert( arg->type == Expr::EXPR_CONS );
 
-   double result = 1;
+   double result  = 1;
    Expr * current = arg;
 
    while( ( current->type == Expr::EXPR_CONS ) && ( current->cons.car->type == Expr::EXPR_ATOM )
@@ -39,7 +39,6 @@ Expr * mult( void * param, Context & context, const IO & io, Expr * arg )
    }
 
    return make_number( result );
-
 }
 
 } // namespace builtin

@@ -55,6 +55,13 @@ struct NativeFn
 
 ///////////////////////////////////////////////////////////////////////////////
 
+struct LambdaFn
+{
+   Expr * operator()( Expr * args, Context & context, const IO & io );
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 struct Atom
 {
    enum Type
@@ -62,9 +69,9 @@ struct Atom
       ATOM_NIL,
       ATOM_NUMBER,
       ATOM_SYMBOL,
-      ATOM_STRING, // TODO
+      ATOM_STRING,
       ATOM_LAMBDA, // TODO
-      ATOM_NATIVE, // TODO
+      ATOM_NATIVE,
    };
 
    Type type;
@@ -73,6 +80,7 @@ struct Atom
       double number;
       char * symbol;
       char * string;
+      LambdaFn lambda;
       NativeFn native;
    };
 
@@ -80,17 +88,9 @@ struct Atom
        : type( ATOM_NIL )
    {
    }
-   Atom( const char * sym )
-       : type( ATOM_SYMBOL )
-       , symbol( strdup( sym ) )
-   {
-   }
-   Atom( double num )
-       : type( ATOM_NUMBER )
-       , number( num )
-   {
-   }
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 struct Expr
 {
@@ -121,6 +121,8 @@ struct Expr
    }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
 inline Expr * make_nil()
 {
    return new Expr( Atom() );
@@ -131,14 +133,20 @@ inline Expr * make_cons( Expr * a, Expr * b )
    return new Expr( Cons( a, b ) );
 }
 
-inline Expr * make_number( double num )
+inline Expr * make_number( double number )
 {
-   return new Expr( Atom( num ) );
+   Atom atom;
+   atom.type   = Atom::ATOM_NUMBER;
+   atom.number = number;
+   return new Expr( atom );
 }
 
 inline Expr * make_symbol( const char * symbol )
 {
-   return new Expr( Atom( symbol ) );
+   Atom atom;
+   atom.type   = Atom::ATOM_SYMBOL;
+   atom.symbol = strdup( symbol );
+   return new Expr( atom );
 }
 
 inline Expr * make_string( const char * string )
@@ -157,17 +165,45 @@ inline Expr * make_native( NativeFunction fn )
    return new Expr( atom );
 }
 
+inline Expr * make_lambda()
+{
+   Atom atom;
+   atom.type   = Atom::ATOM_NATIVE;
+   atom.lambda = LambdaFn{};
+   return new Expr( atom );
+}
+
+inline bool has_type( const Expr * e, Expr::Type t )
+{
+   return e->type == t;
+}
+
+inline bool has_type( const Atom * a, Atom::Type t )
+{
+   return a->type == t;
+}
+
+inline void assert_type( const Expr * e, Expr::Type t )
+{
+   assert( has_type( e, t ) );
+}
+
+inline void assert_type( const Atom * a, Atom::Type t )
+{
+   assert( has_type( a, t ) );
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 inline Expr * car( Expr * e )
 {
-   assert( e->type == Expr::EXPR_CONS );
+   assert_type( e, Expr::EXPR_CONS );
    return e->cons.car;
 }
 
 inline Expr * cdr( Expr * e )
 {
-   assert( e->type == Expr::EXPR_CONS );
+   assert_type( e, Expr::EXPR_CONS );
    return e->cons.cdr;
 }
 
