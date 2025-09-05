@@ -10,8 +10,19 @@ class Parser
 {
  public:
    Parser( const Tokens & tokens );
+   Expr * parse();
 
  private:
+   Tokens m_tokens;
+   Tokens::const_iterator m_current;
+
+   void advance();
+   bool match( TokenType );
+   Token peek();
+
+   Expr * parse_expr();
+   Expr * parse_number();
+   Expr * parse_list();
 };
 
 Expr * parse( const Tokens & tokens );

@@ -50,9 +50,7 @@ Expr * eval( Expr * expr, Context & context, const IO & io );
 
 int eval_print( Expr * expr, Context & context, const IO & io, bool newline = false );
 
-int eval( const std::string & source, Context & context, const IO & io );
-
-void load_runtime( Context & context );
+int eval( const std::string & source, Context & context, const IO & io, bool newline = false );
 
 int repl();
 

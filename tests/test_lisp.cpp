@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "lisp.h"
+#include "parser.h"
 #include "tokenizer.h"
 
 using namespace lisp;
@@ -124,10 +125,29 @@ TEST_F( LispTest, test_tokenizer_01 )
    }
 }
 
-TEST_F( LispTest, test_parser_01 )
+TEST_F( LispTest, test_eval_num_01 )
 {
-   {
-      // std::string source = "5";
-      // Expr* expr = parse(source);
-   }
+   std::string source = "3.1415";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "3.1415" );
+}
+
+TEST_F( LispTest, test_eval_math_01 )
+{
+   std::string source = "(+ 1 2 3)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "6" );
+}
+
+TEST_F( LispTest, test_eval_math_02 )
+{
+   std::string source = "(+ 1 (* 2 3))";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "7" );
 }

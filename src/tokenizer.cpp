@@ -14,7 +14,10 @@ Tokens tokenize( const std::string & source )
    return tkn.tokens();
 }
 
-std::map<std::string, TokenType> keywords = { { "lambda", TokenType::LAMBDA } };
+std::map<std::string, TokenType> keywords = {
+    { "lambda", TokenType::LAMBDA },
+    { "nil", TokenType::NIL },
+};
 
 Tokenizer::Tokenizer( const std::string & source )
     : m_source( source )
@@ -78,11 +81,10 @@ void Tokenizer::handle_number()
 
 void Tokenizer::handle_identifier()
 {
+   auto start = m_current - 1;
+   auto end   = std::find( start, m_source.cend(), ' ' );
 
-   std::string::const_iterator prev = m_current - 1;
-   auto next_space                  = std::find( prev, m_source.cend(), ' ' );
-
-   std::string identifier( prev, next_space );
+   std::string identifier( start, end );
 
    auto it = keywords.find( identifier );
 
@@ -95,7 +97,7 @@ void Tokenizer::handle_identifier()
       m_tokens.push_back( Token( SYMBOL, identifier ) );
    }
 
-   m_current = next_space;
+   m_current = end;
 }
 
 void Tokenizer::run()

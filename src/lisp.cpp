@@ -1,8 +1,8 @@
 #include "lisp.h"
 #include "builtin.h"
 #include "expr.h"
-#include "tokenizer.h"
 #include "parser.h"
+#include "tokenizer.h"
 
 #include <cstdio>
 #include <string>
@@ -43,12 +43,6 @@ void Context::load_runtime()
    set( "+", make_native( builtin::add ) );
    set( "*", make_native( builtin::mult ) );
 }
-
-
-
-
-
-
 
 Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 {
@@ -221,7 +215,7 @@ void print_expr( Expr * expr, const IO & io )
    }
 }
 
-int eval( const std::string & source, Context & context, const IO & io )
+int eval( const std::string & source, Context & context, const IO & io, bool newline )
 {
    Tokens tokens = tokenize( source );
    if( tokens.empty() )
@@ -229,11 +223,14 @@ int eval( const std::string & source, Context & context, const IO & io )
       return 1;
    }
 
-   io.out << "Got " << tokens.size() << " tokens!" << std::endl;
-   for (const Token& tkn : tokens) {
-     io.out << tkn.lexeme << ", ";
+#if 0
+   io.out << "Got " << tokens.size() << " tokens: ";
+   for( const Token & tkn : tokens )
+   {
+      io.out << "'" << tkn.lexeme << "'" << ", ";
    }
    io.out << std::endl;
+#endif
 
    Expr * exp = parse( tokens );
    if( !exp )
@@ -248,7 +245,10 @@ int eval( const std::string & source, Context & context, const IO & io )
    }
 
    print_expr( res, io );
-   io.out << std::endl;
+   if( newline )
+   {
+      io.out << std::endl;
+   }
    return 0;
 }
 
@@ -269,7 +269,7 @@ int repl()
          break;
       }
 
-      res = eval( line, ctx, io );
+      res = eval( line, ctx, io, true );
 
    } while( res == 0 );
 
