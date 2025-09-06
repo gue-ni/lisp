@@ -15,8 +15,9 @@ Tokens tokenize( const std::string & source )
 }
 
 std::map<std::string, TokenType> keywords = {
-    { "lambda", TokenType::LAMBDA },
-    { "nil", TokenType::NIL },
+    { "lambda", TokenType::LAMBDA }, { "define", TokenType::DEFINE }, { "quote", TokenType::QUOTE },
+    { "print", TokenType::PRINT },   { "cons", TokenType::CONS },     { "car", TokenType::CAR },
+    { "cdr", TokenType::CDR },       { "nil", TokenType::NIL },
 };
 
 Tokenizer::Tokenizer( const std::string & source )
@@ -82,7 +83,10 @@ void Tokenizer::handle_number()
 void Tokenizer::handle_identifier()
 {
    auto start = m_current - 1;
-   auto end   = std::find( start, m_source.cend(), ' ' );
+
+   // end of identifier
+   std::string chars = " )";
+   auto end = std::find_if( start, m_source.cend(), [&]( char c ) { return chars.find( c ) != std::string::npos; } );
 
    std::string identifier( start, end );
 
@@ -98,6 +102,11 @@ void Tokenizer::handle_identifier()
    }
 
    m_current = end;
+}
+
+void Tokenizer::push( const Token & token )
+{
+   m_tokens.push_back( token );
 }
 
 void Tokenizer::run()
@@ -120,6 +129,12 @@ void Tokenizer::run()
                m_tokens.push_back( Token( RPAREN, c ) );
                break;
             }
+         case '\'' :
+            {
+               push( Token( QUOTE, c ) );
+               break;
+            }
+
          case '\"' :
             {
                // TODO: handle string

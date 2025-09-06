@@ -18,7 +18,6 @@ Context::Context()
 
 Expr * Context::lookup( const char * symbol )
 {
-
    std::string key( symbol );
 
    auto it = m_env.find( key );
@@ -42,6 +41,12 @@ void Context::load_runtime()
 {
    set( "+", make_native( builtin::add ) );
    set( "*", make_native( builtin::mult ) );
+   set( "print", make_native( builtin::print ) );
+   set( "define", make_native( builtin::define ) );
+   set( "quote", make_native( builtin::quote ) );
+   // set( "cons", make_native( builtin::quote ) );
+   // set( "car", make_native( builtin::quote ) );
+   // set( "cdr", make_native( builtin::quote ) );
 }
 
 Expr * eval_atom( Expr * expr, Context & context, const IO & io )
@@ -64,7 +69,6 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 
 Expr * eval_cons( Expr * expr, Context & context, const IO & io )
 {
-
    assert( expr->type == Expr::EXPR_CONS );
 
    Cons cons = expr->cons;
@@ -81,9 +85,8 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
       }
    }
 
-   // Expr* args_result = eval_all(cdr, context, io);
-
-   return make_nil();
+   // TODO:
+   return make_void();
 }
 
 int eval_print( Expr * expr, Context & context, const IO & io, bool newline )
@@ -115,48 +118,13 @@ Expr * eval( Expr * expr, Context & context, const IO & io )
    }
 }
 
-void print( Expr * expr, const IO & io )
-{
-   switch( expr->type )
-   {
-
-      case Expr::EXPR_ATOM :
-         {
-            Atom atom = expr->atom;
-            switch( atom.type )
-            {
-               case Atom::ATOM_NIL :
-                  {
-                     io.out << "nil";
-                     break;
-                  }
-               case Atom::ATOM_NUMBER :
-                  {
-                     io.out << ( atom.number );
-                     break;
-                  }
-               default :
-                  io.out << "unprintable-atom";
-                  break;
-            }
-            break;
-         }
-      case Expr::EXPR_CONS :
-         {
-            io.err << "unprintable-cons";
-            break;
-         }
-   }
-}
-
 void print_atom( const Atom & atom, const IO & io )
 {
    switch( atom.type )
    {
       case Atom::ATOM_NIL :
          {
-
-            io.out << "nil";
+            io.out << "()";
             break;
          }
       case Atom::ATOM_NUMBER :
@@ -184,34 +152,54 @@ void print_atom( const Atom & atom, const IO & io )
             io.out << "<native-fn>";
             break;
          }
+      default :
+         {
+            io.out << "<unprintable>";
+         }
    }
 }
 
 void print_cons( Cons cons, const IO & io )
 {
-
-   io.out << "(";
+   // io.out << "(";
    print_expr( cons.car, io );
 
-   while( cons.cdr->type == Expr::EXPR_CONS )
+   if( has_type( cons.cdr, Expr::EXPR_ATOM ) && has_type( cons.cdr->atom, Atom::ATOM_NIL ) )
    {
-      cons = cons.cdr->cons;
+      // end of list
+      return;
+   }
+   else if( has_type( cons.cdr, Expr::EXPR_CONS ) )
+   {
       io.out << " ";
+      print_cons( cons.cdr->cons, io );
+   }
+   else
+   {
+      io.out << " . ";
       print_expr( cons.cdr, io );
    }
-
-   io.out << " )";
 }
 
 void print_expr( Expr * expr, const IO & io )
 {
-   if( expr->type == Expr::EXPR_ATOM )
+   switch( expr->type )
    {
-      print_atom( expr->atom, io );
-   }
-   else
-   {
-      print_cons( expr->cons, io );
+      case Expr::EXPR_ATOM :
+         {
+            print_atom( expr->atom, io );
+            break;
+         }
+      case Expr::EXPR_CONS :
+         {
+            io.out << "(";
+            print_cons( expr->cons, io );
+            io.out << ")";
+            break;
+         }
+      default :
+      // do nothging
+         break;
    }
 }
 
@@ -237,6 +225,12 @@ int eval( const std::string & source, Context & context, const IO & io, bool new
    {
       return 2;
    }
+
+#if 0
+   io.out << "-----\n";
+   print_expr( exp, io );
+   io.out << "-----\n";
+#endif
 
    Expr * res = eval( exp, context, io );
    if( !res )

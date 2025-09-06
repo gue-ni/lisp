@@ -14,6 +14,12 @@ typedef Expr * ( *NativeFunction )( void *, Context &, const IO & io, Expr * );
 namespace builtin
 {
 
+Expr * print( void * param, Context & context, const IO & io, Expr * arg );
+
+Expr * define( void * param, Context & context, const IO & io, Expr * arg );
+
+Expr * quote( void * param, Context & context, const IO & io, Expr * arg );
+
 Expr * add( void * param, Context & context, const IO & io, Expr * arg );
 
 Expr * mult( void * param, Context & context, const IO & io, Expr * arg );

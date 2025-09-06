@@ -45,7 +45,7 @@ TEST_F( LispTest, test_eval_nil_01 )
    eval_print( exp, ctx, io );
 
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "nil" );
+   EXPECT_EQ( out.str(), "()" );
 }
 
 TEST_F( LispTest, test_eval_string_01 )
@@ -75,7 +75,7 @@ TEST_F( LispTest, test_eval_non_existing_symbol_01 )
    eval_print( exp, ctx, io );
 
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "nil" );
+   EXPECT_EQ( out.str(), "()" );
 }
 
 TEST_F( LispTest, test_eval_exp_with_native_fn_add_01 )
@@ -151,3 +151,34 @@ TEST_F( LispTest, test_eval_math_02 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "7" );
 }
+
+#if 0
+TEST_F( LispTest, test_quote_01 )
+{
+   std::string source = "(quote (1 2 3))";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "'(1 2 3)" );
+}
+#endif
+
+TEST_F( LispTest, test_define_01 )
+{
+   std::string source = "(define x 42) (print x)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "42" );
+}
+
+#if 0
+TEST_F( LispTest, test_lisp_02 )
+{
+   std::string source = "(cons 1 2)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "" );
+}
+#endif

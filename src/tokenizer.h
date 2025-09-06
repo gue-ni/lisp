@@ -14,6 +14,11 @@ enum TokenType
    QUOTE,
    NUMBER,
    LAMBDA,
+   DEFINE,
+   PRINT,
+   CONS,
+   CAR,
+   CDR,
    SYMBOL,
    STRING,
    KEYWORD,
@@ -68,6 +73,7 @@ class Tokenizer
    bool is_finished() const;
    void handle_number();
    void handle_identifier();
+   void push(const Token&);
 };
 
 Tokens tokenize( const std::string & source );

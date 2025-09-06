@@ -29,9 +29,19 @@ inline Expr * car( Cons * c )
    return c->car;
 }
 
+inline Expr * first( Cons * c )
+{
+   return car( c );
+}
+
 inline Expr * cdr( Cons * c )
 {
    return c->cdr;
+}
+
+inline Expr * rest( Cons * c )
+{
+   return cdr( c );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,6 +82,7 @@ struct Atom
       ATOM_STRING,
       ATOM_LAMBDA, // TODO
       ATOM_NATIVE,
+      ATOM_ERROR, // a runtime error
    };
 
    Type type;
@@ -80,6 +91,7 @@ struct Atom
       double number;
       char * symbol;
       char * string;
+      char * error;
       LambdaFn lambda;
       NativeFn native;
    };
@@ -97,6 +109,7 @@ struct Expr
 
    enum Type
    {
+      EXPR_VOID,
       EXPR_ATOM,
       EXPR_CONS,
    };
@@ -108,6 +121,11 @@ struct Expr
       Atom atom;
       Cons cons;
    };
+
+   Expr()
+       : type( EXPR_VOID )
+   {
+   }
 
    Expr( Atom a )
        : type( EXPR_ATOM )
@@ -122,6 +140,11 @@ struct Expr
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+inline Expr * make_void()
+{
+  return new Expr();
+}
 
 inline Expr * make_nil()
 {
@@ -146,6 +169,14 @@ inline Expr * make_symbol( const char * symbol )
    Atom atom;
    atom.type   = Atom::ATOM_SYMBOL;
    atom.symbol = strdup( symbol );
+   return new Expr( atom );
+}
+
+inline Expr * make_error( const char * error )
+{
+   Atom atom;
+   atom.type  = Atom::ATOM_ERROR;
+   atom.error = strdup( error );
    return new Expr( atom );
 }
 
@@ -181,6 +212,11 @@ inline bool has_type( const Expr * e, Expr::Type t )
 inline bool has_type( const Atom * a, Atom::Type t )
 {
    return a->type == t;
+}
+
+inline bool has_type( const Atom & a, Atom::Type t )
+{
+   return a.type == t;
 }
 
 inline void assert_type( const Expr * e, Expr::Type t )

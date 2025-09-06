@@ -1,11 +1,45 @@
 #include "builtin.h"
 #include "expr.h"
+#include "lisp.h"
 
 namespace lisp
 {
 
 namespace builtin
 {
+Expr * print( void * param, Context & context, const IO & io, Expr * arg )
+{
+   if( !has_type( arg, Expr::EXPR_CONS ) )
+   {
+
+      return make_error( "invalid-type" );
+   }
+   Expr * expr = eval( arg->cons.car, context, io );
+   print_expr( expr, io );
+   return make_void();
+}
+
+Expr * define( void * param, Context & context, const IO & io, Expr * arg )
+{
+   // TODO
+   assert_type( arg, Expr::EXPR_CONS );
+
+   Expr * car = arg->cons.car;
+   assert_type( car, Expr::EXPR_ATOM );
+   assert_type( &car->atom, Atom::ATOM_SYMBOL );
+
+   Expr * cdr = arg->cons.cdr;
+   assert_type( cdr, Expr::EXPR_CONS );
+
+   Expr * expr = eval( cdr->cons.car, context, io );
+   context.set( car->atom.symbol,  expr);
+   return make_void();
+}
+
+Expr * quote( void * param, Context & context, const IO & io, Expr * arg )
+{
+   return arg;
+}
 
 Expr * add( void * param, Context & context, const IO & io, Expr * arg )
 {
@@ -17,7 +51,13 @@ Expr * add( void * param, Context & context, const IO & io, Expr * arg )
    while( ( has_type( current, Expr::EXPR_CONS ) ) && has_type( current->cons.car, Expr::EXPR_ATOM )
           && ( current->cons.car->atom.type == Atom::ATOM_NUMBER ) )
    {
-      result += current->cons.car->atom.number;
+
+      Expr * tmp = eval( current->cons.car, context, io );
+
+      assert_type( tmp, Expr::Type::EXPR_ATOM );
+      assert_type( &tmp->atom, Atom::Type::ATOM_NUMBER );
+
+      result += tmp->atom.number;
       current = current->cons.cdr;
    }
 

@@ -17,7 +17,15 @@ Parser::Parser( const Tokens & tokens )
 
 Expr * Parser::parse()
 {
+  #if 0
+  Expr* program = 
+  Expr* expr = nullptr;
+  while ((expr = parse_expr())) {
+
+  }
+#else
    return parse_expr();
+   #endif
 }
 
 Expr * Parser::parse_expr()
@@ -37,13 +45,47 @@ Expr * Parser::parse_expr()
             advance();
             return make_symbol( tkn.lexeme.c_str() );
          }
+#if 0
+      case TokenType ::QUOTE :
+         {
+            advance();
+            Expr * quote  = make_symbol( "quote" );
+            Expr * quoted = parse_expr();
+            return make_cons( quote, make_cons( quoted, make_nil() ));
+         }
+#endif
+#if 1
+      case TokenType ::DEFINE :
+         {
+            advance();
+            Expr * keyword = make_symbol( "define" );
+            Expr * symbol  = parse_expr();
+            Expr * value   = parse_expr();
+            // TODO: function definition
+            return make_cons( keyword, make_cons( symbol, make_cons( value, make_nil() ) ) );
+         }
+#endif
+      case TokenType ::PRINT :
+         {
+            advance();
+            Expr * keyword = make_symbol( "print" );
+            Expr * value   = parse_expr();
+            return make_cons( keyword, make_cons( value, make_nil() ) );
+         }
       case TokenType ::LPAREN :
          {
             advance();
             return parse_list();
          }
+      case TokenType ::CONS :
+         {
+            advance();
+            Expr * car = parse_expr();
+            Expr * cdr = parse_expr();
+            return make_cons( car, cdr );
+         }
       default :
-         return make_nil();
+         return nullptr;
    }
 }
 
