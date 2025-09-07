@@ -5,6 +5,8 @@
 namespace lisp
 {
 
+std::list<Expr *> GC::heap;
+
 Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 {
    return fn( args, context, io );
@@ -35,7 +37,7 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
    print_debug( std::cout, bdy );
    std::cout << std::endl;
 #endif
-   
+
    Expr * result = eval( bdy, context, io );
    return result;
 }
@@ -110,6 +112,56 @@ bool Expr::is_cons() const
 bool Expr::is_atom() const
 {
    return type == Expr::EXPR_ATOM;
+}
+
+bool Expr::is_symbol( const char * symbol ) const
+{
+   return ( is_atom() ) && ( atom.type == Atom::ATOM_SYMBOL ) && ( strcmp( atom.symbol, symbol ) == 0 );
+}
+
+bool Expr::is_nil() const
+{
+   return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );
+}
+
+void GC::garbage_collection()
+{
+#if 1
+
+   int deleted = 0;
+
+   // sweep
+   for( auto it = GC::heap.begin(); it != GC::heap.end(); )
+   {
+      Expr * expr = *it;
+      if( !expr->marked )
+      {
+         printf( "free Expr(%p)\n", ( void * ) expr );
+         deleted++;
+         delete expr;
+         expr = nullptr;
+         it   = GC::heap.erase( it );
+      }
+      else
+      {
+         expr->marked = false;
+         it++;
+      }
+   }
+
+   std::cout << "Objects: " << GC::heap.size() << ", deleted: " << deleted << std::endl;
+
+#endif
+}
+
+void GC::mark( Expr * expr )
+{
+   expr->marked = true;
+   if( expr->is_cons() )
+   {
+      mark( expr->cons.cdr );
+      mark( expr->cons.car );
+   }
 }
 
 } // namespace lisp

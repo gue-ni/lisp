@@ -19,6 +19,19 @@ Context::Context()
    load_runtime();
 }
 
+Context::~Context()
+{
+#if 0
+   for( auto it = m_env.begin(); it != m_env.end(); it++ )
+   {
+      Expr * expr = it->second;
+      GC::mark( expr );
+   }
+
+   GC::garbage_collection();
+#endif
+}
+
 Expr * Context::lookup( const char * symbol )
 {
    std::string key( symbol );
@@ -107,20 +120,19 @@ Expr * eval_list( Expr * expr, Context & context, const IO & io )
 
 Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
 {
-   if( ( fn->type == Expr::EXPR_ATOM ) && !is_nil( args ) )
+   if( ( fn->is_atom() ) && !args->is_nil() )
    {
-      Atom atom = fn->atom;
-      if( atom.type == Atom::ATOM_NATIVE )
+      if( fn->atom.type == Atom::ATOM_NATIVE )
       {
-         return atom.native( args, context, io );
+         return fn->atom.native( args, context, io );
       }
-      else if( atom.type == Atom::ATOM_LAMBDA )
+      else if( fn->atom.type == Atom::ATOM_LAMBDA )
       {
-         return atom.lambda( args, context, io );
+         return fn->atom.lambda( args, context, io );
       }
       else
       {
-         return make_expr( atom );
+         return fn;
       }
    }
 
@@ -135,22 +147,46 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
    Expr * op   = cons.car;
    Expr * args = cons.cdr;
 
-   if( is_symbol( op, "quote" ) )
+   if( op->is_symbol( "quote" ) )
    {
       return args->cons.car;
    }
-   else if( is_symbol( op, "define" ) )
+   else if( op->is_symbol( "define" ) )
    {
       Expr * var   = args->cons.car;
       Expr * value = eval( args->cons.cdr->cons.car, context, io );
       context.define( var->atom.symbol, value );
       return make_void();
    }
-   else if( is_symbol( op, "lambda" ) )
+   else if( op->is_symbol( "lambda" ) )
    {
       Expr * params = args->cons.car;
       Expr * body   = args->cons.cdr;
       return make_lambda( params, body );
+   }
+   else if( op->is_symbol( "car" ) )
+   {
+      Expr * tmp = eval( args->cons.car, context, io );
+      if( !tmp->is_cons() )
+      {
+         return make_error( "not a cons" );
+      }
+      return tmp->cons.car;
+   }
+   else if( op->is_symbol( "cdr" ) )
+   {
+      Expr * tmp = eval( args->cons.car, context, io );
+      if( !tmp->is_cons() )
+      {
+         return make_error( "not a cons" );
+      }
+      return tmp->cons.cdr;
+   }
+   else if( op->is_symbol( "cons" ) )
+   {
+      Expr * car = eval( args->cons.car, context, io );
+      Expr * cdr = eval( args->cons.cdr->cons.car, context, io );
+      return make_cons( car, cdr );
    }
    else
    {
@@ -223,6 +259,11 @@ void print_atom( const Atom & atom, const IO & io )
             io.out << "<native-fn>";
             break;
          }
+      case Atom ::ATOM_ERROR :
+         {
+            io.out << "ERROR: " << atom.error;
+            break;
+         }
       default :
          {
             io.out << "<unprintable>";
@@ -232,7 +273,6 @@ void print_atom( const Atom & atom, const IO & io )
 
 void print_cons( Cons cons, const IO & io )
 {
-   // io.out << "(";
    print_expr( cons.car, io );
 
    if( has_type( cons.cdr, Expr::EXPR_ATOM ) && has_type( cons.cdr->atom, Atom::ATOM_NIL ) )

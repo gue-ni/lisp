@@ -31,9 +31,7 @@ class LispTest : public ::testing::Test
 TEST_F( LispTest, test_eval_number_01 )
 {
    Expr * exp = make_number( 2.5 );
-
    eval_print( exp, ctx, io );
-
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "2.5" );
 }
@@ -41,9 +39,7 @@ TEST_F( LispTest, test_eval_number_01 )
 TEST_F( LispTest, test_eval_nil_01 )
 {
    Expr * exp = make_nil();
-
    eval_print( exp, ctx, io );
-
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "()" );
 }
@@ -60,42 +56,28 @@ TEST_F( LispTest, test_eval_string_01 )
 
 TEST_F( LispTest, test_eval_symbol_01 )
 {
-   Expr * exp = make_symbol( "+" );
-
-   eval_print( exp, ctx, io );
-
+   eval( "+", ctx, io );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "<native-fn>" );
 }
 
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
 {
-   Expr * exp = make_symbol( "does-not-exist" );
-
-   eval_print( exp, ctx, io );
-
+   eval( "does-not-exist", ctx, io );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "()" );
 }
 
 TEST_F( LispTest, test_eval_exp_with_native_fn_add_01 )
 {
-   Expr * exp
-       = make_cons( make_symbol( "+" ), make_cons( make_number( 2 ), make_cons( make_number( 3 ), make_nil() ) ) );
-
-   eval_print( exp, ctx, io );
-
+   eval( "(+ 2 3)", ctx, io );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "5" );
 }
 
 TEST_F( LispTest, test_eval_exp_with_native_fn_mult_01 )
 {
-   Expr * exp
-       = make_cons( make_symbol( "*" ), make_cons( make_number( 2 ), make_cons( make_number( 3 ), make_nil() ) ) );
-
-   eval_print( exp, ctx, io );
-
+   eval( "(* 2 3)", ctx, io );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "6" );
 }
@@ -111,8 +93,7 @@ TEST_F( LispTest, test_eval_num_01 )
 
 TEST_F( LispTest, test_eval_math_01 )
 {
-   std::string source = "(+ 1 2 3)";
-   int r              = eval( source, ctx, io );
+   int r              = eval( "(+ 1 2 3)", ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "6" );
@@ -188,4 +169,40 @@ TEST_F( LispTest, test_lambda_04 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "5" );
+}
+
+TEST_F( LispTest, test_cons_01 )
+{
+   std::string src = "(cons 1 2)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 . 2)" );
+}
+
+TEST_F( LispTest, test_cons_02 )
+{
+   std::string src = "(cons 1 (cons 2 (cons 3 '())))";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3)" );
+}
+
+TEST_F( LispTest, test_car_01 )
+{
+   std::string src = "(car (cons 1 2))";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "1" );
+}
+
+TEST_F( LispTest, test_cdr_01 )
+{
+   std::string src = "(cdr (cons 1 2))";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "2" );
 }

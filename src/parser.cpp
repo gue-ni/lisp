@@ -94,14 +94,31 @@ Expr * Parser::parse_expr()
       case TokenType ::CONS :
          {
             advance();
-            Expr * car = parse_expr();
-            Expr * cdr = parse_expr();
-            return make_cons( car, cdr );
+            Expr * keyword = make_symbol( "cons" );
+            Expr * car     = parse_expr();
+            Expr * cdr     = parse_expr();
+            return make_cons( keyword, make_cons( car, make_cons( cdr, make_nil() ) ) );
          }
+      case TokenType ::CAR :
+         {
+            advance();
+            Expr * keyword = make_symbol( "car" );
+            Expr * cons    = parse_expr();
+            return make_cons( keyword, make_cons( cons, make_nil() ) );
+         }
+
+      case TokenType ::CDR :
+         {
+            advance();
+            Expr * keyword = make_symbol( "cdr" );
+            Expr * cons    = parse_expr();
+            return make_cons( keyword, make_cons( cons, make_nil() ) );
+         }
+
       case TokenType ::LAMBDA :
          {
-           advance();
-           return parse_lambda();
+            advance();
+            return parse_lambda();
          }
       default :
          return nullptr;
@@ -131,19 +148,21 @@ Expr * Parser::parse_list()
 Expr * Parser::parse_lambda()
 {
 
+   Expr * keyword = make_symbol( "lambda" );
+   Expr * params;
 
-  Expr * keyword = make_symbol( "lambda" );
-  Expr* params;
+   if( match( TokenType::LPAREN ) )
+   {
+      params = parse_list();
+   }
+   else
+   {
+      assert( false );
+   }
 
-  if (match(TokenType::LPAREN)) {
-    params = parse_list();
-  } else {
-    assert(false);
-  }
+   Expr * body = parse_expr();
 
-  Expr* body = parse_expr();
-
-   return make_cons(keyword, make_cons(params, make_cons(body, make_nil())));
+   return make_cons( keyword, make_cons( params, make_cons( body, make_nil() ) ) );
 }
 
 void Parser::advance()

@@ -23,24 +23,11 @@ constexpr Flags FLAG_DUMP_ENV    = 1 << 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC
-{
- public:
-   Expr * alloc();
-
-   void mark();
-   void sweep();
-
- private:
-   std::vector<Expr *> m_heap;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 class Context
 {
  public:
    Context();
+   ~Context();
    Expr * lookup( const char * symbol );
    void define( const char * symbol, Expr * expr );
    void print( const IO & io );
@@ -49,8 +36,6 @@ class Context
    std::map<std::string, Expr *> m_env;
    void load_runtime();
 };
-
-///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -63,5 +48,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 int repl();
 
 void print_expr( Expr * expr, const IO & io );
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // namespace lisp

@@ -3,6 +3,8 @@
 #include "builtin.h"
 #include <cassert>
 #include <cstring>
+#include <vector>
+#include <list>
 
 #ifdef __unix__
 #define STRDUP strdup
@@ -19,13 +21,29 @@ struct Expr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class GC
+{
+ public:
+   static void garbage_collection();
+   static std::list<Expr *> heap;
+   static void mark(Expr* expr);
+
+ private:
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 struct Cons
 {
    Expr * car; // data
    Expr * cdr; // next
-   Cons( Expr * a, Expr * b )
-       : car( a )
-       , cdr( b )
+   Cons( Expr * _car, Expr * _cdr )
+       : car( _car )
+       , cdr( _cdr )
+   {
+   }
+
+   ~Cons()
    {
    }
 };
@@ -49,17 +67,6 @@ inline Expr * rest( Cons * c )
 {
    return cdr( c );
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct Symbol
-{
-   char * lexeme;
-   Symbol( const char * str )
-   {
-      lexeme = STRDUP( str );
-   }
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -113,13 +120,73 @@ struct Atom
        : type( ATOM_NIL )
    {
    }
+
+   ~Atom()
+   {
+      switch( type )
+      {
+         case lisp::Atom::ATOM_NIL :
+         case lisp::Atom::ATOM_NUMBER :
+         case lisp::Atom::ATOM_LAMBDA :
+         case lisp::Atom::ATOM_NATIVE :
+            break;
+         case lisp::Atom::ATOM_SYMBOL :
+            if( symbol )
+            {
+               free( symbol );
+            }
+            break;
+         case lisp::Atom::ATOM_STRING :
+            if( string )
+            {
+               free( string );
+            }
+            break;
+         case lisp::Atom::ATOM_ERROR :
+            if( error )
+            {
+               free( error );
+            }
+            break;
+      }
+   }
+
+   Atom( Atom && other ) noexcept
+       : type( other.type )
+   {
+      switch( type )
+      {
+         case lisp::Atom::ATOM_NIL :
+            break;
+         case lisp::Atom::ATOM_NUMBER :
+            number = other.number;
+            break;
+         case lisp::Atom::ATOM_SYMBOL :
+            symbol       = other.symbol;
+            other.symbol = nullptr;
+            break;
+         case lisp::Atom::ATOM_STRING :
+            string       = other.string;
+            other.string = nullptr;
+            break;
+         case lisp::Atom::ATOM_LAMBDA :
+            lambda = other.lambda;
+            break;
+         case lisp::Atom::ATOM_NATIVE :
+            native = other.native;
+            break;
+         case lisp::Atom::ATOM_ERROR :
+            error       = other.error;
+            other.error = nullptr;
+            break;
+      }
+   }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Expr
 {
-
    enum Type
    {
       EXPR_VOID,
@@ -128,54 +195,94 @@ struct Expr
    };
 
    Type type;
-
    union
    {
       Atom atom;
       Cons cons;
    };
+   bool marked;
+
+   ~Expr()
+   {
+      switch( type )
+      {
+         case EXPR_ATOM :
+            atom.~Atom();
+            break;
+         case EXPR_CONS :
+            // cons.~Cons();
+            break;
+         default :
+            break;
+      }
+   }
 
    Expr()
-       : type( EXPR_VOID )
+       : type( EXPR_VOID ), marked(false)
    {
    }
 
-   Expr( Atom a )
+   Expr( Atom && a )
        : type( EXPR_ATOM )
-       , atom( a )
+       , atom( std::move( a ) )
+       , marked(false)
    {
    }
+
    Expr( Cons c )
        : type( EXPR_CONS )
        , cons( c )
+       , marked(false)
    {
    }
 
    bool is_void() const;
    bool is_cons() const;
    bool is_atom() const;
+
+bool is_nil(   ) const;
+bool is_symbol(  const char * symbol ) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
 // TODO: add garbage collection
 inline Expr * make_void()
 {
-   return new Expr();
+   Expr * expr = new Expr();
+   GC::heap.push_back( expr );
+   //printf("alloc Expr(%p)\n", (void*) expr);
+   return expr;
 }
 
-inline Expr * make_expr( Atom atom )
+inline Expr * make_expr( Atom && atom )
 {
-   return new Expr( atom );
+   Expr * expr = new Expr( std::move( atom ) );
+   GC::heap.push_back( expr );
+   //printf("alloc Expr(%p)\n", (void*) expr);
+   return expr;
+}
+
+inline Expr * make_expr( Cons cons )
+{
+   Expr * expr = new Expr( cons );
+   GC::heap.push_back( expr );
+   //printf("alloc Expr(%p)\n", (void*) expr);
+   return expr;
 }
 
 inline Expr * make_nil()
 {
-   return new Expr( Atom() );
+   Expr * expr = new Expr( Atom() );
+   GC::heap.push_back( expr );
+   //printf("alloc Expr(%p)\n", (void*) expr);
+   return expr;
 }
 
 inline Expr * make_cons( Expr * a, Expr * b )
 {
-   return new Expr( Cons( a, b ) );
+   Cons cons( a, b );
+   return make_expr( cons );
 }
 
 inline Expr * make_number( double number )
@@ -183,15 +290,16 @@ inline Expr * make_number( double number )
    Atom atom;
    atom.type   = Atom::ATOM_NUMBER;
    atom.number = number;
-   return new Expr( atom );
+   return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_symbol( const char * symbol )
 {
+   // TODO: use move constructor
    Atom atom;
    atom.type   = Atom::ATOM_SYMBOL;
    atom.symbol = STRDUP( symbol );
-   return new Expr( atom );
+   return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_error( const char * error )
@@ -199,7 +307,7 @@ inline Expr * make_error( const char * error )
    Atom atom;
    atom.type  = Atom::ATOM_ERROR;
    atom.error = STRDUP( error );
-   return new Expr( atom );
+   return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_string( const char * string )
@@ -207,7 +315,7 @@ inline Expr * make_string( const char * string )
    Atom atom;
    atom.type   = Atom::ATOM_STRING;
    atom.string = STRDUP( string );
-   return new Expr( atom );
+   return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_native( NativeFunction fn )
@@ -215,7 +323,7 @@ inline Expr * make_native( NativeFunction fn )
    Atom atom;
    atom.type   = Atom::ATOM_NATIVE;
    atom.native = NativeFn{ fn };
-   return new Expr( atom );
+   return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_lambda( Expr * params, Expr * body )
@@ -223,7 +331,7 @@ inline Expr * make_lambda( Expr * params, Expr * body )
    Atom atom;
    atom.type   = Atom::ATOM_LAMBDA;
    atom.lambda = LambdaFn( params, body );
-   return new Expr( atom );
+   return make_expr( std::move( atom ) );
 }
 
 inline bool has_type( const Expr * e, Expr::Type t )
@@ -251,16 +359,7 @@ inline void assert_type( const Atom * a, Atom::Type t )
    assert( has_type( a, t ) );
 }
 
-inline bool is_symbol( Expr * expr, const char * symbol )
-{
-   return ( expr->type == Expr::EXPR_ATOM ) && ( expr->atom.type == Atom::ATOM_SYMBOL )
-          && ( strcmp( expr->atom.symbol, symbol ) == 0 );
-}
 
-inline bool is_nil( Expr * expr )
-{
-   return ( expr->type == Expr::EXPR_ATOM ) && ( expr->atom.type == Atom::ATOM_NIL );
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
