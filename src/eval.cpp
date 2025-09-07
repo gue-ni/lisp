@@ -87,12 +87,13 @@ void Context::load_runtime()
 
 Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 {
-   assert( expr->type == Expr::EXPR_ATOM );
+   assert( expr->is_atom() );
    switch( expr->atom.type )
    {
       case Atom::ATOM_NIL :
       case Atom::ATOM_NUMBER :
       case Atom::ATOM_STRING :
+      case Atom::ATOM_ERROR :
          return expr;
       case Atom::ATOM_SYMBOL :
          return context.lookup( expr->atom.symbol );
@@ -163,7 +164,7 @@ Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
 
 Expr * eval_cons( Expr * expr, Context & context, const IO & io )
 {
-   assert( expr->type == Expr::EXPR_CONS );
+   assert( expr->is_cons() );
 
    Cons cons   = expr->cons;
    Expr * op   = cons.car;
@@ -188,21 +189,21 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
    }
    else if( op->is_symbol( "car" ) )
    {
-      Expr * tmp = eval( args->cons.car, context, io );
-      if( !tmp->is_cons() )
+      Expr * value = eval( args->cons.car, context, io );
+      if( !value->is_cons() )
       {
          return make_error( "not a cons" );
       }
-      return tmp->cons.car;
+      return value->cons.car;
    }
    else if( op->is_symbol( "cdr" ) )
    {
-      Expr * tmp = eval( args->cons.car, context, io );
-      if( !tmp->is_cons() )
+      Expr * value = eval( args->cons.car, context, io );
+      if( !value->is_cons() )
       {
          return make_error( "not a cons" );
       }
-      return tmp->cons.cdr;
+      return value->cons.cdr;
    }
    else if( op->is_symbol( "cons" ) )
    {
