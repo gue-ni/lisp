@@ -79,74 +79,13 @@ struct Atom
       NativeFn native;
    };
 
-   Atom()
-       : type( ATOM_NIL )
-   {
-   }
+   Atom();
 
-   ~Atom()
-   {
-      switch( type )
-      {
-         case lisp::Atom::ATOM_NIL :
-         case lisp::Atom::ATOM_NUMBER :
-         case lisp::Atom::ATOM_LAMBDA :
-         case lisp::Atom::ATOM_NATIVE :
-            break;
-         case lisp::Atom::ATOM_SYMBOL :
-            if( symbol )
-            {
-               free( symbol );
-            }
-            break;
-         case lisp::Atom::ATOM_STRING :
-            if( string )
-            {
-               free( string );
-            }
-            break;
-         case lisp::Atom::ATOM_ERROR :
-            if( error )
-            {
-               free( error );
-            }
-            break;
-      }
-   }
+   Atom( Atom && other ) noexcept;
 
-   Atom( Atom && other ) noexcept
-       : type( other.type )
-   {
-      switch( type )
-      {
-         case lisp::Atom::ATOM_NIL :
-            break;
-         case lisp::Atom::ATOM_NUMBER :
-            number = other.number;
-            break;
-         case lisp::Atom::ATOM_SYMBOL :
-            symbol       = other.symbol;
-            other.symbol = nullptr;
-            break;
-         case lisp::Atom::ATOM_STRING :
-            string       = other.string;
-            other.string = nullptr;
-            break;
-         case lisp::Atom::ATOM_LAMBDA :
-            lambda = other.lambda;
-            break;
-         case lisp::Atom::ATOM_NATIVE :
-            native = other.native;
-            break;
-         case lisp::Atom::ATOM_ERROR :
-            error       = other.error;
-            other.error = nullptr;
-            break;
-      }
-   }
+   ~Atom();
 
    void print( const IO & io ) const;
-   void print_debug( std::ostream & os ) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -155,15 +94,10 @@ struct Cons
 {
    Expr * car; // data
    Expr * cdr; // next
-   Cons( Expr * _car, Expr * _cdr )
-       : car( _car )
-       , cdr( _cdr )
-   {
-   }
 
-   ~Cons()
-   {
-   }
+   Cons( Expr * _car, Expr * _cdr );
+
+   ~Cons();
 
    void print( const IO & io ) const;
 };
@@ -207,40 +141,10 @@ struct Expr
    };
    bool marked;
 
-   ~Expr()
-   {
-      switch( type )
-      {
-         case EXPR_ATOM :
-            atom.~Atom();
-            break;
-         case EXPR_CONS :
-            // cons.~Cons();
-            break;
-         default :
-            break;
-      }
-   }
-
-   Expr()
-       : type( EXPR_VOID )
-       , marked( false )
-   {
-   }
-
-   Expr( Atom && a )
-       : type( EXPR_ATOM )
-       , atom( std::move( a ) )
-       , marked( false )
-   {
-   }
-
-   Expr( Cons c )
-       : type( EXPR_CONS )
-       , cons( c )
-       , marked( false )
-   {
-   }
+   ~Expr();
+   Expr();
+   Expr( Atom && a );
+   Expr( Cons c );
 
    void print( const IO & io ) const;
    void print_debug( std::ostream & os ) const;
@@ -304,7 +208,6 @@ inline Expr * make_number( double number )
 
 inline Expr * make_symbol( const char * symbol )
 {
-   // TODO: use move constructor
    Atom atom;
    atom.type   = Atom::ATOM_SYMBOL;
    atom.symbol = STRDUP( symbol );

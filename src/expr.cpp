@@ -41,7 +41,40 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
    return result;
 }
 
+Expr::~Expr()
+{
+   switch( type )
+   {
+      case EXPR_ATOM :
+         atom.~Atom();
+         break;
+      case EXPR_CONS :
+         // cons.~Cons();
+         break;
+      default :
+         break;
+   }
+}
 
+Expr::Expr()
+    : type( EXPR_VOID )
+    , marked( false )
+{
+}
+
+Expr::Expr( Atom && a )
+    : type( EXPR_ATOM )
+    , atom( std::move( a ) )
+    , marked( false )
+{
+}
+
+Expr::Expr( Cons c )
+    : type( EXPR_CONS )
+    , cons( c )
+    , marked( false )
+{
+}
 
 void Expr::print( const IO & io ) const
 {
@@ -65,7 +98,7 @@ void Expr::print( const IO & io ) const
    }
 }
 
-void Expr::print_debug( std::ostream& os ) const
+void Expr::print_debug( std::ostream & os ) const
 {
    switch( type )
    {
@@ -75,7 +108,7 @@ void Expr::print_debug( std::ostream& os ) const
             {
                case Atom ::ATOM_NIL :
                   {
-                    os  << "Nil";
+                     os << "Nil";
                      break;
                   }
                case Atom ::ATOM_NUMBER :
@@ -107,9 +140,9 @@ void Expr::print_debug( std::ostream& os ) const
       case Expr ::EXPR_CONS :
          {
             os << "Cons(";
-            cons.car->print_debug(os);
+            cons.car->print_debug( os );
             os << ", ";
-            cons.cdr->print_debug(os);
+            cons.cdr->print_debug( os );
             os << ")";
             break;
          }
@@ -119,7 +152,6 @@ void Expr::print_debug( std::ostream& os ) const
             break;
          }
    }
-
 }
 
 bool Expr::is_void() const
@@ -187,9 +219,74 @@ void GC::mark( Expr * expr )
    }
 }
 
+Atom::Atom()
+    : type( ATOM_NIL )
+{
+}
+
+Atom::~Atom()
+{
+   switch( type )
+   {
+      case lisp::Atom::ATOM_NIL :
+      case lisp::Atom::ATOM_NUMBER :
+      case lisp::Atom::ATOM_LAMBDA :
+      case lisp::Atom::ATOM_NATIVE :
+         break;
+      case lisp::Atom::ATOM_SYMBOL :
+         if( symbol )
+         {
+            free( symbol );
+         }
+         break;
+      case lisp::Atom::ATOM_STRING :
+         if( string )
+         {
+            free( string );
+         }
+         break;
+      case lisp::Atom::ATOM_ERROR :
+         if( error )
+         {
+            free( error );
+         }
+         break;
+   }
+}
+
+Atom::Atom( Atom && other ) noexcept
+    : type( other.type )
+{
+   switch( type )
+   {
+      case lisp::Atom::ATOM_NIL :
+         break;
+      case lisp::Atom::ATOM_NUMBER :
+         number = other.number;
+         break;
+      case lisp::Atom::ATOM_SYMBOL :
+         symbol       = other.symbol;
+         other.symbol = nullptr;
+         break;
+      case lisp::Atom::ATOM_STRING :
+         string       = other.string;
+         other.string = nullptr;
+         break;
+      case lisp::Atom::ATOM_LAMBDA :
+         lambda = other.lambda;
+         break;
+      case lisp::Atom::ATOM_NATIVE :
+         native = other.native;
+         break;
+      case lisp::Atom::ATOM_ERROR :
+         error       = other.error;
+         other.error = nullptr;
+         break;
+   }
+}
+
 void Atom::print( const IO & io ) const
 {
-
    switch( type )
    {
       case Atom::ATOM_NIL :
@@ -232,6 +329,16 @@ void Atom::print( const IO & io ) const
             io.out << "<unprintable>";
          }
    }
+}
+
+Cons::Cons( Expr * _car, Expr * _cdr )
+    : car( _car )
+    , cdr( _cdr )
+{
+}
+
+Cons::~Cons()
+{
 }
 
 void Cons::print( const IO & io ) const
