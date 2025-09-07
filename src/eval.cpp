@@ -14,10 +14,14 @@
 namespace lisp
 {
 
+///////////////////////////////////////////////////////////////////////////////
+
 Context::Context()
 {
    load_runtime();
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Context::~Context()
 {
@@ -31,6 +35,8 @@ Context::~Context()
    GC::garbage_collection();
 #endif
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * Context::lookup( const char * symbol )
 {
@@ -46,21 +52,27 @@ Expr * Context::lookup( const char * symbol )
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 void Context::define( const char * symbol, Expr * expr )
 {
    std::string key( symbol );
    m_env[key] = expr;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 void Context::print( const IO & io )
 {
    for( auto it = m_env.begin(); it != m_env.end(); it++ )
    {
       io.out << it->first << " : ";
-      print_expr( it->second, io );
+      it->second->print( io );
       io.out << std::endl;
    }
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 void Context::load_runtime()
 {
@@ -70,6 +82,8 @@ void Context::load_runtime()
    define( "/", make_native( builtin::div ) );
    define( "print", make_native( builtin::print ) );
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 {
@@ -89,6 +103,8 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * eval_program( Expr * program, Context & context, const IO & io )
 {
    Expr * result = make_nil();
@@ -100,6 +116,8 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    }
    return result;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * eval_list( Expr * expr, Context & context, const IO & io )
 {
@@ -117,6 +135,8 @@ Expr * eval_list( Expr * expr, Context & context, const IO & io )
    Expr * rest  = eval_list( expr->cons.cdr, context, io );
    return make_cons( first, rest );
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
 {
@@ -138,6 +158,8 @@ Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
 
    return fn;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * eval_cons( Expr * expr, Context & context, const IO & io )
 {
@@ -214,105 +236,7 @@ Expr * eval( Expr * expr, Context & context, const IO & io )
    }
 }
 
-int eval_print( Expr * expr, Context & context, const IO & io, bool newline )
-{
-   Expr * res = eval( expr, context, io );
-   print_expr( res, io );
-   if( newline )
-   {
-      io.out << std::endl;
-   }
-   return 0;
-}
-
-void print_atom( const Atom & atom, const IO & io )
-{
-   switch( atom.type )
-   {
-      case Atom::ATOM_NIL :
-         {
-            io.out << "()";
-            break;
-         }
-      case Atom::ATOM_NUMBER :
-         {
-            io.out << atom.number;
-            break;
-         }
-      case Atom::ATOM_SYMBOL :
-         {
-            io.out << atom.symbol;
-            break;
-         }
-      case Atom::ATOM_STRING :
-         {
-            io.out << "\"" << atom.string << "\"";
-            break;
-         }
-      case Atom::ATOM_LAMBDA :
-         {
-            io.out << "<lambda>";
-            break;
-         }
-      case Atom::ATOM_NATIVE :
-         {
-            io.out << "<native-fn>";
-            break;
-         }
-      case Atom ::ATOM_ERROR :
-         {
-            io.out << "ERROR: " << atom.error;
-            break;
-         }
-      default :
-         {
-            io.out << "<unprintable>";
-         }
-   }
-}
-
-void print_cons( Cons cons, const IO & io )
-{
-   print_expr( cons.car, io );
-
-   if( has_type( cons.cdr, Expr::EXPR_ATOM ) && has_type( cons.cdr->atom, Atom::ATOM_NIL ) )
-   {
-      // end of list
-      return;
-   }
-   else if( has_type( cons.cdr, Expr::EXPR_CONS ) )
-   {
-      io.out << " ";
-      print_cons( cons.cdr->cons, io );
-   }
-   else
-   {
-      io.out << " . ";
-      print_expr( cons.cdr, io );
-   }
-}
-
-void print_expr( Expr * expr, const IO & io )
-{
-   switch( expr->type )
-   {
-      case Expr::EXPR_ATOM :
-         {
-            print_atom( expr->atom, io );
-            break;
-         }
-      case Expr::EXPR_CONS :
-         {
-            io.out << "(";
-            print_cons( expr->cons, io );
-            io.out << ")";
-            break;
-         }
-      default :
-         // do nothing
-         break;
-   }
-}
+///////////////////////////////////////////////////////////////////////////////
 
 void print_debug( std::ostream & os, const Tokens & tokens )
 {
@@ -323,6 +247,8 @@ void print_debug( std::ostream & os, const Tokens & tokens )
    }
    os << std::endl;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 int eval( const std::string & source, Context & context, const IO & io, Flags flags )
 {
@@ -348,7 +274,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    if( flags & FLAG_DUMP_AST )
    {
       io.out << "---begin-program---" << std::endl;
-      print_debug( io.out, program );
+      program->print_debug( io.out );
       io.out << std::endl;
       io.out << "----end-program----" << std::endl;
    }
@@ -366,7 +292,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << "----env-env----" << std::endl;
    }
 
-   print_expr( res, io );
+   res->print( io );
    if( !res->is_void() && ( flags & FLAG_NEWLINE ) )
    {
       io.out << std::endl;
@@ -375,8 +301,12 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    return 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 const std::string DBG_CMD  = "dbg";
 const std::string LOAD_CMD = "load-file ";
+
+///////////////////////////////////////////////////////////////////////////////
 
 int repl()
 {

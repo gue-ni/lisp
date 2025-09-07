@@ -69,6 +69,13 @@ TEST_F( LispTest, test_eval_non_existing_symbol_01 )
    EXPECT_EQ( out.str(), "()" );
 }
 
+TEST_F( LispTest, test_nil_01 )
+{
+   eval( "'()", ctx, io );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "()" );
+}
+
 TEST_F( LispTest, test_eval_exp_with_native_fn_add_01 )
 {
    eval( "(+ 2 3)", ctx, io );
@@ -206,4 +213,14 @@ TEST_F( LispTest, test_cdr_01 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "2" );
+}
+
+TEST_F( LispTest, test_program_01 )
+{
+   std::string src
+       = "(define pi 3.14159265359) (define circle-area (lambda (r) (* pi (* r r)))) (print (circle-area 5))";
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "78.5398" );
 }

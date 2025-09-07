@@ -3,8 +3,8 @@
 #include "builtin.h"
 #include <cassert>
 #include <cstring>
-#include <vector>
 #include <list>
+#include <vector>
 
 #ifdef __unix__
 #define STRDUP strdup
@@ -26,47 +26,10 @@ class GC
  public:
    static void garbage_collection();
    static std::list<Expr *> heap;
-   static void mark(Expr* expr);
+   static void mark( Expr * expr );
 
  private:
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct Cons
-{
-   Expr * car; // data
-   Expr * cdr; // next
-   Cons( Expr * _car, Expr * _cdr )
-       : car( _car )
-       , cdr( _cdr )
-   {
-   }
-
-   ~Cons()
-   {
-   }
-};
-
-inline Expr * car( Cons * c )
-{
-   return c->car;
-}
-
-inline Expr * first( Cons * c )
-{
-   return car( c );
-}
-
-inline Expr * cdr( Cons * c )
-{
-   return c->cdr;
-}
-
-inline Expr * rest( Cons * c )
-{
-   return cdr( c );
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -181,7 +144,49 @@ struct Atom
             break;
       }
    }
+
+   void print( const IO & io ) const;
+   void print_debug( std::ostream & os ) const;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct Cons
+{
+   Expr * car; // data
+   Expr * cdr; // next
+   Cons( Expr * _car, Expr * _cdr )
+       : car( _car )
+       , cdr( _cdr )
+   {
+   }
+
+   ~Cons()
+   {
+   }
+
+   void print( const IO & io ) const;
+};
+
+inline Expr * car( Cons * c )
+{
+   return c->car;
+}
+
+inline Expr * first( Cons * c )
+{
+   return car( c );
+}
+
+inline Expr * cdr( Cons * c )
+{
+   return c->cdr;
+}
+
+inline Expr * rest( Cons * c )
+{
+   return cdr( c );
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -218,30 +223,34 @@ struct Expr
    }
 
    Expr()
-       : type( EXPR_VOID ), marked(false)
+       : type( EXPR_VOID )
+       , marked( false )
    {
    }
 
    Expr( Atom && a )
        : type( EXPR_ATOM )
        , atom( std::move( a ) )
-       , marked(false)
+       , marked( false )
    {
    }
 
    Expr( Cons c )
        : type( EXPR_CONS )
        , cons( c )
-       , marked(false)
+       , marked( false )
    {
    }
+
+   void print( const IO & io ) const;
+   void print_debug( std::ostream & os ) const;
 
    bool is_void() const;
    bool is_cons() const;
    bool is_atom() const;
 
-bool is_nil(   ) const;
-bool is_symbol(  const char * symbol ) const;
+   bool is_nil() const;
+   bool is_symbol( const char * symbol ) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -251,7 +260,7 @@ inline Expr * make_void()
 {
    Expr * expr = new Expr();
    GC::heap.push_back( expr );
-   //printf("alloc Expr(%p)\n", (void*) expr);
+   // printf("alloc Expr(%p)\n", (void*) expr);
    return expr;
 }
 
@@ -259,7 +268,7 @@ inline Expr * make_expr( Atom && atom )
 {
    Expr * expr = new Expr( std::move( atom ) );
    GC::heap.push_back( expr );
-   //printf("alloc Expr(%p)\n", (void*) expr);
+   // printf("alloc Expr(%p)\n", (void*) expr);
    return expr;
 }
 
@@ -267,7 +276,7 @@ inline Expr * make_expr( Cons cons )
 {
    Expr * expr = new Expr( cons );
    GC::heap.push_back( expr );
-   //printf("alloc Expr(%p)\n", (void*) expr);
+   // printf("alloc Expr(%p)\n", (void*) expr);
    return expr;
 }
 
@@ -275,7 +284,7 @@ inline Expr * make_nil()
 {
    Expr * expr = new Expr( Atom() );
    GC::heap.push_back( expr );
-   //printf("alloc Expr(%p)\n", (void*) expr);
+   // printf("alloc Expr(%p)\n", (void*) expr);
    return expr;
 }
 
@@ -359,8 +368,6 @@ inline void assert_type( const Atom * a, Atom::Type t )
    assert( has_type( a, t ) );
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 inline Expr * car( Expr * e )
@@ -376,7 +383,5 @@ inline Expr * cdr( Expr * e )
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void print_debug( std::ostream & os, const Expr * expr );
 
 } // namespace lisp

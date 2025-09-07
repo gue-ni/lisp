@@ -45,8 +45,6 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 
 int repl();
 
-void print_expr( Expr * expr, const IO & io );
-
 ///////////////////////////////////////////////////////////////////////////////
 
 } // namespace lisp

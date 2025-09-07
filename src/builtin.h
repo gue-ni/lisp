@@ -5,11 +5,16 @@
 namespace lisp
 {
 
-struct Expr;
+///////////////////////////////////////////////////////////////////////////////
 
+struct Expr;
 class Context;
 
+///////////////////////////////////////////////////////////////////////////////
+
 typedef Expr * ( *NativeFunction )( Expr *, Context &, const IO & io );
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace builtin
 {
@@ -24,6 +29,12 @@ Expr * mult( Expr * arg, Context & context, const IO & io );
 
 Expr * div( Expr * arg, Context & context, const IO & io );
 
+Expr * map( Expr * arg, Context & context, const IO & io );
+
+Expr * eval_expr( Expr * arg, Context & context, const IO & io );
+
 } // namespace builtin
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // namespace lisp

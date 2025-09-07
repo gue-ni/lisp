@@ -41,18 +41,41 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
    return result;
 }
 
-void print_debug( std::ostream & os, const Expr * expr )
+
+
+void Expr::print( const IO & io ) const
 {
-   switch( expr->type )
+   switch( type )
+   {
+      case Expr::EXPR_ATOM :
+         {
+            atom.print( io );
+            break;
+         }
+      case Expr::EXPR_CONS :
+         {
+            io.out << "(";
+            cons.print( io );
+            io.out << ")";
+            break;
+         }
+      default :
+         // do nothing
+         break;
+   }
+}
+
+void Expr::print_debug( std::ostream& os ) const
+{
+   switch( type )
    {
       case Expr ::EXPR_ATOM :
          {
-            const Atom & atom = expr->atom;
             switch( atom.type )
             {
                case Atom ::ATOM_NIL :
                   {
-                     os << "Nil";
+                    os  << "Nil";
                      break;
                   }
                case Atom ::ATOM_NUMBER :
@@ -84,9 +107,9 @@ void print_debug( std::ostream & os, const Expr * expr )
       case Expr ::EXPR_CONS :
          {
             os << "Cons(";
-            print_debug( os, expr->cons.car );
+            cons.car->print_debug(os);
             os << ", ";
-            print_debug( os, expr->cons.cdr );
+            cons.cdr->print_debug(os);
             os << ")";
             break;
          }
@@ -96,6 +119,7 @@ void print_debug( std::ostream & os, const Expr * expr )
             break;
          }
    }
+
 }
 
 bool Expr::is_void() const
@@ -160,6 +184,74 @@ void GC::mark( Expr * expr )
    {
       mark( expr->cons.cdr );
       mark( expr->cons.car );
+   }
+}
+
+void Atom::print( const IO & io ) const
+{
+
+   switch( type )
+   {
+      case Atom::ATOM_NIL :
+         {
+            io.out << "()";
+            break;
+         }
+      case Atom::ATOM_NUMBER :
+         {
+            io.out << number;
+            break;
+         }
+      case Atom::ATOM_SYMBOL :
+         {
+            io.out << symbol;
+            break;
+         }
+      case Atom::ATOM_STRING :
+         {
+            io.out << "\"" << string << "\"";
+            break;
+         }
+      case Atom::ATOM_LAMBDA :
+         {
+            io.out << "<lambda>";
+            break;
+         }
+      case Atom::ATOM_NATIVE :
+         {
+            io.out << "<native-fn>";
+            break;
+         }
+      case Atom ::ATOM_ERROR :
+         {
+            io.out << "ERROR: " << error;
+            break;
+         }
+      default :
+         {
+            io.out << "<unprintable>";
+         }
+   }
+}
+
+void Cons::print( const IO & io ) const
+{
+   car->print( io );
+
+   if( cdr->is_nil() )
+   {
+      // end of list
+      return;
+   }
+   else if( cdr->is_cons() )
+   {
+      io.out << " ";
+      cdr->cons.print( io );
+   }
+   else
+   {
+      io.out << " . ";
+      cdr->print( io );
    }
 }
 

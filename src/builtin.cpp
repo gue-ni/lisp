@@ -1,12 +1,15 @@
 #include "builtin.h"
+#include "eval.h"
 #include "expr.h"
-#include "lisp.h"
 
 namespace lisp
 {
 
 namespace builtin
 {
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * print( Expr * arg, Context & context, const IO & io )
 {
    if( !has_type( arg, Expr::EXPR_CONS ) )
@@ -15,9 +18,11 @@ Expr * print( Expr * arg, Context & context, const IO & io )
       return make_error( "invalid-type" );
    }
    Expr * expr = eval( arg->cons.car, context, io );
-   print_expr( expr, io );
+   expr->print(io);
    return make_void();
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * plus( Expr * arg, Context & context, const IO & io )
 {
@@ -36,6 +41,8 @@ Expr * plus( Expr * arg, Context & context, const IO & io )
    return make_number( result );
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * minus( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
@@ -52,6 +59,8 @@ Expr * minus( Expr * arg, Context & context, const IO & io )
 
    return make_number( result );
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * mult( Expr * arg, Context & context, const IO & io )
 {
@@ -70,6 +79,8 @@ Expr * mult( Expr * arg, Context & context, const IO & io )
    return make_number( result );
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * div( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
@@ -85,6 +96,13 @@ Expr * div( Expr * arg, Context & context, const IO & io )
    }
 
    return make_number( result );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * eval_expr( Expr * arg, Context & context, const IO & io )
+{
+   return eval( arg->cons.car, context, io );
 }
 
 } // namespace builtin
