@@ -100,31 +100,6 @@ TEST_F( LispTest, test_eval_exp_with_native_fn_mult_01 )
    EXPECT_EQ( out.str(), "6" );
 }
 
-TEST_F( LispTest, test_tokenizer_01 )
-{
-   {
-      std::string source = "(+ 3.14 5)";
-      auto tokens        = tokenize( source );
-      EXPECT_EQ( tokens.size(), 6 );
-   }
-   {
-      std::string source = "(lambda (arg) (+ arg 1))";
-      auto tokens        = tokenize( source );
-   }
-   {
-      std::string source = "123";
-      auto tokens        = tokenize( source );
-   }
-   {
-      std::string source = "abc";
-      auto tokens        = tokenize( source );
-   }
-   {
-      std::string source = "(+ 2 (* 3 4))";
-      auto tokens        = tokenize( source );
-   }
-}
-
 TEST_F( LispTest, test_eval_num_01 )
 {
    std::string source = "3.1415";
@@ -152,17 +127,6 @@ TEST_F( LispTest, test_eval_math_02 )
    EXPECT_EQ( out.str(), "7" );
 }
 
-#if 0
-TEST_F( LispTest, test_quote_01 )
-{
-   std::string source = "(quote (1 2 3))";
-   int r              = eval( source, ctx, io );
-   EXPECT_EQ( r, 0 );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "'(1 2 3)" );
-}
-#endif
-
 TEST_F( LispTest, test_define_01 )
 {
    std::string source = "(define x 42) (print x)";
@@ -170,6 +134,24 @@ TEST_F( LispTest, test_define_01 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "42" );
+}
+
+TEST_F( LispTest, test_quote_01 )
+{
+   std::string source = "(quote (1 2 3))";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3)" );
+}
+
+TEST_F( LispTest, test_quote_02 )
+{
+   std::string source = "'(1 2 3)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3)" );
 }
 
 #if 0
