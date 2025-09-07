@@ -4,6 +4,12 @@
 #include <cassert>
 #include <cstring>
 
+#ifdef __POSIX_VERSION
+#define STRDUP strdup
+#else
+#define STRDUP _strdup
+#endif
+
 namespace lisp
 {
 
@@ -51,7 +57,7 @@ struct Symbol
    char * lexeme;
    Symbol( const char * str )
    {
-      lexeme = _strdup( str );
+      lexeme = STRDUP( str );
    }
 };
 
@@ -184,7 +190,7 @@ inline Expr * make_symbol( const char * symbol )
 {
    Atom atom;
    atom.type   = Atom::ATOM_SYMBOL;
-   atom.symbol = _strdup( symbol );
+   atom.symbol = STRDUP( symbol );
    return new Expr( atom );
 }
 
@@ -192,7 +198,7 @@ inline Expr * make_error( const char * error )
 {
    Atom atom;
    atom.type  = Atom::ATOM_ERROR;
-   atom.error = _strdup( error );
+   atom.error = STRDUP( error );
    return new Expr( atom );
 }
 
@@ -200,7 +206,7 @@ inline Expr * make_string( const char * string )
 {
    Atom atom;
    atom.type   = Atom::ATOM_STRING;
-   atom.string = _strdup( string );
+   atom.string = STRDUP( string );
    return new Expr( atom );
 }
 
