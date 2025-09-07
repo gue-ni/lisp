@@ -5,9 +5,9 @@
 #include "tokenizer.h"
 
 #include <cstdio>
+#include <iomanip>
 #include <string>
 #include <vector>
-#include <iomanip>
 
 namespace lisp
 {
@@ -42,7 +42,7 @@ void Context::print( const IO & io )
 {
    for( auto it = m_env.begin(); it != m_env.end(); it++ )
    {
-      //io.out << std::left << std::setw(10)  << it->first << " -> ";
+      // io.out << std::left << std::setw(10)  << it->first << " -> ";
       io.out << it->first << " : ";
       print_expr( it->second, io );
       io.out << std::endl;
@@ -319,15 +319,17 @@ void print_expr( Expr * expr, const IO & io )
    }
 }
 
-void print_debug(std::ostream& os, const Tokens& tokens) {
+void print_debug( std::ostream & os, const Tokens & tokens )
+{
    for( const Token & tkn : tokens )
    {
-      os << "'" << tkn.lexeme << "'" << ", ";
+      os << "'" << tkn.lexeme << "'"
+         << ", ";
    }
    os << std::endl;
 }
 
-int eval( const std::string & source, Context & context, const IO & io, bool newline )
+int eval( const std::string & source, Context & context, const IO & io, Flags flags )
 {
    Tokens tokens = tokenize( source );
    if( tokens.empty() )
@@ -335,11 +337,12 @@ int eval( const std::string & source, Context & context, const IO & io, bool new
       return 1;
    }
 
-#if 0
-   io.out << "---begin-tokens---" << std::endl;
-    print_debug(io.out, tokens);
-   io.out << "----end-tokens----" << std::endl;
-#endif
+   if( flags & FLAG_DUMP_TOKENS )
+   {
+      io.out << "---begin-tokens---" << std::endl;
+      print_debug( io.out, tokens );
+      io.out << "----end-tokens----" << std::endl;
+   }
 
    Expr * program = parse( tokens );
    if( !program )
@@ -347,12 +350,13 @@ int eval( const std::string & source, Context & context, const IO & io, bool new
       return 2;
    }
 
-#if 0
-   io.out << "---begin-program---" << std::endl;
-   print_debug( io.out, program );
-   io.out << std::endl;
-   io.out << "----end-program----" << std::endl;
-#endif
+   if( flags & FLAG_DUMP_AST )
+   {
+      io.out << "---begin-program---" << std::endl;
+      print_debug( io.out, program );
+      io.out << std::endl;
+      io.out << "----end-program----" << std::endl;
+   }
 
    Expr * res = eval_program( program, context, io );
    if( !res )
@@ -360,19 +364,18 @@ int eval( const std::string & source, Context & context, const IO & io, bool new
       return 3;
    }
 
-
-#if 0
-   io.out << "---begin-env---" << std::endl;
-   context.print( io );
-   io.out << "----env-env----" << std::endl;
-#endif
+   if( flags & FLAG_DUMP_ENV )
+   {
+      io.out << "---begin-env---" << std::endl;
+      context.print( io );
+      io.out << "----env-env----" << std::endl;
+   }
 
    print_expr( res, io );
-   if( newline )
+   if( flags & FLAG_NEWLINE )
    {
       io.out << std::endl;
    }
-
 
    return 0;
 }
@@ -394,7 +397,7 @@ int repl()
          break;
       }
 
-      res = eval( line, ctx, io, true );
+      res = eval( line, ctx, io, FLAG_NEWLINE );
 
    } while( res == 0 );
 

@@ -153,14 +153,3 @@ TEST_F( LispTest, test_quote_02 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 2 3)" );
 }
-
-#if 0
-TEST_F( LispTest, test_lisp_02 )
-{
-   std::string source = "(cons 1 2)";
-   int r              = eval( source, ctx, io );
-   EXPECT_EQ( r, 0 );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "" );
-}
-#endif
