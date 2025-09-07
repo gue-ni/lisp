@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cstring>
 
-
 #ifdef __POSIX_VERSION
 #define STRDUP strdup
 #else
