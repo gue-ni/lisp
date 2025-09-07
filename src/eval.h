@@ -23,6 +23,8 @@ constexpr Flags FLAG_DUMP_ENV    = 1 << 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+using Env = std::map<std::string, Expr *>;
+
 class Context
 {
  public:
@@ -31,11 +33,11 @@ class Context
    Expr * lookup( const char * symbol );
    void define( const char * symbol, Expr * expr );
    void print( const IO & io );
-   const std::map<std::string, Expr *> & env() const;
+   const Env & env() const;
 
  private:
    Context * m_parent_scope;
-   std::map<std::string, Expr *> m_env;
+   Env m_env;
    void load_runtime();
 };
 

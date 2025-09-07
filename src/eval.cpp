@@ -66,7 +66,7 @@ void Context::print( const IO & io )
    }
 }
 
-const std::map<std::string, Expr *> & Context::env() const
+const Env & Context::env() const
 {
    return m_env;
 }
@@ -304,7 +304,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 ///////////////////////////////////////////////////////////////////////////////
 
 const std::string DBG_CMD  = "dbg";
-const std::string DBG_QUIT  = "quit";
+const std::string DBG_QUIT = "quit";
 const std::string LOAD_CMD = "load-file ";
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -334,7 +334,7 @@ int repl()
          flags |= ( FLAG_DUMP_ENV );
          io.out << "debug-mode-on" << std::endl;
       }
-      if ( line == DBG_QUIT )
+      if( line == DBG_QUIT )
       {
          quit = true;
       }
@@ -361,7 +361,7 @@ int repl()
          res = eval( line, ctx, io, flags );
       }
 
-   } while( (res == 0) && (!quit) );
+   } while( ( res == 0 ) && ( !quit ) );
    return res;
 }
 

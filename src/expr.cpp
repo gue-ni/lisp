@@ -187,7 +187,6 @@ bool Expr::is_nil() const
    return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
 Atom::Atom()
