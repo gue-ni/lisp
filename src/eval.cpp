@@ -17,6 +17,7 @@ namespace lisp
 ///////////////////////////////////////////////////////////////////////////////
 
 Context::Context()
+    : m_parent_scope( nullptr )
 {
    load_runtime();
 }
@@ -25,15 +26,8 @@ Context::Context()
 
 Context::~Context()
 {
-#if 0
-   for( auto it = m_env.begin(); it != m_env.end(); it++ )
-   {
-      Expr * expr = it->second;
-      GC::mark( expr );
-   }
-
-   GC::garbage_collection();
-#endif
+   m_env.clear();
+   gc::run( *this );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,6 +64,11 @@ void Context::print( const IO & io )
       it->second->print( io );
       io.out << std::endl;
    }
+}
+
+const std::map<std::string, Expr *> & Context::env() const
+{
+   return m_env;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -359,5 +358,51 @@ int repl()
    } while( res == 0 );
    return res;
 }
+
+namespace gc
+{
+void mark( Expr * expr )
+{
+   expr->marked = true;
+   if( expr->is_cons() )
+   {
+      mark( expr->cons.cdr );
+      mark( expr->cons.car );
+   }
+   else if( expr->is_atom() )
+   {
+      // closures?
+   }
+}
+void sweep()
+{
+   auto it = Expr::all.begin();
+   while( it != Expr::all.end() )
+   {
+      Expr * expr = *it;
+      if( !expr->marked )
+      {
+         delete expr;
+         it = Expr::all.erase( it );
+      }
+      else
+      {
+         expr->marked = false;
+         ++it;
+      }
+   }
+}
+
+void run( Context & context )
+{
+   for( auto [symbol, expr] : context.env() )
+   {
+      mark( expr );
+   }
+
+   sweep();
+}
+
+} // namespace gc
 
 } // namespace lisp

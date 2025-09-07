@@ -4,12 +4,14 @@
 namespace lisp
 {
 
-std::list<Expr *> GC::heap;
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 {
    return fn( args, context, io );
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 {
@@ -41,6 +43,10 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
    return result;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+std::list<Expr *> Expr::all;
+
 Expr::~Expr()
 {
    switch( type )
@@ -49,9 +55,8 @@ Expr::~Expr()
          atom.~Atom();
          break;
       case EXPR_CONS :
-         // cons.~Cons();
-         break;
       default :
+         // do nothing
          break;
    }
 }
@@ -60,6 +65,7 @@ Expr::Expr()
     : type( EXPR_VOID )
     , marked( false )
 {
+   all.push_back( this );
 }
 
 Expr::Expr( Atom && a )
@@ -67,6 +73,7 @@ Expr::Expr( Atom && a )
     , atom( std::move( a ) )
     , marked( false )
 {
+   all.push_back( this );
 }
 
 Expr::Expr( Cons c )
@@ -74,6 +81,7 @@ Expr::Expr( Cons c )
     , cons( c )
     , marked( false )
 {
+   all.push_back( this );
 }
 
 void Expr::print( const IO & io ) const
@@ -179,45 +187,8 @@ bool Expr::is_nil() const
    return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );
 }
 
-void GC::garbage_collection()
-{
-#if 1
 
-   int deleted = 0;
-
-   // sweep
-   for( auto it = GC::heap.begin(); it != GC::heap.end(); )
-   {
-      Expr * expr = *it;
-      if( !expr->marked )
-      {
-         printf( "free Expr(%p)\n", ( void * ) expr );
-         deleted++;
-         delete expr;
-         expr = nullptr;
-         it   = GC::heap.erase( it );
-      }
-      else
-      {
-         expr->marked = false;
-         it++;
-      }
-   }
-
-   std::cout << "Objects: " << GC::heap.size() << ", deleted: " << deleted << std::endl;
-
-#endif
-}
-
-void GC::mark( Expr * expr )
-{
-   expr->marked = true;
-   if( expr->is_cons() )
-   {
-      mark( expr->cons.cdr );
-      mark( expr->cons.car );
-   }
-}
+///////////////////////////////////////////////////////////////////////////////
 
 Atom::Atom()
     : type( ATOM_NIL )
@@ -331,13 +302,11 @@ void Atom::print( const IO & io ) const
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Cons::Cons( Expr * _car, Expr * _cdr )
     : car( _car )
     , cdr( _cdr )
-{
-}
-
-Cons::~Cons()
 {
 }
 
@@ -361,5 +330,7 @@ void Cons::print( const IO & io ) const
       cdr->print( io );
    }
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // namespace lisp

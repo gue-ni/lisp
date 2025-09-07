@@ -21,18 +21,6 @@ struct Expr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GC
-{
- public:
-   static void garbage_collection();
-   static std::list<Expr *> heap;
-   static void mark( Expr * expr );
-
- private:
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 struct NativeFn
 {
    NativeFunction fn;
@@ -79,11 +67,9 @@ struct Atom
       NativeFn native;
    };
 
-   Atom();
-
-   Atom( Atom && other ) noexcept;
-
    ~Atom();
+   Atom();
+   Atom( Atom && other ) noexcept;
 
    void print( const IO & io ) const;
 };
@@ -97,30 +83,8 @@ struct Cons
 
    Cons( Expr * _car, Expr * _cdr );
 
-   ~Cons();
-
    void print( const IO & io ) const;
 };
-
-inline Expr * car( Cons * c )
-{
-   return c->car;
-}
-
-inline Expr * first( Cons * c )
-{
-   return car( c );
-}
-
-inline Expr * cdr( Cons * c )
-{
-   return c->cdr;
-}
-
-inline Expr * rest( Cons * c )
-{
-   return cdr( c );
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -141,6 +105,8 @@ struct Expr
    };
    bool marked;
 
+   static std::list<Expr *> all;
+
    ~Expr();
    Expr();
    Expr( Atom && a );
@@ -159,37 +125,24 @@ struct Expr
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO: add garbage collection
 inline Expr * make_void()
 {
-   Expr * expr = new Expr();
-   GC::heap.push_back( expr );
-   // printf("alloc Expr(%p)\n", (void*) expr);
-   return expr;
+   return new Expr();
 }
 
 inline Expr * make_expr( Atom && atom )
 {
-   Expr * expr = new Expr( std::move( atom ) );
-   GC::heap.push_back( expr );
-   // printf("alloc Expr(%p)\n", (void*) expr);
-   return expr;
+   return new Expr( std::move( atom ) );
 }
 
 inline Expr * make_expr( Cons cons )
 {
-   Expr * expr = new Expr( cons );
-   GC::heap.push_back( expr );
-   // printf("alloc Expr(%p)\n", (void*) expr);
-   return expr;
+   return new Expr( cons );
 }
 
 inline Expr * make_nil()
 {
-   Expr * expr = new Expr( Atom() );
-   GC::heap.push_back( expr );
-   // printf("alloc Expr(%p)\n", (void*) expr);
-   return expr;
+   return new Expr( Atom() );
 }
 
 inline Expr * make_cons( Expr * a, Expr * b )
@@ -269,20 +222,6 @@ inline void assert_type( const Expr * e, Expr::Type t )
 inline void assert_type( const Atom * a, Atom::Type t )
 {
    assert( has_type( a, t ) );
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-inline Expr * car( Expr * e )
-{
-   assert_type( e, Expr::EXPR_CONS );
-   return e->cons.car;
-}
-
-inline Expr * cdr( Expr * e )
-{
-   assert_type( e, Expr::EXPR_CONS );
-   return e->cons.cdr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

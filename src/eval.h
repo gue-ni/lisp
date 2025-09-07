@@ -31,11 +31,26 @@ class Context
    Expr * lookup( const char * symbol );
    void define( const char * symbol, Expr * expr );
    void print( const IO & io );
+   const std::map<std::string, Expr *> & env() const;
 
  private:
+   Context * m_parent_scope;
    std::map<std::string, Expr *> m_env;
    void load_runtime();
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// garbage collection
+namespace gc
+{
+
+void mark( Expr * expr );
+
+void sweep();
+
+void run( Context & context );
+
+} // namespace gc
 
 ///////////////////////////////////////////////////////////////////////////////
 
