@@ -304,6 +304,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 ///////////////////////////////////////////////////////////////////////////////
 
 const std::string DBG_CMD  = "dbg";
+const std::string DBG_QUIT  = "quit";
 const std::string LOAD_CMD = "load-file ";
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -315,6 +316,7 @@ int repl()
    std::string line;
    int res     = 0;
    Flags flags = FLAG_NEWLINE;
+   bool quit   = false;
 
    do
    {
@@ -331,6 +333,10 @@ int repl()
          flags |= ( FLAG_DUMP_AST );
          flags |= ( FLAG_DUMP_ENV );
          io.out << "debug-mode-on" << std::endl;
+      }
+      if ( line == DBG_QUIT )
+      {
+         quit = true;
       }
       else if( line.starts_with( LOAD_CMD ) )
       {
@@ -355,7 +361,7 @@ int repl()
          res = eval( line, ctx, io, flags );
       }
 
-   } while( res == 0 );
+   } while( (res == 0) && (!quit) );
    return res;
 }
 

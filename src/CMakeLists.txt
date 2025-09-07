@@ -13,3 +13,14 @@ endif()
 
 add_executable(lisp "main.cpp")
 target_link_libraries(lisp lisp_lib)
+
+if (ENABLE_ASAN AND UNIX AND NOT APPLE)
+  message(STATUS "Building lisp with AddressSanitizer")
+
+   target_compile_options(lisp_lib PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
+  target_link_options(lisp_lib PRIVATE -fsanitize=address)
+
+  target_compile_options(lisp PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
+  target_link_options(lisp PRIVATE -fsanitize=address)
+
+endif()
