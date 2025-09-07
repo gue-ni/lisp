@@ -140,10 +140,15 @@ struct Expr
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
+// TODO: add garbage collection
 inline Expr * make_void()
 {
   return new Expr();
+}
+
+inline Expr* make_expr(Atom atom)
+{
+  return new Expr(atom);
 }
 
 inline Expr * make_nil()
@@ -242,5 +247,10 @@ inline Expr * cdr( Expr * e )
    assert_type( e, Expr::EXPR_CONS );
    return e->cons.cdr;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+void print_debug(std::ostream& os, const Expr * expr );
 
 } // namespace lisp

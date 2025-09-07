@@ -32,7 +32,7 @@ Expr * define( void * param, Context & context, const IO & io, Expr * arg )
    assert_type( cdr, Expr::EXPR_CONS );
 
    Expr * expr = eval( cdr->cons.car, context, io );
-   context.set( car->atom.symbol,  expr);
+   context.define( car->atom.symbol,  expr);
    return make_void();
 }
 

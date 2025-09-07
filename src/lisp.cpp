@@ -31,19 +31,29 @@ Expr * Context::lookup( const char * symbol )
    }
 }
 
-void Context::set( const char * symbol, Expr * expr )
+void Context::define( const char * symbol, Expr * expr )
 {
    std::string key( symbol );
    m_env[key] = expr;
 }
 
+void Context::print( const IO & io )
+{
+   for( auto it = m_env.begin(); it != m_env.end(); it++ )
+   {
+      io.out << it->first << " ";
+      print_expr( it->second, io );
+      io.out << std::endl;
+   }
+}
+
 void Context::load_runtime()
 {
-   set( "+", make_native( builtin::add ) );
-   set( "*", make_native( builtin::mult ) );
-   set( "print", make_native( builtin::print ) );
-   set( "define", make_native( builtin::define ) );
-   set( "quote", make_native( builtin::quote ) );
+   define( "+", make_native( builtin::add ) );
+   define( "*", make_native( builtin::mult ) );
+   define( "print", make_native( builtin::print ) );
+   define( "define", make_native( builtin::define ) );
+   define( "quote", make_native( builtin::quote ) );
    // set( "cons", make_native( builtin::quote ) );
    // set( "car", make_native( builtin::quote ) );
    // set( "cdr", make_native( builtin::quote ) );
@@ -67,14 +77,44 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
    }
 }
 
-Expr * eval_cons( Expr * expr, Context & context, const IO & io )
+bool is_symbol( Expr * expr, const char * symbol )
 {
-   assert( expr->type == Expr::EXPR_CONS );
+   return ( expr->type == Expr::EXPR_ATOM ) && ( expr->atom.type == Atom::ATOM_SYMBOL )
+          && ( strcmp( expr->atom.symbol, symbol ) == 0 );
+}
 
-   Cons cons = expr->cons;
+Expr * eval_program( Expr * program, Context & context, const IO & io )
+{
+   Expr * result = make_nil();
+   while( has_type( program, Expr::EXPR_CONS ) )
+   {
+      Expr * expr = program->cons.car;
+      result      = eval( expr, context, io );
+      program     = program->cons.cdr;
+   }
+   return result;
+}
 
-   Expr * fn   = eval( cons.car, context, io );
-   Expr * args = cons.cdr;
+Expr * eval_list( Expr * expr, Context & context, const IO & io )
+{
+   if( expr->type == Expr::EXPR_VOID )
+   {
+      return make_void();
+   }
+
+   if( ( expr->type == Expr::EXPR_ATOM && expr->atom.type == Atom::ATOM_NIL ) )
+   {
+      return make_nil();
+   }
+
+   Expr * first = eval( expr->cons.car, context, io );
+   Expr * rest  = eval_list( expr->cons.cdr, context, io );
+   return make_cons( first, rest );
+}
+
+Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
+{
+   //  TODO
 
    if( fn->type == Expr::EXPR_ATOM )
    {
@@ -83,7 +123,87 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
       {
          return atom.native( args, context, io );
       }
+      else
+      {
+         return make_expr( atom );
+      }
    }
+   else
+     {
+     return make_error("not-a-function");
+   }
+
+   return make_void();
+}
+
+Expr * eval_cons_2( Expr * expr, Context & context, const IO & io )
+{
+   assert( expr->type == Expr::EXPR_CONS );
+
+   Cons cons   = expr->cons;
+   Expr * op   = cons.car;
+   Expr * args = cons.cdr;
+
+   if( is_symbol( op, "quote" ) )
+   {
+      return args->cons.car;
+   }
+   else if( is_symbol( op, "define" ) )
+   {
+      Expr * var   = args->cons.car;
+      Expr * value = eval( args->cons.cdr->cons.car, context, io );
+      context.define( var->atom.symbol, value );
+      return make_void();
+   }
+   else
+   {
+      Expr * fn = eval( op, context, io );
+      args      = eval_list( args, context, io );
+      return apply( fn, args, context, io );
+   }
+}
+
+Expr * eval_cons( Expr * expr, Context & context, const IO & io )
+{
+   assert( expr->type == Expr::EXPR_CONS );
+
+   Cons cons   = expr->cons;
+   Expr * op   = cons.car;
+   Expr * args = cons.cdr;
+
+#if 0
+   if (is_symbol(op, "define")) {
+     int x = 0;
+   } else if (is_symbol(op, "quote")) {
+    int x = 1; 
+   } else {
+     Expr* fn = eval(op, context, io);
+     Expr* eval_args = eval_list(args, context, io);
+     return apply(fn, eval_args, context, io);
+   }
+#endif
+
+   Expr * fn = eval( op, context, io );
+
+   if( fn->type == Expr::EXPR_ATOM )
+   {
+      Atom atom = fn->atom;
+      if( atom.type == Atom::ATOM_NATIVE )
+      {
+         return atom.native( args, context, io );
+      }
+      else
+      {
+         return new Expr( atom );
+      }
+   }
+#if 0
+   else
+   {
+      return eval_list( fn, context, io );
+   }
+#endif
+   // TODO: should i execute the second one as well?
 
    // TODO:
    return make_void();
@@ -110,7 +230,7 @@ Expr * eval( Expr * expr, Context & context, const IO & io )
          }
       case Expr::EXPR_CONS :
          {
-            return eval_cons( expr, context, io );
+            return eval_cons_2( expr, context, io );
          }
       default :
          io.err << "unhandled-type" << std::endl;
@@ -198,7 +318,7 @@ void print_expr( Expr * expr, const IO & io )
             break;
          }
       default :
-      // do nothging
+         // do nothging
          break;
    }
 }
@@ -220,19 +340,20 @@ int eval( const std::string & source, Context & context, const IO & io, bool new
    io.out << std::endl;
 #endif
 
-   Expr * exp = parse( tokens );
-   if( !exp )
+   Expr * program = parse( tokens );
+   if( !program )
    {
       return 2;
    }
 
 #if 0
-   io.out << "-----\n";
-   print_expr( exp, io );
-   io.out << "-----\n";
+   io.out << "-----" << std::endl;
+   print_debug( io.out, program );
+   io.out << std::endl;
+   io.out << "-----" << std::endl;
 #endif
 
-   Expr * res = eval( exp, context, io );
+   Expr * res = eval_program( program, context, io );
    if( !res )
    {
       return 3;
@@ -243,6 +364,13 @@ int eval( const std::string & source, Context & context, const IO & io, bool new
    {
       io.out << std::endl;
    }
+
+#if 0
+   // print context
+   io.out << "-----" << std::endl;
+   context.print( io );
+   io.out << "-----" << std::endl;
+#endif
    return 0;
 }
 

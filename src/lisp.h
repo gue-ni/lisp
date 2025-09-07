@@ -33,7 +33,8 @@ class Context
  public:
    Context();
    Expr * lookup( const char * symbol );
-   void set( const char * symbol, Expr * expr );
+   void define( const char * symbol, Expr * expr );
+   void print(const IO& io);
 
  private:
    std::map<std::string, Expr *> m_env;
@@ -43,8 +44,6 @@ class Context
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-
-void print( Expr * expr, const IO & io );
 
 Expr * eval( Expr * expr, Context & context, const IO & io );
 

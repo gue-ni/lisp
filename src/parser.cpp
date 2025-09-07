@@ -17,12 +17,28 @@ Parser::Parser( const Tokens & tokens )
 
 Expr * Parser::parse()
 {
-  #if 0
-  Expr* program = 
+  #if 1
+  Expr* head = nullptr;
+  Expr* tail = nullptr;
+
   Expr* expr = nullptr;
+
   while ((expr = parse_expr())) {
 
+    Expr* node = make_cons(expr, make_nil());
+    if (!head) {
+
+      head = node;
+      tail = node;
+
+  } else {
+      tail->cons.cdr = node;
+      tail = node;
+    }
+
   }
+
+  return (head != nullptr) ? head : make_nil();
 #else
    return parse_expr();
    #endif
