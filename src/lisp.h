@@ -1,80 +1,67 @@
 #pragma once
 
+#include "builtin.h"
+#include "expr.h"
+#include "util.h"
+
 #include <iostream>
+#include <map>
 #include <ostream>
+#include <vector>
 
-namespace lisp {
-
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct Expr;
+namespace lisp
+{
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct Cons {
-  Expr *car;
-  Expr *cdr;
-  Cons(Expr *a, Expr *b) : car(a), cdr(b) {}
-};
+using Flags = uint8_t;
 
-inline Cons cons(Expr *a, Expr *b) { return Cons(a, b); }
-
-inline Expr *car(Cons *c) { return c->car; }
-
-inline Expr *cdr(Cons *c) { return c->cdr; }
+constexpr Flags FLAG_NEWLINE     = 1 << 0;
+constexpr Flags FLAG_DUMP_TOKENS = 1 << 1;
+constexpr Flags FLAG_DUMP_AST    = 1 << 2;
+constexpr Flags FLAG_DUMP_ENV    = 1 << 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum ExprType {
-  NIL,
-  SYMBOL,
-  NUMBER,
-  LIST,
+class GC
+{
+ public:
+   Expr * alloc();
+
+   void mark();
+   void sweep();
+
+ private:
+   std::vector<Expr *> m_heap;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct Expr {
-  ExprType type;
-  union {
-    double number;
-    Cons cons;
-  };
+class Context
+{
+ public:
+   Context();
+   Expr * lookup( const char * symbol );
+   void define( const char * symbol, Expr * expr );
+   void print( const IO & io );
 
-  Expr() : type(NIL) {}
-  Expr(double v) : type(NUMBER), number(v) {}
-  Expr(Cons c) : type(LIST), cons(c) {}
-};
-
-inline Expr *make_nil() { return new Expr(); }
-
-inline Expr *make_list(Expr *a, Expr *b) { return new Expr(cons(a, b)); }
-
-inline Expr *make_number(double num) { return new Expr(num); }
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct Context {};
-
-///////////////////////////////////////////////////////////////////////////////
-
-struct IO {
-  std::ostream &out;
-  std::ostream &err;
-  IO(std::ostream &o = std::cout, std::ostream &e = std::cerr)
-      : out(o), err(e) {}
+ private:
+   std::map<std::string, Expr *> m_env;
+   void load_runtime();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void print(Expr *expr, const IO &io) ;
+///////////////////////////////////////////////////////////////////////////////
 
-Expr *eval(Expr *expr, Context &context, const IO &io);
+Expr * eval( Expr * expr, Context & context, const IO & io );
 
-int eval(const std::string &source, Context &context, const IO &io);
+int eval_print( Expr * expr, Context & context, const IO & io, bool newline = false );
+
+int eval( const std::string & source, Context & context, const IO & io, Flags flags = 0 );
 
 int repl();
+
+void print_expr( Expr * expr, const IO & io );
 
 } // namespace lisp

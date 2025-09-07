@@ -1,31 +1,191 @@
 #include <gtest/gtest.h>
 
 #include "lisp.h"
+#include "parser.h"
+#include "tokenizer.h"
 
 using namespace lisp;
 
-TEST(lisp, test_01) {
+class LispTest : public ::testing::Test
+{
+ public:
+   LispTest()
+       : io( out, err )
+   {
+   }
 
-  Context ctx;
-  std::ostringstream out, err;
-  IO io(out, err);
+   void SetUp() override
+   {
+   }
 
-  Expr exp(2.5);
+   void TearDown() override
+   {
+   }
 
-  print(eval(&exp, ctx, io), io);
+ protected:
+   Context ctx;
+   std::ostringstream out, err;
+   IO io;
+};
 
-  EXPECT_EQ(out.str(), "2.5");
+TEST_F( LispTest, test_eval_number_01 )
+{
+   Expr * exp = make_number( 2.5 );
+
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "2.5" );
 }
 
-TEST(lisp, test_02) {
+TEST_F( LispTest, test_eval_nil_01 )
+{
+   Expr * exp = make_nil();
 
-  Context ctx;
-  std::ostringstream out, err;
-  IO io(out, err);
+   eval_print( exp, ctx, io );
 
-  Expr *exp = make_list(make_number(5), make_list(make_number(2), make_nil()));
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "()" );
+}
 
-  print(eval(exp, ctx, io), io);
+TEST_F( LispTest, test_eval_string_01 )
+{
+   Expr * exp = make_string( "Hello, LISP!" );
 
-  EXPECT_EQ(out.str(), "2.5");
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "\"Hello, LISP!\"" );
+}
+
+TEST_F( LispTest, test_eval_symbol_01 )
+{
+   Expr * exp = make_symbol( "+" );
+
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "<native-fn>" );
+}
+
+TEST_F( LispTest, test_eval_non_existing_symbol_01 )
+{
+   Expr * exp = make_symbol( "does-not-exist" );
+
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "()" );
+}
+
+TEST_F( LispTest, test_eval_exp_with_native_fn_add_01 )
+{
+   Expr * exp
+       = make_cons( make_symbol( "+" ), make_cons( make_number( 2 ), make_cons( make_number( 3 ), make_nil() ) ) );
+
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5" );
+}
+
+TEST_F( LispTest, test_eval_exp_with_native_fn_mult_01 )
+{
+   Expr * exp
+       = make_cons( make_symbol( "*" ), make_cons( make_number( 2 ), make_cons( make_number( 3 ), make_nil() ) ) );
+
+   eval_print( exp, ctx, io );
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "6" );
+}
+
+TEST_F( LispTest, test_eval_num_01 )
+{
+   std::string source = "3.1415";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "3.1415" );
+}
+
+TEST_F( LispTest, test_eval_math_01 )
+{
+   std::string source = "(+ 1 2 3)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "6" );
+}
+
+TEST_F( LispTest, test_eval_math_02 )
+{
+   std::string source = "(+ 1 (* 2 3))";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "7" );
+}
+
+TEST_F( LispTest, test_define_01 )
+{
+   std::string source = "(define x 42) (print x)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "42" );
+}
+
+TEST_F( LispTest, test_quote_01 )
+{
+   std::string source = "(quote (1 2 3))";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3)" );
+}
+
+TEST_F( LispTest, test_quote_02 )
+{
+   std::string source = "'(1 2 3)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3)" );
+}
+
+TEST_F( LispTest, test_lambda_01 )
+{
+   std::string source = "(lambda (x) (* x 2))";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "<lambda>" );
+}
+
+TEST_F( LispTest, test_lambda_02 )
+{
+   std::string source = "(define fn (lambda (x) (* x 2))) (fn 8)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "16" );
+}
+
+TEST_F( LispTest, test_lambda_03 )
+{
+   std::string source = "((lambda (x) (* x 2)) 5)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "10" );
+}
+
+TEST_F( LispTest, test_lambda_04 )
+{
+   std::string src = "(define add (lambda (x y) (+ x y))) (add 2 3)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5" );
 }
