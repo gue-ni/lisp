@@ -1,16 +1,43 @@
 #include "expr.h"
 
+#include "lisp.h"
+
 namespace lisp
 {
 
 Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 {
-   return fn( nullptr, context, io, args );
+   return fn( args, context, io );
 }
 
 Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 {
-   return make_nil();
+   // TODO
+
+   Expr * arg   = args;
+   Expr * param = params;
+
+   // TODO: should inherit from context
+   // Context closure;
+
+   while( param->is_cons() && arg->is_cons() )
+   {
+      context.define( param->cons.car->atom.symbol, arg->cons.car );
+      arg   = arg->cons.cdr;
+      param = param->cons.cdr;
+   }
+
+   // TODO: check arity
+
+   Expr * bdy = body->cons.car;
+
+#if 0
+   print_debug( std::cout, bdy );
+   std::cout << std::endl;
+#endif
+   
+   Expr * result = eval( bdy, context, io );
+   return result;
 }
 
 void print_debug( std::ostream & os, const Expr * expr )
@@ -68,6 +95,21 @@ void print_debug( std::ostream & os, const Expr * expr )
             break;
          }
    }
+}
+
+bool Expr::is_void() const
+{
+   return type == Expr::EXPR_VOID;
+}
+
+bool Expr::is_cons() const
+{
+   return type == Expr::EXPR_CONS;
+}
+
+bool Expr::is_atom() const
+{
+   return type == Expr::EXPR_ATOM;
 }
 
 } // namespace lisp

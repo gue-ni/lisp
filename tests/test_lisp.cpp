@@ -153,3 +153,39 @@ TEST_F( LispTest, test_quote_02 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 2 3)" );
 }
+
+TEST_F( LispTest, test_lambda_01 )
+{
+   std::string source = "(lambda (x) (* x 2))";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "<lambda>" );
+}
+
+TEST_F( LispTest, test_lambda_02 )
+{
+   std::string source = "(define fn (lambda (x) (* x 2))) (fn 8)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "16" );
+}
+
+TEST_F( LispTest, test_lambda_03 )
+{
+   std::string source = "((lambda (x) (* x 2)) 5)";
+   int r              = eval( source, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "10" );
+}
+
+TEST_F( LispTest, test_lambda_04 )
+{
+   std::string src = "(define add (lambda (x y) (+ x y))) (add 2 3)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5" );
+}

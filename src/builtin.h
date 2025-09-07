@@ -9,20 +9,20 @@ struct Expr;
 
 class Context;
 
-typedef Expr * ( *NativeFunction )( void *, Context &, const IO & io, Expr * );
+typedef Expr * ( *NativeFunction )( Expr *, Context &, const IO & io );
 
 namespace builtin
 {
 
-Expr * print( void * param, Context & context, const IO & io, Expr * arg );
+Expr * print( Expr * arg, Context & context, const IO & io );
 
-Expr * define( void * param, Context & context, const IO & io, Expr * arg );
+Expr * plus( Expr * arg, Context & context, const IO & io );
 
-Expr * quote( void * param, Context & context, const IO & io, Expr * arg );
+Expr * minus( Expr * arg, Context & context, const IO & io );
 
-Expr * add( void * param, Context & context, const IO & io, Expr * arg );
+Expr * mult( Expr * arg, Context & context, const IO & io );
 
-Expr * mult( void * param, Context & context, const IO & io, Expr * arg );
+Expr * div( Expr * arg, Context & context, const IO & io );
 
 } // namespace builtin
 

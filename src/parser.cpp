@@ -98,6 +98,11 @@ Expr * Parser::parse_expr()
             Expr * cdr = parse_expr();
             return make_cons( car, cdr );
          }
+      case TokenType ::LAMBDA :
+         {
+           advance();
+           return parse_lambda();
+         }
       default :
          return nullptr;
    }
@@ -121,6 +126,24 @@ Expr * Parser::parse_list()
 
    Expr * tail = parse_list();
    return make_cons( head, tail );
+}
+
+Expr * Parser::parse_lambda()
+{
+
+
+  Expr * keyword = make_symbol( "lambda" );
+  Expr* params;
+
+  if (match(TokenType::LPAREN)) {
+    params = parse_list();
+  } else {
+    assert(false);
+  }
+
+  Expr* body = parse_expr();
+
+   return make_cons(keyword, make_cons(params, make_cons(body, make_nil())));
 }
 
 void Parser::advance()

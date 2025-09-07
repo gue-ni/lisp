@@ -51,7 +51,7 @@ struct Symbol
    char * lexeme;
    Symbol( const char * str )
    {
-      lexeme = strdup( str );
+      lexeme = _strdup( str );
    }
 };
 
@@ -67,6 +67,13 @@ struct NativeFn
 
 struct LambdaFn
 {
+   Expr * params;
+   Expr * body;
+   LambdaFn( Expr * p, Expr * bdy )
+       : params( p )
+       , body( bdy )
+   {
+   }
    Expr * operator()( Expr * args, Context & context, const IO & io );
 };
 
@@ -80,9 +87,9 @@ struct Atom
       ATOM_NUMBER,
       ATOM_SYMBOL,
       ATOM_STRING,
-      ATOM_LAMBDA, // TODO
+      ATOM_LAMBDA,
       ATOM_NATIVE,
-      ATOM_ERROR, // a runtime error
+      ATOM_ERROR,
    };
 
    Type type;
@@ -137,18 +144,22 @@ struct Expr
        , cons( c )
    {
    }
+
+   bool is_void() const;
+   bool is_cons() const;
+   bool is_atom() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // TODO: add garbage collection
 inline Expr * make_void()
 {
-  return new Expr();
+   return new Expr();
 }
 
-inline Expr* make_expr(Atom atom)
+inline Expr * make_expr( Atom atom )
 {
-  return new Expr(atom);
+   return new Expr( atom );
 }
 
 inline Expr * make_nil()
@@ -173,7 +184,7 @@ inline Expr * make_symbol( const char * symbol )
 {
    Atom atom;
    atom.type   = Atom::ATOM_SYMBOL;
-   atom.symbol = strdup( symbol );
+   atom.symbol = _strdup( symbol );
    return new Expr( atom );
 }
 
@@ -181,7 +192,7 @@ inline Expr * make_error( const char * error )
 {
    Atom atom;
    atom.type  = Atom::ATOM_ERROR;
-   atom.error = strdup( error );
+   atom.error = _strdup( error );
    return new Expr( atom );
 }
 
@@ -189,7 +200,7 @@ inline Expr * make_string( const char * string )
 {
    Atom atom;
    atom.type   = Atom::ATOM_STRING;
-   atom.string = strdup( string );
+   atom.string = _strdup( string );
    return new Expr( atom );
 }
 
@@ -201,11 +212,11 @@ inline Expr * make_native( NativeFunction fn )
    return new Expr( atom );
 }
 
-inline Expr * make_lambda()
+inline Expr * make_lambda( Expr * params, Expr * body )
 {
    Atom atom;
-   atom.type   = Atom::ATOM_NATIVE;
-   atom.lambda = LambdaFn{};
+   atom.type   = Atom::ATOM_LAMBDA;
+   atom.lambda = LambdaFn( params, body );
    return new Expr( atom );
 }
 
@@ -234,6 +245,17 @@ inline void assert_type( const Atom * a, Atom::Type t )
    assert( has_type( a, t ) );
 }
 
+inline bool is_symbol( Expr * expr, const char * symbol )
+{
+   return ( expr->type == Expr::EXPR_ATOM ) && ( expr->atom.type == Atom::ATOM_SYMBOL )
+          && ( strcmp( expr->atom.symbol, symbol ) == 0 );
+}
+
+inline bool is_nil( Expr * expr )
+{
+   return ( expr->type == Expr::EXPR_ATOM ) && ( expr->atom.type == Atom::ATOM_NIL );
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 inline Expr * car( Expr * e )
@@ -248,9 +270,8 @@ inline Expr * cdr( Expr * e )
    return e->cons.cdr;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
 
-void print_debug(std::ostream& os, const Expr * expr );
+void print_debug( std::ostream & os, const Expr * expr );
 
 } // namespace lisp

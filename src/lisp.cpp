@@ -5,7 +5,9 @@
 #include "tokenizer.h"
 
 #include <cstdio>
+#include <fstream>
 #include <iomanip>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -20,7 +22,6 @@ Context::Context()
 Expr * Context::lookup( const char * symbol )
 {
    std::string key( symbol );
-
    auto it = m_env.find( key );
    if( it != m_env.end() )
    {
@@ -42,7 +43,6 @@ void Context::print( const IO & io )
 {
    for( auto it = m_env.begin(); it != m_env.end(); it++ )
    {
-      // io.out << std::left << std::setw(10)  << it->first << " -> ";
       io.out << it->first << " : ";
       print_expr( it->second, io );
       io.out << std::endl;
@@ -51,14 +51,11 @@ void Context::print( const IO & io )
 
 void Context::load_runtime()
 {
-   define( "+", make_native( builtin::add ) );
+   define( "+", make_native( builtin::plus ) );
+   define( "-", make_native( builtin::minus ) );
    define( "*", make_native( builtin::mult ) );
+   define( "/", make_native( builtin::div ) );
    define( "print", make_native( builtin::print ) );
-   define( "define", make_native( builtin::define ) );
-   define( "quote", make_native( builtin::quote ) );
-   // set( "cons", make_native( builtin::quote ) );
-   // set( "car", make_native( builtin::quote ) );
-   // set( "cdr", make_native( builtin::quote ) );
 }
 
 Expr * eval_atom( Expr * expr, Context & context, const IO & io )
@@ -77,12 +74,6 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
       default :
          return make_nil();
    }
-}
-
-bool is_symbol( Expr * expr, const char * symbol )
-{
-   return ( expr->type == Expr::EXPR_ATOM ) && ( expr->atom.type == Atom::ATOM_SYMBOL )
-          && ( strcmp( expr->atom.symbol, symbol ) == 0 );
 }
 
 Expr * eval_program( Expr * program, Context & context, const IO & io )
@@ -116,12 +107,16 @@ Expr * eval_list( Expr * expr, Context & context, const IO & io )
 
 Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
 {
-   if( fn->type == Expr::EXPR_ATOM )
+   if( ( fn->type == Expr::EXPR_ATOM ) && !is_nil( args ) )
    {
       Atom atom = fn->atom;
       if( atom.type == Atom::ATOM_NATIVE )
       {
          return atom.native( args, context, io );
+      }
+      else if( atom.type == Atom::ATOM_LAMBDA )
+      {
+         return atom.lambda( args, context, io );
       }
       else
       {
@@ -132,7 +127,7 @@ Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
    return fn;
 }
 
-Expr * eval_cons_2( Expr * expr, Context & context, const IO & io )
+Expr * eval_cons( Expr * expr, Context & context, const IO & io )
 {
    assert( expr->type == Expr::EXPR_CONS );
 
@@ -151,69 +146,18 @@ Expr * eval_cons_2( Expr * expr, Context & context, const IO & io )
       context.define( var->atom.symbol, value );
       return make_void();
    }
+   else if( is_symbol( op, "lambda" ) )
+   {
+      Expr * params = args->cons.car;
+      Expr * body   = args->cons.cdr;
+      return make_lambda( params, body );
+   }
    else
    {
       Expr * fn = eval( op, context, io );
       args      = eval_list( args, context, io );
       return apply( fn, args, context, io );
    }
-}
-
-Expr * eval_cons( Expr * expr, Context & context, const IO & io )
-{
-   assert( expr->type == Expr::EXPR_CONS );
-
-   Cons cons   = expr->cons;
-   Expr * op   = cons.car;
-   Expr * args = cons.cdr;
-
-#if 0
-   if (is_symbol(op, "define")) {
-     int x = 0;
-   } else if (is_symbol(op, "quote")) {
-    int x = 1; 
-   } else {
-     Expr* fn = eval(op, context, io);
-     Expr* eval_args = eval_list(args, context, io);
-     return apply(fn, eval_args, context, io);
-   }
-#endif
-
-   Expr * fn = eval( op, context, io );
-
-   if( fn->type == Expr::EXPR_ATOM )
-   {
-      Atom atom = fn->atom;
-      if( atom.type == Atom::ATOM_NATIVE )
-      {
-         return atom.native( args, context, io );
-      }
-      else
-      {
-         return new Expr( atom );
-      }
-   }
-#if 0
-   else
-   {
-      return eval_list( fn, context, io );
-   }
-#endif
-   // TODO: should i execute the second one as well?
-
-   // TODO:
-   return make_void();
-}
-
-int eval_print( Expr * expr, Context & context, const IO & io, bool newline )
-{
-   Expr * res = eval( expr, context, io );
-   print_expr( res, io );
-   if( newline )
-   {
-      io.out << std::endl;
-   }
-   return 0;
 }
 
 Expr * eval( Expr * expr, Context & context, const IO & io )
@@ -226,12 +170,23 @@ Expr * eval( Expr * expr, Context & context, const IO & io )
          }
       case Expr::EXPR_CONS :
          {
-            return eval_cons_2( expr, context, io );
+            return eval_cons( expr, context, io );
          }
       default :
          io.err << "unhandled-type" << std::endl;
          return make_nil();
    }
+}
+
+int eval_print( Expr * expr, Context & context, const IO & io, bool newline )
+{
+   Expr * res = eval( expr, context, io );
+   print_expr( res, io );
+   if( newline )
+   {
+      io.out << std::endl;
+   }
+   return 0;
 }
 
 void print_atom( const Atom & atom, const IO & io )
@@ -314,7 +269,7 @@ void print_expr( Expr * expr, const IO & io )
             break;
          }
       default :
-         // do nothging
+         // do nothing
          break;
    }
 }
@@ -372,7 +327,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    }
 
    print_expr( res, io );
-   if( flags & FLAG_NEWLINE )
+   if( !res->is_void() && ( flags & FLAG_NEWLINE ) )
    {
       io.out << std::endl;
    }
@@ -380,13 +335,16 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    return 0;
 }
 
+const std::string DBG_CMD  = "dbg";
+const std::string LOAD_CMD = "load-file ";
+
 int repl()
 {
    IO io;
    Context ctx;
    std::string line;
-
-   int res = 0;
+   int res     = 0;
+   Flags flags = FLAG_NEWLINE;
 
    do
    {
@@ -397,11 +355,38 @@ int repl()
          break;
       }
 
-      res = eval( line, ctx, io, FLAG_NEWLINE );
+      if( line == DBG_CMD )
+      {
+         flags |= ( FLAG_DUMP_TOKENS );
+         flags |= ( FLAG_DUMP_AST );
+         flags |= ( FLAG_DUMP_ENV );
+         io.out << "debug-mode-on" << std::endl;
+      }
+      else if( line.starts_with( LOAD_CMD ) )
+      {
+         std::string filename = line.substr( LOAD_CMD.size() );
+         std::ifstream file( filename );
+         if( !file )
+         {
+            io.err << "Could not open file " << filename << std::endl;
+         }
+         else
+         {
+            io.out << "load-file '" << filename << "'" << std::endl;
+            std::ostringstream ss;
+            ss << file.rdbuf();
+            std::string content = ss.str();
+
+            res = eval( content, ctx, io, flags );
+         }
+      }
+      else
+      {
+         res = eval( line, ctx, io, flags );
+      }
 
    } while( res == 0 );
-
-   return 0;
+   return res;
 }
 
 } // namespace lisp
