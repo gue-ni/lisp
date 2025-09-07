@@ -17,31 +17,33 @@ Parser::Parser( const Tokens & tokens )
 
 Expr * Parser::parse()
 {
-  #if 1
-  Expr* head = nullptr;
-  Expr* tail = nullptr;
+#if 1
+   Expr * head = nullptr;
+   Expr * tail = nullptr;
 
-  Expr* expr = nullptr;
+   Expr * expr = nullptr;
 
-  while ((expr = parse_expr())) {
+   while( ( expr = parse_expr() ) )
+   {
 
-    Expr* node = make_cons(expr, make_nil());
-    if (!head) {
+      Expr * node = make_cons( expr, make_nil() );
+      if( !head )
+      {
 
-      head = node;
-      tail = node;
+         head = node;
+         tail = node;
+      }
+      else
+      {
+         tail->cons.cdr = node;
+         tail           = node;
+      }
+   }
 
-  } else {
-      tail->cons.cdr = node;
-      tail = node;
-    }
-
-  }
-
-  return (head != nullptr) ? head : make_nil();
+   return ( head != nullptr ) ? head : make_nil();
 #else
    return parse_expr();
-   #endif
+#endif
 }
 
 Expr * Parser::parse_expr()
@@ -61,16 +63,13 @@ Expr * Parser::parse_expr()
             advance();
             return make_symbol( tkn.lexeme.c_str() );
          }
-#if 0
       case TokenType ::QUOTE :
          {
             advance();
             Expr * quote  = make_symbol( "quote" );
             Expr * quoted = parse_expr();
-            return make_cons( quote, make_cons( quoted, make_nil() ));
+            return make_cons( quote, make_cons( quoted, make_nil() ) );
          }
-#endif
-#if 1
       case TokenType ::DEFINE :
          {
             advance();
@@ -80,7 +79,6 @@ Expr * Parser::parse_expr()
             // TODO: function definition
             return make_cons( keyword, make_cons( symbol, make_cons( value, make_nil() ) ) );
          }
-#endif
       case TokenType ::PRINT :
          {
             advance();
