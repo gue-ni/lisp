@@ -213,6 +213,16 @@ bool Expr::is_nil() const
    return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );
 }
 
+bool Expr::is_string() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_STRING );
+}
+
+bool Expr::is_number() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_NUMBER );
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 Atom::Atom()
@@ -301,6 +311,9 @@ bool Atom::is_truthy() const
       case lisp::Atom::ATOM_NATIVE :
       case lisp::Atom::ATOM_ERROR :
          return false;
+      default :
+         assert( false );
+         return false;
    }
 }
 
@@ -345,7 +358,7 @@ void Atom::print( const IO & io ) const
          }
       case Atom ::ATOM_ERROR :
          {
-            io.out << "ERROR: " << error;
+            io.out << "(error: " << error << ")";
             break;
          }
       default :
@@ -381,7 +394,8 @@ bool Atom::operator==( const Atom & other ) const
       case lisp::Atom::ATOM_ERROR :
          return ( strcmp( error, other.error ) == 0 );
       default :
-         break;
+         assert( false );
+         return false;
    }
 }
 
@@ -402,6 +416,9 @@ bool Atom::operator>( const Atom & other ) const
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
       case lisp::Atom::ATOM_ERROR :
+         return false;
+      default :
+         assert( false );
          return false;
    }
 }

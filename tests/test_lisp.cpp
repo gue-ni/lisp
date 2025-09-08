@@ -350,6 +350,44 @@ TEST_F( LispTest, test_gt_02 )
    EXPECT_EQ( out.str(), "false" );
 }
 
+TEST_F( LispTest, test_string_01 )
+{
+   std::string src = "\"hello world\"";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "\"hello world\"" );
+}
+
+TEST_F( LispTest, test_read_eval_01 )
+{
+   std::string src = "(eval (read \"+ 1 2\"))";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "3" );
+}
+
+TEST_F( LispTest, test_stdlib_01 )
+{
+   std::string src = "pi";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "3.14159" );
+}
+
+#if WIN32
+TEST_F( LispTest, test_stdlib_02 )
+{
+   std::string src = "(import \"C:/Users/jakob/Documents/Projects/lisp/tests/examples/prog_002.lisp\") (area 5)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "78.5398" );
+}
+#endif
+
 TEST_F( LispTest, test_program_01 )
 {
    std::string src

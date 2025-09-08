@@ -55,6 +55,10 @@ Expr * f_empty( Expr * arg, Context & context, const IO & io );
 
 Expr * f_eval( Expr * arg, Context & context, const IO & io );
 
+Expr * f_read( Expr * arg, Context & context, const IO & io );
+
+Expr * f_read_file( Expr * arg, Context & context, const IO & io );
+
 } // namespace builtin
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -73,6 +73,11 @@ Expr * Parser::parse_expr()
             double num = std::strtod( tkn.lexeme.c_str(), nullptr );
             return make_number( num );
          }
+      case TokenType ::STRING :
+         {
+            advance();
+            return make_string( tkn.lexeme.c_str() );
+         }
       case TokenType ::SYMBOL :
          {
             advance();

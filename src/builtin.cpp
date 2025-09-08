@@ -1,6 +1,11 @@
+#include <fstream>
+#include <sstream>
+
 #include "builtin.h"
 #include "eval.h"
 #include "expr.h"
+#include "parser.h"
+#include "tokenizer.h"
 
 namespace lisp
 {
@@ -183,6 +188,41 @@ Expr * f_eq( Expr * arg, Context & context, const IO & io )
 Expr * f_eval( Expr * arg, Context & context, const IO & io )
 {
    return eval( arg->cons.car, context, io );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_read( Expr * arg, Context & context, const IO & io )
+{
+   if( !( arg->is_cons() && arg->cons.car->is_string() ) )
+   {
+      return make_error( "read expects a string" );
+   }
+   const char * str = arg->cons.car->atom.string;
+   Expr * expr      = parse( tokenize( std::string( str ) ) );
+   return expr;
+}
+
+Expr * f_read_file( Expr * arg, Context & context, const IO & io )
+{
+   if( !( arg->is_cons() && arg->cons.car->is_string() ) )
+   {
+      return make_error( "read-file expects a string" );
+   }
+
+   const char * filename = arg->cons.car->atom.string;
+   std::ifstream file( filename );
+   if( !file )
+   {
+      return make_error( "could not open file" );
+   }
+   else
+   {
+      std::ostringstream ss;
+      ss << file.rdbuf();
+      std::string content = ss.str();
+      return make_string( content.c_str() );
+   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

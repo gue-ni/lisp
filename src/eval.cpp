@@ -20,6 +20,7 @@ Context::Context()
     : m_parent_scope( nullptr )
 {
    load_runtime();
+   load_stdlib();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,6 +74,26 @@ const Env & Context::env() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void Context::load_stdlib()
+{
+   IO io;
+   const char * stdlib = R"(
+(define euler 2.7)
+
+(define pi 3.14159265359)
+
+(define import 
+  (lambda (filename) 
+    (eval 
+      (read 
+        (read-file filename)))))
+   )";
+   int r = eval( stdlib, *this, io );
+   assert(r == 0);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void Context::load_runtime()
 {
    define( "+", make_native( builtin::f_add ) );
@@ -90,6 +111,11 @@ void Context::load_runtime()
    define( "car", make_native( builtin::f_car ) );
    define( "cdr", make_native( builtin::f_cdr ) );
    define( "cons", make_native( builtin::f_cons ) );
+
+   define( "read", make_native( builtin::f_read ) );
+   define( "eval", make_native( builtin::f_eval ) );
+
+   define( "read-file", make_native( builtin::f_read_file ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,7 +129,9 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
       case Atom::ATOM_BOOLEAN :
       case Atom::ATOM_NUMBER :
       case Atom::ATOM_STRING :
+         return expr;
       case Atom::ATOM_ERROR :
+         io.err << expr->atom.error;
          return expr;
       case Atom::ATOM_SYMBOL :
          return context.lookup( expr->atom.symbol );
@@ -336,27 +364,9 @@ int repl()
          flags |= ( FLAG_DUMP_ENV );
          io.out << "debug-mode-on" << std::endl;
       }
-      if( line == DBG_QUIT )
+      else if( line == DBG_QUIT )
       {
          quit = true;
-      }
-      else if( line.starts_with( LOAD_CMD ) )
-      {
-         std::string filename = line.substr( LOAD_CMD.size() );
-         std::ifstream file( filename );
-         if( !file )
-         {
-            io.err << "Could not open file " << filename << std::endl;
-         }
-         else
-         {
-            io.out << "load-file '" << filename << "'" << std::endl;
-            std::ostringstream ss;
-            ss << file.rdbuf();
-            std::string content = ss.str();
-
-            res = eval( content, ctx, io, flags );
-         }
       }
       else
       {
