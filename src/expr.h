@@ -127,6 +127,8 @@ struct Expr
    bool is_atom() const;
 
    bool is_nil() const;
+   bool is_string() const;
+   bool is_number() const;
    bool is_symbol( const char * symbol ) const;
    bool is_truthy() const;
 };

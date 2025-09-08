@@ -73,6 +73,15 @@ const Env & Context::env() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void Context::load_stdlib()
+{
+   IO io;
+   std::string stdlib = "(define euler 2.7) (define import (lambda (f) (eval (read (read-file f)))))";
+   ( void ) eval( stdlib, *this, io );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void Context::load_runtime()
 {
    define( "+", make_native( builtin::f_add ) );
@@ -90,6 +99,13 @@ void Context::load_runtime()
    define( "car", make_native( builtin::f_car ) );
    define( "cdr", make_native( builtin::f_cdr ) );
    define( "cons", make_native( builtin::f_cons ) );
+
+   define( "read", make_native( builtin::f_read ) );
+   define( "eval", make_native( builtin::f_eval ) );
+
+   define( "read-file", make_native( builtin::f_read_file ) );
+
+   load_stdlib();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,7 +119,9 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
       case Atom::ATOM_BOOLEAN :
       case Atom::ATOM_NUMBER :
       case Atom::ATOM_STRING :
+         return expr;
       case Atom::ATOM_ERROR :
+         io.err << expr->atom.error;
          return expr;
       case Atom::ATOM_SYMBOL :
          return context.lookup( expr->atom.symbol );
@@ -343,20 +361,8 @@ int repl()
       else if( line.starts_with( LOAD_CMD ) )
       {
          std::string filename = line.substr( LOAD_CMD.size() );
-         std::ifstream file( filename );
-         if( !file )
-         {
-            io.err << "Could not open file " << filename << std::endl;
-         }
-         else
-         {
-            io.out << "load-file '" << filename << "'" << std::endl;
-            std::ostringstream ss;
-            ss << file.rdbuf();
-            std::string content = ss.str();
-
-            res = eval( content, ctx, io, flags );
-         }
+         std::string import   = "(eval (read (read-file \"" + filename + "\")))";
+         res                  = eval( import, ctx, io, flags );
       }
       else
       {

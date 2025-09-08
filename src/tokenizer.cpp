@@ -152,7 +152,6 @@ void Tokenizer::run()
 
          case '\"' :
             {
-               // TODO: handle string
                handle_string();
                break;
             }

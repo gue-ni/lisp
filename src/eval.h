@@ -35,10 +35,12 @@ class Context
    void print( const IO & io ) const;
    const Env & env() const;
 
+
  private:
    Context * m_parent_scope;
    Env m_env;
    void load_runtime();
+   void load_stdlib();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
