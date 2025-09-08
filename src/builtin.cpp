@@ -185,7 +185,7 @@ Expr * f_eq( Expr * arg, Context & context, const IO & io )
 
 Expr * f_not( Expr * arg, Context & context, const IO & io )
 {
-   return make_boolean( !(arg->cons.car->is_truthy()));
+   return make_boolean( !( arg->cons.car->is_truthy() ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -238,15 +238,23 @@ Expr * f_read_file( Expr * arg, Context & context, const IO & io )
 
 Expr * f_exit( Expr * arg, Context & context, const IO & io )
 {
-  context.exit = true;
-  
-  if (arg->cons.car->is_number()) {
-    context.exit_code = (int) arg->cons.car->atom.number;
-  } else {
-    context.exit_code = 0;
-  }
+   context.exit = true;
+
+   if( arg->cons.car->is_number() )
+   {
+      context.exit_code = ( int ) arg->cons.car->atom.number;
+   }
+   else
+   {
+      context.exit_code = 0;
+   }
 
    return make_void();
+}
+
+Expr * f_list( Expr * arg, Context & context, const IO & io )
+{
+   return arg;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
