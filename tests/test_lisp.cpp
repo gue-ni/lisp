@@ -217,7 +217,7 @@ TEST_F( LispTest, test_car_02 )
 
 TEST_F( LispTest, test_car_03 )
 {
-   std::string src = "(f-car '(1 2 3)";
+   std::string src = "(f-car '(1 2 3))";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
