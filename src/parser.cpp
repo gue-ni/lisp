@@ -52,6 +52,16 @@ Expr * Parser::parse_expr()
 
    switch( tkn.type )
    {
+      case TokenType ::TRUE :
+         {
+           advance();
+           return make_boolean(true);
+         }
+      case TokenType ::FALSE :
+         {
+           advance();
+           return make_boolean(false);
+         }
       case TokenType ::NUMBER :
          {
             advance();
@@ -123,11 +133,6 @@ Expr * Parser::parse_expr()
       default :
          return nullptr;
    }
-}
-
-Expr * Parser::parse_number()
-{
-   return nullptr;
 }
 
 Expr * Parser::parse_list()

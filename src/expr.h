@@ -48,6 +48,7 @@ struct Atom
    enum Type
    {
       ATOM_NIL,
+      ATOM_BOOLEAN,
       ATOM_NUMBER,
       ATOM_SYMBOL,
       ATOM_STRING,
@@ -59,6 +60,7 @@ struct Atom
    Type type;
    union
    {
+      bool boolean;
       double number;
       char * symbol;
       char * string;
@@ -149,6 +151,13 @@ inline Expr * make_cons( Expr * a, Expr * b )
 {
    Cons cons( a, b );
    return make_expr( cons );
+}
+
+inline Expr* make_boolean(bool boolean) {
+  Atom atom;
+  atom.type = Atom::ATOM_BOOLEAN;
+  atom.boolean = boolean;
+  return make_expr(std::move(atom));
 }
 
 inline Expr * make_number( double number )

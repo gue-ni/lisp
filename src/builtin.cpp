@@ -10,21 +10,28 @@ namespace builtin
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * print( Expr * arg, Context & context, const IO & io )
+Expr * f_print( Expr * arg, Context & context, const IO & io )
 {
    if( !has_type( arg, Expr::EXPR_CONS ) )
    {
-
       return make_error( "invalid-type" );
    }
    Expr * expr = eval( arg->cons.car, context, io );
-   expr->print(io);
+   expr->print( io );
+   io.out << std::endl;
+   return make_void();
+}
+
+Expr * f_print_debug( Expr * arg, Context & context, const IO & io )
+{
+   arg->print_debug( io.out );
+   io.out << std::endl;
    return make_void();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * plus( Expr * arg, Context & context, const IO & io )
+Expr * f_add( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
@@ -43,7 +50,7 @@ Expr * plus( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * minus( Expr * arg, Context & context, const IO & io )
+Expr * f_sub( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
@@ -62,7 +69,7 @@ Expr * minus( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * mult( Expr * arg, Context & context, const IO & io )
+Expr * f_mul( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
@@ -81,7 +88,7 @@ Expr * mult( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * div( Expr * arg, Context & context, const IO & io )
+Expr * f_div( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
@@ -98,9 +105,30 @@ Expr * div( Expr * arg, Context & context, const IO & io )
    return make_number( result );
 }
 
+Expr * f_car( Expr * arg, Context & context, const IO & io )
+{
+   if( !arg->is_cons() )
+   {
+      make_error( "car expected 1 argument" );
+   }
+
+   //arg->print_debug( io.out );
+   //io.out << std::endl;
+
+   // Expr * first = eval( arg->cons.car, context, io );
+
+   return arg->cons.car->cons.car;
+}
+
+Expr * f_cdr( Expr * arg, Context & context, const IO & io )
+{
+   Expr * value = eval( arg->cons.car, context, io );
+   return value->cons.cdr;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * eval_expr( Expr * arg, Context & context, const IO & io )
+Expr * f_eval( Expr * arg, Context & context, const IO & io )
 {
    return eval( arg->cons.car, context, io );
 }

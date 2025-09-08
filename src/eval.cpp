@@ -75,11 +75,14 @@ const Env & Context::env() const
 
 void Context::load_runtime()
 {
-   define( "+", make_native( builtin::plus ) );
-   define( "-", make_native( builtin::minus ) );
-   define( "*", make_native( builtin::mult ) );
-   define( "/", make_native( builtin::div ) );
-   define( "print", make_native( builtin::print ) );
+   define( "+", make_native( builtin::f_add ) );
+   define( "-", make_native( builtin::f_sub ) );
+   define( "*", make_native( builtin::f_mul ) );
+   define( "/", make_native( builtin::f_div ) );
+   define( "print", make_native( builtin::f_print ) );
+   define( "print-debug", make_native( builtin::f_print_debug ) );
+   define( "car-2", make_native( builtin::f_car ) );
+   define( "cdr-2", make_native( builtin::f_cdr ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,6 +93,7 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
    switch( expr->atom.type )
    {
       case Atom::ATOM_NIL :
+      case Atom::ATOM_BOOLEAN :
       case Atom::ATOM_NUMBER :
       case Atom::ATOM_STRING :
       case Atom::ATOM_ERROR :

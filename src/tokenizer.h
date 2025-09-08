@@ -22,6 +22,8 @@ enum TokenType
    SYMBOL,
    STRING,
    KEYWORD,
+   TRUE,
+   FALSE,
    NIL,
    BEGIN,
    END,

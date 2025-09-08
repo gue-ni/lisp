@@ -119,6 +119,11 @@ void Expr::print_debug( std::ostream & os ) const
                      os << "Nil";
                      break;
                   }
+               case Atom ::ATOM_BOOLEAN :
+                  {
+                     os << "Boolean(" << (atom.boolean ? "true" : "false") << ")";
+                     break;
+                  }
                case Atom ::ATOM_NUMBER :
                   {
                      os << "Number(" << atom.number << ")";
@@ -200,6 +205,7 @@ Atom::~Atom()
    {
       case lisp::Atom::ATOM_NIL :
       case lisp::Atom::ATOM_NUMBER :
+      case lisp::Atom::ATOM_BOOLEAN :
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
          break;
@@ -231,6 +237,9 @@ Atom::Atom( Atom && other ) noexcept
    {
       case lisp::Atom::ATOM_NIL :
          break;
+      case lisp ::Atom ::ATOM_BOOLEAN :
+        boolean = other.boolean;
+        break;
       case lisp::Atom::ATOM_NUMBER :
          number = other.number;
          break;
@@ -263,6 +272,11 @@ void Atom::print( const IO & io ) const
          {
             io.out << "()";
             break;
+         }
+      case Atom ::ATOM_BOOLEAN :
+         {
+           io.out << (boolean ? "true" : "false");
+           break;
          }
       case Atom::ATOM_NUMBER :
          {
