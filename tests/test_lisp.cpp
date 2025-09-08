@@ -314,6 +314,24 @@ TEST_F( LispTest, test_eq_03 )
    EXPECT_EQ( out.str(), "true" );
 }
 
+TEST_F( LispTest, test_eq_04 )
+{
+   std::string src = "(= 1 1 1)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "true" );
+}
+
+TEST_F( LispTest, test_eq_05 )
+{
+   std::string src = "(= 1 2 3)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "false" );
+}
+
 TEST_F( LispTest, test_gt_01 )
 {
    std::string src = "(> 3 2)";

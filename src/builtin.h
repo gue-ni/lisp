@@ -45,8 +45,6 @@ Expr * f_gt( Expr * arg, Context & context, const IO & io );
 
 Expr * f_eq( Expr * arg, Context & context, const IO & io );
 
-Expr * f_if( Expr * arg, Context & context, const IO & io );
-
 Expr * f_and( Expr * arg, Context & context, const IO & io );
 
 Expr * f_or( Expr * arg, Context & context, const IO & io );

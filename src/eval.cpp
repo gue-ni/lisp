@@ -90,8 +90,6 @@ void Context::load_runtime()
    define( "car", make_native( builtin::f_car ) );
    define( "cdr", make_native( builtin::f_cdr ) );
    define( "cons", make_native( builtin::f_cons ) );
-
-   define( "if", make_native( builtin::f_if ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -198,6 +196,21 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
       Expr * params = args->cons.car;
       Expr * body   = args->cons.cdr;
       return make_lambda( params, body );
+   }
+   else if( op->is_symbol( "if" ) )
+   {
+      Expr * cond      = eval( args->cons.car, context, io );
+      Expr * then_expr = args->cons.cdr->cons.car;
+      Expr * else_expr = args->cons.cdr->cons.cdr->cons.car;
+
+      if( cond->is_truthy() )
+      {
+         return eval( then_expr, context, io );
+      }
+      else
+      {
+         return eval( else_expr, context, io );
+      }
    }
    else
    {

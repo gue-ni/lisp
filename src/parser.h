@@ -21,7 +21,6 @@ class Parser
    Token peek();
 
    Expr * parse_expr();
-   Expr * parse_number();
    Expr * parse_list();
    Expr * parse_lambda();
 };
