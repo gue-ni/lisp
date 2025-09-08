@@ -377,6 +377,7 @@ TEST_F( LispTest, test_stdlib_01 )
    EXPECT_EQ( out.str(), "3.14159" );
 }
 
+#if WIN32
 TEST_F( LispTest, test_stdlib_02 )
 {
    std::string src = "(import \"C:/Users/jakob/Documents/Projects/lisp/tests/examples/prog_002.lisp\") (area 5)";
@@ -385,6 +386,7 @@ TEST_F( LispTest, test_stdlib_02 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "78.5398" );
 }
+#endif
 
 TEST_F( LispTest, test_program_01 )
 {

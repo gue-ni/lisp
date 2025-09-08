@@ -79,10 +79,17 @@ void Context::load_stdlib()
    IO io;
    const char * stdlib = R"(
 (define euler 2.7)
+
 (define pi 3.14159265359)
-(define import (lambda (f) (eval (read (read-file f)))))
+
+(define import 
+  (lambda (filename) 
+    (eval 
+      (read 
+        (read-file filename)))))
    )";
    int r = eval( stdlib, *this, io );
+   assert(r == 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,8 +116,6 @@ void Context::load_runtime()
    define( "eval", make_native( builtin::f_eval ) );
 
    define( "read-file", make_native( builtin::f_read_file ) );
-
-   //load_stdlib();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
