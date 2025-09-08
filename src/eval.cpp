@@ -368,12 +368,6 @@ int repl()
       {
          quit = true;
       }
-      else if( line.starts_with( LOAD_CMD ) )
-      {
-         std::string filename = line.substr( LOAD_CMD.size() );
-         std::string import   = "(eval (read (read-file \"" + filename + "\")))";
-         res                  = eval( import, ctx, io, flags );
-      }
       else
       {
          res = eval( line, ctx, io, flags );
