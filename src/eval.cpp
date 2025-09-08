@@ -18,6 +18,8 @@ namespace lisp
 
 Context::Context()
     : m_parent_scope( nullptr )
+    , exit( false )
+    , exit_code( 0 )
 {
    load_runtime();
    load_stdlib();
@@ -88,8 +90,8 @@ void Context::load_stdlib()
       (read 
         (read-file filename)))))
    )";
-   int r = eval( stdlib, *this, io );
-   assert(r == 0);
+   int r               = eval( stdlib, *this, io );
+   assert( r == 0 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,6 +105,7 @@ void Context::load_runtime()
 
    define( "=", make_native( builtin::f_eq ) );
    define( ">", make_native( builtin::f_gt ) );
+   define( "not", make_native( builtin::f_not ) );
 
    define( "print", make_native( builtin::f_print ) );
    define( "println", make_native( builtin::f_println ) );
@@ -116,6 +119,8 @@ void Context::load_runtime()
    define( "eval", make_native( builtin::f_eval ) );
 
    define( "read-file", make_native( builtin::f_read_file ) );
+
+   define( "exit", make_native( builtin::f_exit ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,6 +245,16 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
          return eval( else_expr, context, io );
       }
    }
+   else if( op->is_symbol( "or" ) )
+   {
+      // TODO
+      return make_nil();
+   }
+   else if( op->is_symbol( "and" ) )
+   {
+      // TODO
+      return make_nil();
+   }
    else
    {
       Expr * fn = eval( op, context, io );
@@ -322,10 +337,14 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << "----env-env----" << std::endl;
    }
 
-   res->print( io );
-   if( !res->is_void() && ( flags & FLAG_NEWLINE ) )
+   if( !res->is_void() )
    {
-      io.out << std::endl;
+
+      res->print( io );
+      if( flags & FLAG_NEWLINE )
+      {
+         io.out << std::endl;
+      }
    }
 
    return 0;
@@ -346,12 +365,10 @@ int repl()
    std::string line;
    int res     = 0;
    Flags flags = FLAG_NEWLINE;
-   bool quit   = false;
 
    do
    {
       std::cout << "> ";
-
       if( !std::getline( std::cin, line ) )
       {
          break;
@@ -359,22 +376,17 @@ int repl()
 
       if( line == DBG_CMD )
       {
-         flags |= ( FLAG_DUMP_TOKENS );
-         flags |= ( FLAG_DUMP_AST );
-         flags |= ( FLAG_DUMP_ENV );
-         io.out << "debug-mode-on" << std::endl;
-      }
-      else if( line == DBG_QUIT )
-      {
-         quit = true;
+         Flags debug_flags = ( FLAG_DUMP_TOKENS | FLAG_DUMP_AST | FLAG_DUMP_ENV );
+         flags ^= debug_flags;
+         io.out << "toggle-debug-mode" << std::endl;
       }
       else
       {
          res = eval( line, ctx, io, flags );
       }
 
-   } while( ( res == 0 ) && ( !quit ) );
-   return res;
+   } while( ( res == 0 ) && ( !ctx.exit ) );
+   return (ctx.exit_code == 0) ? res : ctx.exit_code;
 }
 
 namespace gc

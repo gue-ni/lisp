@@ -183,10 +183,19 @@ Expr * f_eq( Expr * arg, Context & context, const IO & io )
    return make_boolean( is_eq );
 }
 
+Expr * f_not( Expr * arg, Context & context, const IO & io )
+{
+   return make_boolean( !(arg->cons.car->is_truthy()));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_eval( Expr * arg, Context & context, const IO & io )
 {
+   if( !arg->is_cons() )
+   {
+      return make_error( "eval expects a cons" );
+   }
    return eval( arg->cons.car, context, io );
 }
 
@@ -202,6 +211,8 @@ Expr * f_read( Expr * arg, Context & context, const IO & io )
    Expr * expr      = parse( tokenize( std::string( str ) ) );
    return expr;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_read_file( Expr * arg, Context & context, const IO & io )
 {
@@ -223,6 +234,19 @@ Expr * f_read_file( Expr * arg, Context & context, const IO & io )
       std::string content = ss.str();
       return make_string( content.c_str() );
    }
+}
+
+Expr * f_exit( Expr * arg, Context & context, const IO & io )
+{
+  context.exit = true;
+  
+  if (arg->cons.car->is_number()) {
+    context.exit_code = (int) arg->cons.car->atom.number;
+  } else {
+    context.exit_code = 0;
+  }
+
+   return make_void();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

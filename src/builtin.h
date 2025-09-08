@@ -45,10 +45,6 @@ Expr * f_gt( Expr * arg, Context & context, const IO & io );
 
 Expr * f_eq( Expr * arg, Context & context, const IO & io );
 
-Expr * f_and( Expr * arg, Context & context, const IO & io );
-
-Expr * f_or( Expr * arg, Context & context, const IO & io );
-
 Expr * f_not( Expr * arg, Context & context, const IO & io );
 
 Expr * f_empty( Expr * arg, Context & context, const IO & io );
@@ -58,6 +54,8 @@ Expr * f_eval( Expr * arg, Context & context, const IO & io );
 Expr * f_read( Expr * arg, Context & context, const IO & io );
 
 Expr * f_read_file( Expr * arg, Context & context, const IO & io );
+
+Expr * f_exit( Expr * arg, Context & context, const IO & io );
 
 } // namespace builtin
 

@@ -35,6 +35,9 @@ class Context
    void print( const IO & io ) const;
    const Env & env() const;
 
+   bool exit;
+   int exit_code;
+
 
  private:
    Context * m_parent_scope;
