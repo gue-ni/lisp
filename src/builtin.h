@@ -21,6 +21,8 @@ namespace builtin
 
 Expr * f_print( Expr * arg, Context & context, const IO & io );
 
+Expr * f_println( Expr * arg, Context & context, const IO & io );
+
 Expr * f_print_debug( Expr * arg, Context & context, const IO & io );
 
 Expr * f_add( Expr * arg, Context & context, const IO & io );

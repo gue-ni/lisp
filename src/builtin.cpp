@@ -18,6 +18,12 @@ Expr * f_print( Expr * arg, Context & context, const IO & io )
    }
    Expr * expr = eval( arg->cons.car, context, io );
    expr->print( io );
+   return make_void();
+}
+
+Expr * f_println( Expr * arg, Context & context, const IO & io )
+{
+   ( void ) f_print( arg, context, io );
    io.out << std::endl;
    return make_void();
 }
@@ -112,8 +118,8 @@ Expr * f_car( Expr * arg, Context & context, const IO & io )
       make_error( "car expected 1 argument" );
    }
 
-   //arg->print_debug( io.out );
-   //io.out << std::endl;
+   // arg->print_debug( io.out );
+   // io.out << std::endl;
 
    // Expr * first = eval( arg->cons.car, context, io );
 
@@ -122,8 +128,17 @@ Expr * f_car( Expr * arg, Context & context, const IO & io )
 
 Expr * f_cdr( Expr * arg, Context & context, const IO & io )
 {
-   Expr * value = eval( arg->cons.car, context, io );
-   return value->cons.cdr;
+   if( !arg->is_cons() )
+   {
+      make_error( "car expected 1 argument" );
+   }
+   return arg->cons.car->cons.cdr;
+}
+
+Expr * f_cons( Expr * arg, Context & context, const IO & io )
+{
+   // TODO
+   return make_nil();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

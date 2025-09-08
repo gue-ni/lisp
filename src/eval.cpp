@@ -81,8 +81,9 @@ void Context::load_runtime()
    define( "/", make_native( builtin::f_div ) );
    define( "print", make_native( builtin::f_print ) );
    define( "print-debug", make_native( builtin::f_print_debug ) );
-   define( "car-2", make_native( builtin::f_car ) );
-   define( "cdr-2", make_native( builtin::f_cdr ) );
+   define( "f-car", make_native( builtin::f_car ) );
+   define( "f-cdr", make_native( builtin::f_cdr ) );
+   define( "f-cons", make_native( builtin::f_cons ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
