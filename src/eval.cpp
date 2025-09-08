@@ -84,10 +84,10 @@ void Context::load_stdlib()
 
 (define pi 3.14159265359)
 
-(define import 
-  (lambda (filename) 
-    (eval 
-      (read 
+(define import
+  (lambda (filename)
+    (eval
+      (read
         (read-file filename)))))
    )";
    int r               = eval( stdlib, *this, io );
@@ -114,6 +114,8 @@ void Context::load_runtime()
    define( "car", make_native( builtin::f_car ) );
    define( "cdr", make_native( builtin::f_cdr ) );
    define( "cons", make_native( builtin::f_cons ) );
+
+   define( "list", make_native( builtin::f_list ) );
 
    define( "read", make_native( builtin::f_read ) );
    define( "eval", make_native( builtin::f_eval ) );
