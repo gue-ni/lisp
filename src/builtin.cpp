@@ -185,6 +185,11 @@ Expr * f_eval( Expr * arg, Context & context, const IO & io )
    return eval( arg->cons.car, context, io );
 }
 
+Expr * f_read( Expr * arg, Context & context, const IO & io )
+{
+   return make_void();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 } // namespace builtin

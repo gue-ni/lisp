@@ -56,6 +56,22 @@ bool Tokenizer::is_finished() const
    return m_current == m_source.end();
 }
 
+void Tokenizer::handle_string()
+{
+   auto start = m_current - 1;
+   auto end   = std::find( m_current, m_source.cend(), '\"' );
+
+   if( end == m_source.cend() )
+   {
+      assert( false );
+   }
+
+   std::string str( m_current, end );
+
+   push( Token( STRING, str ) );
+   m_current = end + 1;
+}
+
 void Tokenizer::handle_number()
 {
    std::string::const_iterator start = m_current - 1;
@@ -137,6 +153,7 @@ void Tokenizer::run()
          case '\"' :
             {
                // TODO: handle string
+               handle_string();
                break;
             }
          default :

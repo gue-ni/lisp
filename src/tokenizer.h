@@ -67,6 +67,7 @@ class Tokenizer
    char peek_next();
    void skip_whitespace();
    bool is_finished() const;
+   void handle_string();
    void handle_number();
    void handle_identifier();
    void push( const Token & );

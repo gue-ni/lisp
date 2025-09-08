@@ -350,6 +350,15 @@ TEST_F( LispTest, test_gt_02 )
    EXPECT_EQ( out.str(), "false" );
 }
 
+TEST_F( LispTest, test_string_01 )
+{
+   std::string src = "\"hello world\"";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(),  "\"hello world\"");
+}
+
 TEST_F( LispTest, test_program_01 )
 {
    std::string src

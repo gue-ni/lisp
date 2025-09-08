@@ -336,7 +336,7 @@ int repl()
          flags |= ( FLAG_DUMP_ENV );
          io.out << "debug-mode-on" << std::endl;
       }
-      if( line == DBG_QUIT )
+      else if( line == DBG_QUIT )
       {
          quit = true;
       }
