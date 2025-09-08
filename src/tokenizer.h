@@ -17,8 +17,6 @@ enum TokenType
    DEFINE,
    PRINT,
    CONS,
-   CAR,
-   CDR,
    SYMBOL,
    STRING,
    KEYWORD,

@@ -81,8 +81,8 @@ void Context::load_runtime()
    define( "/", make_native( builtin::f_div ) );
    define( "print", make_native( builtin::f_print ) );
    define( "print-debug", make_native( builtin::f_print_debug ) );
-   define( "f-car", make_native( builtin::f_car ) );
-   define( "f-cdr", make_native( builtin::f_cdr ) );
+   define( "car", make_native( builtin::f_car ) );
+   define( "cdr", make_native( builtin::f_cdr ) );
    define( "f-cons", make_native( builtin::f_cons ) );
 }
 
@@ -190,24 +190,6 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
       Expr * params = args->cons.car;
       Expr * body   = args->cons.cdr;
       return make_lambda( params, body );
-   }
-   else if( op->is_symbol( "car" ) )
-   {
-      Expr * value = eval( args->cons.car, context, io );
-      if( !value->is_cons() )
-      {
-         return make_error( "not a cons" );
-      }
-      return value->cons.car;
-   }
-   else if( op->is_symbol( "cdr" ) )
-   {
-      Expr * value = eval( args->cons.car, context, io );
-      if( !value->is_cons() )
-      {
-         return make_error( "not a cons" );
-      }
-      return value->cons.cdr;
    }
    else if( op->is_symbol( "cons" ) )
    {
@@ -406,7 +388,7 @@ void sweep()
 
 void run( Context & context )
 {
-   for( auto [symbol, expr] : context.env() )
+   for( const auto & [symbol, expr] : context.env() )
    {
       mark( expr );
    }

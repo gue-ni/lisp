@@ -208,7 +208,7 @@ TEST_F( LispTest, test_car_01 )
 
 TEST_F( LispTest, test_car_02 )
 {
-   std::string src = "(f-car (cons 1 2))";
+   std::string src = "(car (cons 1 2))";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -217,7 +217,7 @@ TEST_F( LispTest, test_car_02 )
 
 TEST_F( LispTest, test_car_03 )
 {
-   std::string src = "(f-car '(1 2 3))";
+   std::string src = "(car '(1 2 3))";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -226,7 +226,7 @@ TEST_F( LispTest, test_car_03 )
 
 TEST_F( LispTest, test_car_04 )
 {
-   std::string src = "(define x '(1 2 3)) (f-car x)";
+   std::string src = "(define x '(1 2 3)) (car x)";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -244,7 +244,7 @@ TEST_F( LispTest, test_cdr_01 )
 
 TEST_F( LispTest, test_cdr_02 )
 {
-   std::string src = "(f-cdr (cons 1 2))";
+   std::string src = "(cdr (cons 1 2))";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -253,7 +253,7 @@ TEST_F( LispTest, test_cdr_02 )
 
 TEST_F( LispTest, test_cdr_03 )
 {
-   std::string src = "(f-cdr '(1 2 3))";
+   std::string src = "(cdr '(1 2 3))";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -262,7 +262,7 @@ TEST_F( LispTest, test_cdr_03 )
 
 TEST_F( LispTest, test_cdr_04 )
 {
-   std::string src = "(define x '(1 2 3)) (f-cdr x)";
+   std::string src = "(define x '(1 2 3)) (cdr x)";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );

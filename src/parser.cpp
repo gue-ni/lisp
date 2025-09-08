@@ -54,13 +54,13 @@ Expr * Parser::parse_expr()
    {
       case TokenType ::TRUE :
          {
-           advance();
-           return make_boolean(true);
+            advance();
+            return make_boolean( true );
          }
       case TokenType ::FALSE :
          {
-           advance();
-           return make_boolean(false);
+            advance();
+            return make_boolean( false );
          }
       case TokenType ::NUMBER :
          {
@@ -108,21 +108,6 @@ Expr * Parser::parse_expr()
             Expr * car     = parse_expr();
             Expr * cdr     = parse_expr();
             return make_cons( keyword, make_cons( car, make_cons( cdr, make_nil() ) ) );
-         }
-      case TokenType ::CAR :
-         {
-            advance();
-            Expr * keyword = make_symbol( "car" );
-            Expr * cons    = parse_expr();
-            return make_cons( keyword, make_cons( cons, make_nil() ) );
-         }
-
-      case TokenType ::CDR :
-         {
-            advance();
-            Expr * keyword = make_symbol( "cdr" );
-            Expr * cons    = parse_expr();
-            return make_cons( keyword, make_cons( cons, make_nil() ) );
          }
 
       case TokenType ::LAMBDA :
