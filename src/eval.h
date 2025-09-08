@@ -65,6 +65,8 @@ Expr * eval( Expr * expr, Context & context, const IO & io );
 
 int eval( const std::string & source, Context & context, const IO & io, Flags flags = 0 );
 
+int eval(const std::string& source);
+
 int repl();
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -354,6 +354,15 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 
 ///////////////////////////////////////////////////////////////////////////////
 
+int eval( const std::string & source )
+{
+   IO io;
+   Context ctx;
+   return eval( source, ctx, io, FLAG_NEWLINE );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 const std::string DBG_CMD  = "dbg";
 const std::string DBG_QUIT = "quit";
 const std::string LOAD_CMD = "load-file ";
@@ -388,11 +397,14 @@ int repl()
       }
 
    } while( ( res == 0 ) && ( !ctx.exit ) );
-   return (ctx.exit_code == 0) ? res : ctx.exit_code;
+   return ( ctx.exit_code == 0 ) ? res : ctx.exit_code;
 }
 
 namespace gc
 {
+
+///////////////////////////////////////////////////////////////////////////////
+
 void mark( Expr * expr )
 {
    expr->marked = true;
@@ -406,6 +418,9 @@ void mark( Expr * expr )
       // closures?
    }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
 void sweep()
 {
    auto it = Expr::all.begin();
@@ -425,6 +440,8 @@ void sweep()
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 void run( Context & context )
 {
    for( const auto & [symbol, expr] : context.env() )
@@ -434,6 +451,8 @@ void run( Context & context )
 
    sweep();
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // namespace gc
 
