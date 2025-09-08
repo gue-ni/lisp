@@ -368,6 +368,24 @@ TEST_F( LispTest, test_read_eval_01 )
    EXPECT_EQ( out.str(), "3" );
 }
 
+TEST_F( LispTest, test_stdlib_01 )
+{
+   std::string src = "pi";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "3.14159" );
+}
+
+TEST_F( LispTest, test_stdlib_02 )
+{
+   std::string src = "(import \"C:/Users/jakob/Documents/Projects/lisp/tests/examples/prog_002.lisp\") (area 5)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "78.5398" );
+}
+
 TEST_F( LispTest, test_program_01 )
 {
    std::string src

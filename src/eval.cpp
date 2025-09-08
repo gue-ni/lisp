@@ -20,6 +20,7 @@ Context::Context()
     : m_parent_scope( nullptr )
 {
    load_runtime();
+   load_stdlib();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,8 +77,12 @@ const Env & Context::env() const
 void Context::load_stdlib()
 {
    IO io;
-   std::string stdlib = "(define euler 2.7) (define import (lambda (f) (eval (read (read-file f)))))";
-   ( void ) eval( stdlib, *this, io );
+   const char * stdlib = R"(
+(define euler 2.7)
+(define pi 3.14159265359)
+(define import (lambda (f) (eval (read (read-file f)))))
+   )";
+   int r = eval( stdlib, *this, io );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,7 +110,7 @@ void Context::load_runtime()
 
    define( "read-file", make_native( builtin::f_read_file ) );
 
-   load_stdlib();
+   //load_stdlib();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

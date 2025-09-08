@@ -27,8 +27,11 @@ Tokenizer::Tokenizer( const std::string & source )
 
 char Tokenizer::next()
 {
-   assert( !is_finished() );
-   return *( m_current++ );
+  if (!is_finished()) {
+      return *( m_current++ );
+  } else {
+    return '\0';
+  }
 }
 
 char Tokenizer::peek()
@@ -47,7 +50,7 @@ void Tokenizer::skip_whitespace()
    // TODO: skip comments
    while( !is_finished() && isspace( peek() ) )
    {
-      next();
+      (void)next();
    }
 }
 
@@ -126,11 +129,14 @@ void Tokenizer::push( const Token & token )
 
 void Tokenizer::run()
 {
-   while( !is_finished() )
+   while( ( !is_finished() ) )
    {
       skip_whitespace();
-
       char c = next();
+
+      if (c == '\0') {
+        break;
+      }
 
       switch( c )
       {
