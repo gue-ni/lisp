@@ -137,16 +137,29 @@ Expr * f_cdr( Expr * arg, Context & context, const IO & io )
 
 Expr * f_cons( Expr * arg, Context & context, const IO & io )
 {
-   // TODO
-   return make_nil();
+   Expr * a = arg->cons.car;
+   Expr * b = arg->cons.cdr->cons.car;
+   return make_cons( a, b );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_gt( Expr * arg, Context & context, const IO & io )
 {
-   // TODO
-   return make_nil();
+   Expr * a = arg->cons.car;
+   Expr * b = arg->cons.cdr->cons.car;
+
+   bool is_gt = false;
+   if( ( a->type == b->type ) && a->is_atom() )
+   {
+      is_gt = ( a->atom ) > ( b->atom );
+   }
+   else
+   {
+      is_gt = false;
+   }
+
+   return make_boolean( is_gt );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,18 +169,18 @@ Expr * f_eq( Expr * arg, Context & context, const IO & io )
    Expr * a = arg->cons.car;
    Expr * b = arg->cons.cdr->cons.car;
 
-   bool is_equal = false;
+   bool is_eq = false;
 
    if( ( a->type == b->type ) && a->is_atom() )
    {
-      is_equal = ( a->atom ) == ( b->atom );
+      is_eq = ( a->atom ) == ( b->atom );
    }
    else
    {
-      is_equal = false;
+      is_eq = false;
    }
 
-   return make_boolean( is_equal );
+   return make_boolean( is_eq );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,9 +194,10 @@ Expr * f_eval( Expr * arg, Context & context, const IO & io )
 
 Expr * f_if( Expr * arg, Context & context, const IO & io )
 {
+   // TODO: type error handling
    Expr * cond      = arg->cons.car;
    Expr * then_expr = arg->cons.cdr->cons.car;
-   Expr * else_expr = arg->cons.cdr->cons.cdr;
+   Expr * else_expr = arg->cons.cdr->cons.cdr->cons.car;
 
    if( cond->is_truthy() )
    {

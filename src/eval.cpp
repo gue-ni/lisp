@@ -42,7 +42,7 @@ Expr * Context::lookup( const char * symbol ) const
    }
    else
    {
-      return (m_parent_scope) ? (m_parent_scope->lookup(symbol)) : make_nil();
+      return ( m_parent_scope ) ? ( m_parent_scope->lookup( symbol ) ) : make_nil();
    }
 }
 
@@ -84,11 +84,12 @@ void Context::load_runtime()
    define( ">", make_native( builtin::f_gt ) );
 
    define( "print", make_native( builtin::f_print ) );
+   define( "println", make_native( builtin::f_println ) );
    define( "print-debug", make_native( builtin::f_print_debug ) );
 
    define( "car", make_native( builtin::f_car ) );
    define( "cdr", make_native( builtin::f_cdr ) );
-   define( "f-cons", make_native( builtin::f_cons ) );
+   define( "cons", make_native( builtin::f_cons ) );
 
    define( "if", make_native( builtin::f_if ) );
 }
@@ -197,12 +198,6 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
       Expr * params = args->cons.car;
       Expr * body   = args->cons.cdr;
       return make_lambda( params, body );
-   }
-   else if( op->is_symbol( "cons" ) )
-   {
-      Expr * car = eval( args->cons.car, context, io );
-      Expr * cdr = eval( args->cons.cdr->cons.car, context, io );
-      return make_cons( car, cdr );
    }
    else
    {

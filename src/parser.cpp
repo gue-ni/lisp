@@ -93,7 +93,6 @@ Expr * Parser::parse_expr()
             Expr * value   = parse_expr();
             return make_cons( keyword, make_cons( symbol, make_cons( value, make_nil() ) ) );
          }
-
       case TokenType ::LAMBDA :
          {
             advance();

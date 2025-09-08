@@ -374,7 +374,6 @@ bool Atom::operator==( const Atom & other ) const
          return ( strcmp( symbol, other.symbol ) == 0 );
       case lisp::Atom::ATOM_STRING :
          return ( strcmp( string, other.string ) == 0 );
-         break;
       case lisp::Atom::ATOM_LAMBDA :
          return false;
       case lisp::Atom::ATOM_NATIVE :
