@@ -106,7 +106,7 @@ void Expr::print( const IO & io ) const
    }
 }
 
-void Expr::print_debug( std::ostream & os ) const
+void Expr::print_debug( std::ostream & os, bool newline ) const
 {
    switch( type )
    {
@@ -121,7 +121,7 @@ void Expr::print_debug( std::ostream & os ) const
                   }
                case Atom ::ATOM_BOOLEAN :
                   {
-                     os << "Boolean(" << (atom.boolean ? "true" : "false") << ")";
+                     os << "Boolean(" << ( atom.boolean ? "true" : "false" ) << ")";
                      break;
                   }
                case Atom ::ATOM_NUMBER :
@@ -165,6 +165,11 @@ void Expr::print_debug( std::ostream & os ) const
             break;
          }
    }
+
+   if( newline )
+   {
+      os << std::endl;
+   }
 }
 
 bool Expr::is_void() const
@@ -185,6 +190,22 @@ bool Expr::is_atom() const
 bool Expr::is_symbol( const char * symbol ) const
 {
    return ( is_atom() ) && ( atom.type == Atom::ATOM_SYMBOL ) && ( strcmp( atom.symbol, symbol ) == 0 );
+}
+
+bool Expr::is_truthy() const
+{
+   if( is_cons() )
+   {
+      return true;
+   }
+   else if( is_atom() )
+   {
+      return atom.is_truthy();
+   }
+   else
+   {
+      return false;
+   }
 }
 
 bool Expr::is_nil() const
@@ -238,8 +259,8 @@ Atom::Atom( Atom && other ) noexcept
       case lisp::Atom::ATOM_NIL :
          break;
       case lisp ::Atom ::ATOM_BOOLEAN :
-        boolean = other.boolean;
-        break;
+         boolean = other.boolean;
+         break;
       case lisp::Atom::ATOM_NUMBER :
          number = other.number;
          break;
@@ -264,6 +285,25 @@ Atom::Atom( Atom && other ) noexcept
    }
 }
 
+bool Atom::is_truthy() const
+{
+   switch( type )
+   {
+      case lisp::Atom::ATOM_NIL :
+         return false;
+      case lisp::Atom::ATOM_BOOLEAN :
+         return boolean;
+      case lisp::Atom::ATOM_NUMBER :
+         return number != 0;
+      case lisp::Atom::ATOM_SYMBOL :
+      case lisp::Atom::ATOM_STRING :
+      case lisp::Atom::ATOM_LAMBDA :
+      case lisp::Atom::ATOM_NATIVE :
+      case lisp::Atom::ATOM_ERROR :
+         return false;
+   }
+}
+
 void Atom::print( const IO & io ) const
 {
    switch( type )
@@ -275,8 +315,8 @@ void Atom::print( const IO & io ) const
          }
       case Atom ::ATOM_BOOLEAN :
          {
-           io.out << (boolean ? "true" : "false");
-           break;
+            io.out << ( boolean ? "true" : "false" );
+            break;
          }
       case Atom::ATOM_NUMBER :
          {
@@ -312,6 +352,58 @@ void Atom::print( const IO & io ) const
          {
             io.out << "<unprintable>";
          }
+   }
+}
+
+bool Atom::operator==( const Atom & other ) const
+{
+   if( type != other.type )
+   {
+      return false;
+   }
+
+   switch( type )
+   {
+      case lisp::Atom::ATOM_NIL :
+         return true;
+      case lisp::Atom::ATOM_BOOLEAN :
+         return boolean == other.boolean;
+      case lisp::Atom::ATOM_NUMBER :
+         return number == other.number;
+      case lisp::Atom::ATOM_SYMBOL :
+         return ( strcmp( symbol, other.symbol ) == 0 );
+      case lisp::Atom::ATOM_STRING :
+         return ( strcmp( string, other.string ) == 0 );
+         break;
+      case lisp::Atom::ATOM_LAMBDA :
+         return false;
+      case lisp::Atom::ATOM_NATIVE :
+         return native.fn == other.native.fn;
+      case lisp::Atom::ATOM_ERROR :
+         return ( strcmp( error, other.error ) == 0 );
+      default :
+         break;
+   }
+}
+
+bool Atom::operator>( const Atom & other ) const
+{
+   if( type != other.type )
+   {
+      return false;
+   }
+   switch( type )
+   {
+      case lisp::Atom::ATOM_NUMBER :
+         return number > other.number;
+      case lisp::Atom::ATOM_NIL :
+      case lisp::Atom::ATOM_BOOLEAN :
+      case lisp::Atom::ATOM_SYMBOL :
+      case lisp::Atom::ATOM_STRING :
+      case lisp::Atom::ATOM_LAMBDA :
+      case lisp::Atom::ATOM_NATIVE :
+      case lisp::Atom::ATOM_ERROR :
+         return false;
    }
 }
 

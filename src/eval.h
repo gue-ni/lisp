@@ -30,9 +30,9 @@ class Context
  public:
    Context();
    ~Context();
-   Expr * lookup( const char * symbol );
+   Expr * lookup( const char * symbol ) const;
    void define( const char * symbol, Expr * expr );
-   void print( const IO & io );
+   void print( const IO & io ) const;
    const Env & env() const;
 
  private:

@@ -111,20 +111,18 @@ Expr * f_div( Expr * arg, Context & context, const IO & io )
    return make_number( result );
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_car( Expr * arg, Context & context, const IO & io )
 {
    if( !arg->is_cons() )
    {
       make_error( "car expected 1 argument" );
    }
-
-   // arg->print_debug( io.out );
-   // io.out << std::endl;
-
-   // Expr * first = eval( arg->cons.car, context, io );
-
    return arg->cons.car->cons.car;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_cdr( Expr * arg, Context & context, const IO & io )
 {
@@ -135,6 +133,8 @@ Expr * f_cdr( Expr * arg, Context & context, const IO & io )
    return arg->cons.car->cons.cdr;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_cons( Expr * arg, Context & context, const IO & io )
 {
    // TODO
@@ -143,10 +143,59 @@ Expr * f_cons( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_gt( Expr * arg, Context & context, const IO & io )
+{
+   // TODO
+   return make_nil();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_eq( Expr * arg, Context & context, const IO & io )
+{
+   Expr * a = arg->cons.car;
+   Expr * b = arg->cons.cdr->cons.car;
+
+   bool is_equal = false;
+
+   if( ( a->type == b->type ) && a->is_atom() )
+   {
+      is_equal = ( a->atom ) == ( b->atom );
+   }
+   else
+   {
+      is_equal = false;
+   }
+
+   return make_boolean( is_equal );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_eval( Expr * arg, Context & context, const IO & io )
 {
    return eval( arg->cons.car, context, io );
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_if( Expr * arg, Context & context, const IO & io )
+{
+   Expr * cond      = arg->cons.car;
+   Expr * then_expr = arg->cons.cdr->cons.car;
+   Expr * else_expr = arg->cons.cdr->cons.cdr;
+
+   if( cond->is_truthy() )
+   {
+      return then_expr;
+   }
+   else
+   {
+      return else_expr;
+   }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // namespace builtin
 

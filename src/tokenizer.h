@@ -15,15 +15,11 @@ enum TokenType
    NUMBER,
    LAMBDA,
    DEFINE,
-   PRINT,
-   CONS,
    SYMBOL,
    STRING,
-   KEYWORD,
    TRUE,
    FALSE,
    NIL,
-   BEGIN,
    END,
 };
 
@@ -73,7 +69,7 @@ class Tokenizer
    bool is_finished() const;
    void handle_number();
    void handle_identifier();
-   void push(const Token&);
+   void push( const Token & );
 };
 
 Tokens tokenize( const std::string & source );

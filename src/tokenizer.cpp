@@ -16,8 +16,7 @@ Tokens tokenize( const std::string & source )
 
 std::map<std::string, TokenType> keywords = {
     { "lambda", TokenType::LAMBDA }, { "define", TokenType::DEFINE }, { "quote", TokenType::QUOTE },
-    { "print", TokenType::PRINT },   { "cons", TokenType::CONS },     { "nil", TokenType::NIL },
-    { "true", TokenType::TRUE },     { "false", TokenType::FALSE },
+    { "nil", TokenType::NIL },       { "true", TokenType::TRUE },     { "false", TokenType::FALSE },
 };
 
 Tokenizer::Tokenizer( const std::string & source )

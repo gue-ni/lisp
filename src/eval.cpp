@@ -32,7 +32,7 @@ Context::~Context()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * Context::lookup( const char * symbol )
+Expr * Context::lookup( const char * symbol ) const
 {
    std::string key( symbol );
    auto it = m_env.find( key );
@@ -42,7 +42,7 @@ Expr * Context::lookup( const char * symbol )
    }
    else
    {
-      return make_nil();
+      return (m_parent_scope) ? (m_parent_scope->lookup(symbol)) : make_nil();
    }
 }
 
@@ -56,7 +56,7 @@ void Context::define( const char * symbol, Expr * expr )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Context::print( const IO & io )
+void Context::print( const IO & io ) const
 {
    for( auto it = m_env.begin(); it != m_env.end(); it++ )
    {
@@ -79,11 +79,18 @@ void Context::load_runtime()
    define( "-", make_native( builtin::f_sub ) );
    define( "*", make_native( builtin::f_mul ) );
    define( "/", make_native( builtin::f_div ) );
+
+   define( "=", make_native( builtin::f_eq ) );
+   define( ">", make_native( builtin::f_gt ) );
+
    define( "print", make_native( builtin::f_print ) );
    define( "print-debug", make_native( builtin::f_print_debug ) );
+
    define( "car", make_native( builtin::f_car ) );
    define( "cdr", make_native( builtin::f_cdr ) );
    define( "f-cons", make_native( builtin::f_cons ) );
+
+   define( "if", make_native( builtin::f_if ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

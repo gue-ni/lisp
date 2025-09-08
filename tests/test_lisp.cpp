@@ -269,6 +269,51 @@ TEST_F( LispTest, test_cdr_04 )
    EXPECT_EQ( out.str(), "(2 3)" );
 }
 
+TEST_F( LispTest, test_if_01 )
+{
+   std::string src = "(if true 1 2)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "1" );
+}
+
+TEST_F( LispTest, test_if_02 )
+{
+   std::string src = "(if false 1 2)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "2" );
+}
+
+TEST_F( LispTest, test_eq_01 )
+{
+   std::string src = "(= 42 42)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "true" );
+}
+
+TEST_F( LispTest, test_eq_02 )
+{
+   std::string src = "(= 42 68)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "false" );
+}
+
+TEST_F( LispTest, test_eq_03 )
+{
+   std::string src = "(= 5 (+ 2 3))";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "true" );
+}
+
 TEST_F( LispTest, test_program_01 )
 {
    std::string src

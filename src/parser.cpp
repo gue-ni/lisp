@@ -52,6 +52,11 @@ Expr * Parser::parse_expr()
 
    switch( tkn.type )
    {
+      case TokenType ::LPAREN :
+         {
+            advance();
+            return parse_list();
+         }
       case TokenType ::TRUE :
          {
             advance();
@@ -86,28 +91,7 @@ Expr * Parser::parse_expr()
             Expr * keyword = make_symbol( "define" );
             Expr * symbol  = parse_expr();
             Expr * value   = parse_expr();
-            // TODO: function definition
             return make_cons( keyword, make_cons( symbol, make_cons( value, make_nil() ) ) );
-         }
-      case TokenType ::PRINT :
-         {
-            advance();
-            Expr * keyword = make_symbol( "print" );
-            Expr * value   = parse_expr();
-            return make_cons( keyword, make_cons( value, make_nil() ) );
-         }
-      case TokenType ::LPAREN :
-         {
-            advance();
-            return parse_list();
-         }
-      case TokenType ::CONS :
-         {
-            advance();
-            Expr * keyword = make_symbol( "cons" );
-            Expr * car     = parse_expr();
-            Expr * cdr     = parse_expr();
-            return make_cons( keyword, make_cons( car, make_cons( cdr, make_nil() ) ) );
          }
 
       case TokenType ::LAMBDA :

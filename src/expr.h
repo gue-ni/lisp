@@ -73,7 +73,12 @@ struct Atom
    Atom();
    Atom( Atom && other ) noexcept;
 
+   bool is_truthy() const;
+
    void print( const IO & io ) const;
+
+   bool operator==(const Atom& other) const;
+   bool operator>(const Atom& other) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,7 +120,7 @@ struct Expr
    Expr( Cons c );
 
    void print( const IO & io ) const;
-   void print_debug( std::ostream & os ) const;
+   void print_debug( std::ostream & os , bool newline = false ) const;
 
    bool is_void() const;
    bool is_cons() const;
@@ -123,6 +128,7 @@ struct Expr
 
    bool is_nil() const;
    bool is_symbol( const char * symbol ) const;
+   bool is_truthy() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
