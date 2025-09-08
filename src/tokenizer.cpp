@@ -103,7 +103,7 @@ void Tokenizer::handle_identifier()
    auto start = m_current - 1;
 
    // end of identifier
-   std::string chars = " )";
+   std::string chars = " )\n";
    auto end = std::find_if( start, m_source.cend(), [&]( char c ) { return chars.find( c ) != std::string::npos; } );
 
    std::string identifier( start, end );
