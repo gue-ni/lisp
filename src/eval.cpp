@@ -327,8 +327,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    if( flags & FLAG_DUMP_AST )
    {
       io.out << "---begin-program---" << std::endl;
-      // TODO
-      io.out << std::endl;
+      io.out << program->to_json() << std::endl;
       io.out << "----end-program----" << std::endl;
    }
 
@@ -457,8 +456,6 @@ void run( Context & context )
 
    sweep();
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 } // namespace gc
 

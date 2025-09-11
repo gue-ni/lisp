@@ -25,6 +25,8 @@ class Parser
    Expr * parse_lambda();
 };
 
+Expr * parse( const std::string& source );
+
 Expr * parse( const Tokens & tokens );
 
 }; // namespace lisp

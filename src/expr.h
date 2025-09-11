@@ -78,9 +78,10 @@ struct Atom
    bool is_truthy() const;
 
    void print( const IO & io ) const;
+   std::string to_json() const;
 
-   bool operator==(const Atom& other) const;
-   bool operator>(const Atom& other) const;
+   bool operator==( const Atom & other ) const;
+   bool operator>( const Atom & other ) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -93,6 +94,7 @@ struct Cons
    Cons( Expr * _car, Expr * _cdr );
 
    void print( const IO & io ) const;
+   std::string to_json() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,7 +124,8 @@ struct Expr
    Expr( Cons c );
 
    void print( const IO & io ) const;
-   void print_debug( std::ostream & os , bool newline = false ) const;
+   void print_debug( std::ostream & os, bool newline = false ) const;
+   std::string to_json() const;
 
    bool is_void() const;
    bool is_cons() const;
@@ -165,11 +168,12 @@ inline Expr * make_cons( Expr * a, Expr * b )
    return make_expr( cons );
 }
 
-inline Expr* make_boolean(bool boolean) {
-  Atom atom;
-  atom.type = Atom::ATOM_BOOLEAN;
-  atom.boolean = boolean;
-  return make_expr(std::move(atom));
+inline Expr * make_boolean( bool boolean )
+{
+   Atom atom;
+   atom.type    = Atom::ATOM_BOOLEAN;
+   atom.boolean = boolean;
+   return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_number( double number )

@@ -35,8 +35,7 @@ Expr * f_println( Expr * arg, Context & context, const IO & io )
 
 Expr * f_print_debug( Expr * arg, Context & context, const IO & io )
 {
-  // TODO
-   io.out << std::endl;
+   io.out << arg->to_json() << std::endl;
    return make_void();
 }
 
