@@ -26,8 +26,5 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: |
-        ls -la ${{github.workspace}}/build
-        pwd
-        ./tests/tests --gtest_print_time
+      run: ./tests/tests --gtest_print_time
 
