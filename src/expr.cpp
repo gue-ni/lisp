@@ -343,7 +343,7 @@ std::string Atom::to_json() const
          }
       case Atom::ATOM_LAMBDA :
          {
-            return "<lambda>";
+            return "{ \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json() + " }";
          }
       case Atom::ATOM_NATIVE :
          {
