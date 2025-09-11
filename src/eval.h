@@ -62,7 +62,7 @@ void run( Context & context );
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * read( const std::string & source );
+Expr * parse( const std::string & source );
 
 Expr * eval( Expr * expr, Context & context, const IO & io );
 

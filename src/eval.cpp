@@ -454,7 +454,7 @@ void run( Context & context )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * read( const std::string & source )
+Expr * parse( const std::string & source )
 {
    Tokens tokens = tokenize( source );
    Expr * program = parse( tokens );
