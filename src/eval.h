@@ -4,11 +4,11 @@
 #include "expr.h"
 #include "util.h"
 
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <ostream>
 #include <vector>
-#include <cstdint>
 
 namespace lisp
 {
@@ -39,7 +39,6 @@ class Context
    bool exit;
    int exit_code;
 
-
  private:
    Context * m_parent_scope;
    Env m_env;
@@ -66,7 +65,7 @@ Expr * eval( Expr * expr, Context & context, const IO & io );
 
 int eval( const std::string & source, Context & context, const IO & io, Flags flags = 0 );
 
-int eval(const std::string& source);
+int eval( const std::string & source );
 
 int repl();
 
