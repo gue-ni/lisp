@@ -16,13 +16,18 @@ namespace lisp
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Context::Context()
-    : m_parent_scope( nullptr )
+///////////////////////////////////////////////////////////////////////////////
+
+Context::Context( Context * parent )
+    : m_parent( parent )
     , exit( false )
-    , exit_code( 0 )
+    , exit_code( false )
 {
-   load_runtime();
-   load_stdlib();
+   if( parent == nullptr )
+   {
+      load_runtime();
+      load_stdlib();
+   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,7 +50,7 @@ Expr * Context::lookup( const char * symbol ) const
    }
    else
    {
-      return ( m_parent_scope ) ? ( m_parent_scope->lookup( symbol ) ) : make_nil();
+      return ( m_parent != nullptr ) ? ( m_parent->lookup( symbol ) ) : make_nil();
    }
 }
 
@@ -230,7 +235,8 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
    {
       Expr * params = args->cons.car;
       Expr * body   = args->cons.cdr;
-      return make_lambda( params, body );
+      Context * env = new Context( &context );
+      return make_lambda( params, body, env );
    }
    else if( op->is_symbol( "if" ) )
    {
@@ -308,7 +314,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    if( flags & FLAG_DUMP_TOKENS )
    {
       io.out << "---begin-tokens---" << std::endl;
-      print_debug( io.out, tokens );
+      //
       io.out << "----end-tokens----" << std::endl;
    }
 
@@ -321,7 +327,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    if( flags & FLAG_DUMP_AST )
    {
       io.out << "---begin-program---" << std::endl;
-      program->print_debug( io.out );
+      // TODO
       io.out << std::endl;
       io.out << "----end-program----" << std::endl;
    }

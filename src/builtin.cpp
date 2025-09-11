@@ -35,7 +35,7 @@ Expr * f_println( Expr * arg, Context & context, const IO & io )
 
 Expr * f_print_debug( Expr * arg, Context & context, const IO & io )
 {
-   arg->print_debug( io.out );
+  // TODO
    io.out << std::endl;
    return make_void();
 }

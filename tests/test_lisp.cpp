@@ -388,6 +388,41 @@ TEST_F( LispTest, test_stdlib_02 )
 }
 #endif
 
+TEST_F( LispTest, test_lambda_05 )
+{
+   std::string src = R"(
+
+  (define make-adder
+    (lambda (n) (lambda (x) (+ x n))))
+
+
+
+    )";
+  //(define add5 (make-adder 5))
+  //(add5 3)
+
+   IO my_io;
+   int r           = eval( src, ctx, my_io, FLAG_DUMP_AST );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "8" );
+}
+
+
+
+TEST_F( LispTest, test_closure_01 )
+{
+   std::string src = R"(
+      8
+   )";
+
+   IO my_io;
+   int r           = eval( src, ctx, my_io, FLAG_DUMP_AST );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "8" );
+}
+
 TEST_F( LispTest, test_program_01 )
 {
    std::string src

@@ -33,9 +33,11 @@ struct LambdaFn
 {
    Expr * params;
    Expr * body;
-   LambdaFn( Expr * p, Expr * bdy )
+   Context* closure;
+   LambdaFn( Expr * p, Expr * bdy, Context* clsr )
        : params( p )
        , body( bdy )
+       , closure( clsr )
    {
    }
    Expr * operator()( Expr * args, Context & context, const IO & io );
@@ -130,8 +132,10 @@ struct Expr
    bool is_string() const;
    bool is_number() const;
    bool is_symbol( const char * symbol ) const;
+   bool is_lambda( ) const;
    bool is_truthy() const;
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -208,11 +212,11 @@ inline Expr * make_native( NativeFunction fn )
    return make_expr( std::move( atom ) );
 }
 
-inline Expr * make_lambda( Expr * params, Expr * body )
+inline Expr * make_lambda( Expr * params, Expr * body, Context * closure )
 {
    Atom atom;
    atom.type   = Atom::ATOM_LAMBDA;
-   atom.lambda = LambdaFn( params, body );
+   atom.lambda = LambdaFn( params, body, closure );
    return make_expr( std::move( atom ) );
 }
 

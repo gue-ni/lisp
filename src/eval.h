@@ -28,7 +28,7 @@ using Env = std::map<std::string, Expr *>;
 class Context
 {
  public:
-   Context();
+   Context(Context* parent = nullptr);
    ~Context();
    Expr * lookup( const char * symbol ) const;
    void define( const char * symbol, Expr * expr );
@@ -40,7 +40,7 @@ class Context
 
 
  private:
-   Context * m_parent_scope;
+   Context * m_parent;
    Env m_env;
    void load_runtime();
    void load_stdlib();

@@ -155,7 +155,16 @@ void Tokenizer::run()
                push( Token( QUOTE, c ) );
                break;
             }
-
+         case '`' :
+            {
+               push( Token( QUASIQUOTE, c ) );
+               break;
+            }
+         case ',' :
+            {
+               push( Token( UNQUOTE, c ) );
+               break;
+            }
          case '\"' :
             {
                handle_string();
