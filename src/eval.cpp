@@ -452,14 +452,7 @@ void run( Context & context )
    sweep();
 }
 
-///////////////////////////////////////////////////////////////////////////////
 
-Expr * parse( const std::string & source )
-{
-   Tokens tokens = tokenize( source );
-   Expr * program = parse( tokens );
-   return program;
-}
 
 } // namespace gc
 

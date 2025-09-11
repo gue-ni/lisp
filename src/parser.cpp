@@ -9,6 +9,15 @@ Expr * parse( const Tokens & tokens )
    return parser.parse();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * parse( const std::string & source )
+{
+   Tokens tokens = tokenize( source );
+   Expr * program = parse( tokens );
+   return program;
+}
+
 Parser::Parser( const Tokens & tokens )
     : m_tokens( tokens )
     , m_current( m_tokens.begin() )
