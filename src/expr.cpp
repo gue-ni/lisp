@@ -317,6 +317,49 @@ bool Atom::is_truthy() const
    }
 }
 
+std::string Atom::to_json() const
+{
+   switch( type )
+   {
+      case Atom::ATOM_NIL :
+      {
+         return "null";
+      }
+      case Atom ::ATOM_BOOLEAN :         
+      {
+         return ( boolean ? "true" : "false" );
+      }
+      case Atom::ATOM_NUMBER :
+         {
+            return std::to_string(number);
+         }
+      case Atom::ATOM_SYMBOL :
+         {
+            return "Symbol(" + std::string(symbol) + ")";
+         }
+      case Atom::ATOM_STRING :
+         {
+            return std::string(string);
+         }
+      case Atom::ATOM_LAMBDA :
+         {
+            return "<lambda>";
+         }
+      case Atom::ATOM_NATIVE :
+         {
+            return "<native-fn>";
+         }
+      case Atom ::ATOM_ERROR :
+         {
+            return "Error(" + std::string(error) + ")"
+         }
+      default :
+         {
+            return "undefined";
+         }
+   }
+}
+
 void Atom::print( const IO & io ) const
 {
    switch( type )
@@ -431,6 +474,10 @@ Cons::Cons( Expr * _car, Expr * _cdr )
 {
 }
 
+std::string Cons::to_json() const {
+   return "{ \"car\": " + car->to_json() + ", \"cdr\": " + cdr->to_json() + " }";
+}
+
 void Cons::print( const IO & io ) const
 {
    car->print( io );
@@ -453,5 +500,19 @@ void Cons::print( const IO & io ) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+std::string Expr::to_json() const
+{
+   switch (type) {#
+      case Expr::EXPR_ATOM: {
+         return atom.to_json();
+      }
+      case Expr::EXPR_CONS: {
+         return cons.to_json();
+      }
+      default:
+         return "{}";
+   }
+}
 
 } // namespace lisp
