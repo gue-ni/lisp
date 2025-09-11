@@ -8,6 +8,7 @@
 #include <map>
 #include <ostream>
 #include <vector>
+#include <cstdint>
 
 namespace lisp
 {
