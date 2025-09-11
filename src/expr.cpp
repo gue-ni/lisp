@@ -503,7 +503,7 @@ void Cons::print( const IO & io ) const
 
 std::string Expr::to_json() const
 {
-   switch (type) {#
+   switch (type) {
       case Expr::EXPR_ATOM: {
          return atom.to_json();
       }
