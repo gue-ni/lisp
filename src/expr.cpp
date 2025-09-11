@@ -335,11 +335,11 @@ std::string Atom::to_json() const
          }
       case Atom::ATOM_SYMBOL :
          {
-            return "symbol(" + std::string(symbol) + ")";
+            return "\"symbol(" + std::string(symbol) + ")\"";
          }
       case Atom::ATOM_STRING :
          {
-            return std::string(string);
+            return "\"" + std::string(string) + "\"";
          }
       case Atom::ATOM_LAMBDA :
          {
@@ -347,11 +347,11 @@ std::string Atom::to_json() const
          }
       case Atom::ATOM_NATIVE :
          {
-            return "native()";
+            return "\"native()\"";
          }
       case Atom ::ATOM_ERROR :
          {
-            return "error(" + std::string(error) + ")";
+            return "\"error(" + std::string(error) + ")\"";
          }
       default :
          {
