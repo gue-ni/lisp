@@ -31,7 +31,7 @@ class LispTest : public ::testing::Test
 TEST_F( LispTest, test_read_01 )
 {
    Expr * prog = parse( "(+ 2 3)" );
-   out << prog->to_json() << std::endl;
+   std::cout << prog->to_json() << std::endl;
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "" );
 }
