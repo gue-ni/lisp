@@ -29,4 +29,5 @@ jobs:
       run: |
         ls -la ${{github.workspace}}/build
         pwd
+        ./tests/tests --gtest_print_time
 
