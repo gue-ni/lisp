@@ -454,6 +454,13 @@ void run( Context & context )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * read( const std::string & source )
+{
+   Tokens tokens = tokenize( source );
+   Expr * program = parse( tokens );
+   return program;
+}
+
 } // namespace gc
 
 } // namespace lisp
