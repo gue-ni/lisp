@@ -335,7 +335,7 @@ std::string Atom::to_json() const
          }
       case Atom::ATOM_SYMBOL :
          {
-            return "Symbol(" + std::string(symbol) + ")";
+            return "symbol(" + std::string(symbol) + ")";
          }
       case Atom::ATOM_STRING :
          {
@@ -343,18 +343,19 @@ std::string Atom::to_json() const
          }
       case Atom::ATOM_LAMBDA :
          {
-            return "{ \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json() + " }";
+            return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json() + " } }";
          }
       case Atom::ATOM_NATIVE :
          {
-            return "<native-fn>";
+            return "native()";
          }
       case Atom ::ATOM_ERROR :
          {
-            return "Error(" + std::string(error) + ")"
+            return "error(" + std::string(error) + ")";
          }
       default :
          {
+            assert(false && "Atom::to_json() unreachable");
             return "undefined";
          }
    }
