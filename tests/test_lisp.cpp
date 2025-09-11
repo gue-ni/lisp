@@ -36,6 +36,14 @@ TEST_F( LispTest, test_read_01 )
    EXPECT_EQ( out.str(), "" );
 }
 
+TEST_F( LispTest, test_read_02 )
+{
+   Expr * prog = parse( "(define make-adder (lambda (a) ((lambda (b) (+ a b))))" );
+   std::cout << prog->to_json() << std::endl;
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "" );
+}
+
 TEST_F( LispTest, test_eval_number_01 )
 {
    eval( "2.5", ctx, io );
