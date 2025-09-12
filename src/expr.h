@@ -135,6 +135,7 @@ struct Expr
    bool is_number() const;
    bool is_symbol( const char * symbol ) const;
    bool is_lambda( ) const;
+   bool is_error() const;
    bool is_truthy() const;
 };
 
