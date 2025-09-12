@@ -37,9 +37,9 @@ Context::Context( Context * parent )
 Context::~Context()
 {
    m_env.clear();
-   if (m_parent == nullptr)
+   if( m_parent == nullptr )
    {
-   gc::run( *this );
+      gc::run( *this );
    }
 }
 
@@ -410,9 +410,10 @@ void mark( Expr * expr )
       // closures?
       if( expr->is_lambda() )
       {
-        for (auto& [k, v]: expr->atom.lambda.closure->env()) {
-          mark(v);
-        }
+         for( auto & [k, v] : expr->atom.lambda.closure->env() )
+         {
+            mark( v );
+         }
       }
    }
 }
