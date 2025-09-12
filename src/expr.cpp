@@ -459,13 +459,9 @@ std::string Expr::to_json() const
    switch( type )
    {
       case Expr::EXPR_ATOM :
-         {
-            return atom.to_json();
-         }
+         return atom.to_json();
       case Expr::EXPR_CONS :
-         {
-            return cons.to_json();
-         }
+         return cons.to_json();
       default :
          return "{}";
    }
