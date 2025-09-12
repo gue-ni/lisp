@@ -67,6 +67,8 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 
 int eval( const std::string & source );
 
+Expr * eval_program( Expr * program, Context & context, const IO & io );
+
 int repl();
 
 ///////////////////////////////////////////////////////////////////////////////

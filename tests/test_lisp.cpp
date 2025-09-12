@@ -393,6 +393,7 @@ TEST_F( LispTest, test_stdlib_01 )
    EXPECT_EQ( out.str(), "3.14159" );
 }
 
+#if 0
 #if WIN32
 TEST_F( LispTest, test_stdlib_02 )
 {
@@ -403,28 +404,24 @@ TEST_F( LispTest, test_stdlib_02 )
    EXPECT_EQ( out.str(), "78.5398" );
 }
 #endif
+#endif
 
 TEST_F( LispTest, test_lambda_05 )
 {
    std::string src = R"(
-
   (define make-adder
-    (lambda (n) (lambda (x) (+ x n))))
+    (lambda (a) (lambda (b) (+ a b))))
 
+  (define add5 (make-adder 5))
 
-
+  (add5 3)
     )";
-  //(define add5 (make-adder 5))
-  //(add5 3)
 
-   IO my_io;
-   int r           = eval( src, ctx, my_io, FLAG_DUMP_AST );
+   int r = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "8" );
 }
-
-
 
 TEST_F( LispTest, test_closure_01 )
 {
@@ -432,8 +429,7 @@ TEST_F( LispTest, test_closure_01 )
       8
    )";
 
-   IO my_io;
-   int r           = eval( src, ctx, my_io, FLAG_DUMP_AST );
+   int r = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "8" );

@@ -26,7 +26,9 @@ Context::Context( Context * parent )
    if( parent == nullptr )
    {
       load_runtime();
+      #if 0
       load_stdlib();
+      #endif
    }
 }
 
@@ -46,6 +48,7 @@ Expr * Context::lookup( const char * symbol ) const
    auto it = m_env.find( key );
    if( it != m_env.end() )
    {
+      std::cout << it->first << ": " << it->second->to_json() << std::endl;
       return it->second;
    }
    else
@@ -141,6 +144,7 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
       case Atom::ATOM_BOOLEAN :
       case Atom::ATOM_NUMBER :
       case Atom::ATOM_STRING :
+          std::cout << expr->to_json() << std::endl;
          return expr;
       case Atom::ATOM_ERROR :
          io.err << expr->atom.error;
@@ -162,8 +166,10 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    while( has_type( program, Expr::EXPR_CONS ) )
    {
       Expr * expr = program->cons.car;
+      std::cout << "Program:\n" << expr->to_json() << "\n"<< std::endl;
       result      = eval( expr, context, io );
       program     = program->cons.cdr;
+      std::cout << "Result:\n" << result->to_json() << "\n" << std::endl;
    }
    return result;
 }
@@ -235,33 +241,15 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
    {
       Expr * params = args->cons.car;
       Expr * body   = args->cons.cdr;
-      Context * env = new Context( &context );
-      return make_lambda( params, body, env );
+      //Context * env = new Context( &context );
+      return make_lambda( params, body, &context );
    }
    else if( op->is_symbol( "if" ) )
    {
       Expr * cond      = eval( args->cons.car, context, io );
       Expr * then_expr = args->cons.cdr->cons.car;
       Expr * else_expr = args->cons.cdr->cons.cdr->cons.car;
-
-      if( cond->is_truthy() )
-      {
-         return eval( then_expr, context, io );
-      }
-      else
-      {
-         return eval( else_expr, context, io );
-      }
-   }
-   else if( op->is_symbol( "or" ) )
-   {
-      // TODO
-      return make_nil();
-   }
-   else if( op->is_symbol( "and" ) )
-   {
-      // TODO
-      return make_nil();
+      return (cond->is_truthy()) ? eval( then_expr, context, io ) : eval( else_expr, context, io );
    }
    else
    {
