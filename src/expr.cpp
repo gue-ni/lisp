@@ -175,7 +175,6 @@ Atom::~Atom()
       case lisp::Atom::ATOM_NIL :
       case lisp::Atom::ATOM_NUMBER :
       case lisp::Atom::ATOM_BOOLEAN :
-      case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
          break;
       case lisp::Atom::ATOM_SYMBOL :
@@ -194,6 +193,13 @@ Atom::~Atom()
          if( error )
          {
             free( error );
+         }
+         break;
+      case lisp::Atom::ATOM_LAMBDA :
+         if( lambda.closure )
+         {
+            delete lambda.closure;
+            lambda.closure = nullptr;
          }
          break;
    }
@@ -222,6 +228,7 @@ Atom::Atom( Atom && other ) noexcept
          break;
       case lisp::Atom::ATOM_LAMBDA :
          lambda = other.lambda;
+         other.lambda.closure = nullptr;
          break;
       case lisp::Atom::ATOM_NATIVE :
          native = other.native;

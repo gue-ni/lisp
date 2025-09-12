@@ -124,7 +124,6 @@ struct Expr
    Expr( Cons c );
 
    void print( const IO & io ) const;
-   void print_debug( std::ostream & os, bool newline = false ) const;
    std::string to_json() const;
 
    bool is_void() const;
