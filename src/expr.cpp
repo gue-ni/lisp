@@ -16,14 +16,9 @@ Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 
 Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 {
-   // TODO
-
    Expr * arg      = args;
    Expr * param    = params;
    Context * local = new Context( closure );
-
-   std::cout << "params : " << params->to_json() << std::endl;
-   std::cout << "args   : " << args->to_json() << std::endl;
 
    while( param->is_cons() && arg->is_cons() )
    {
@@ -34,35 +29,15 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 
    // TODO: check arity
 
-   std::cout << "full body : " << body->to_json() << std::endl;
-
-   Expr * result = make_nil();
-
    Expr * tmp_body = body;
-
-#if 0
-   Expr * bdy    = body->cons.car;
-
-   while( bdy->is_cons() )
-   {
-      std::cout << "body      : " << bdy->to_json() << std::endl;
-      result = eval( bdy, *local, io );
-      std::cout << "result: "   << result->to_json() << std::endl;
-      //bdy    = bdy->cons.cdr->cons.car;
-      //bdy    = bdy->cons.cdr;
-      break;
-   }
-#else
+   Expr * result   = make_nil();
 
    while( tmp_body->is_cons() )
    {
       Expr * expr = tmp_body->cons.car;
-      std::cout << "Lambda body   :" << expr->to_json() << "\n" << std::endl;
-      result   = eval( expr, *local, io );
-      tmp_body = tmp_body->cons.cdr;
-      std::cout << "Lambda result :" << result->to_json() << "\n" << std::endl;
+      result      = eval( expr, *local, io );
+      tmp_body    = tmp_body->cons.cdr;
    }
-#endif
 
    return result;
 }

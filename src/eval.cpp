@@ -48,7 +48,6 @@ Expr * Context::lookup( const char * symbol ) const
    auto it = m_env.find( key );
    if( it != m_env.end() )
    {
-      std::cout << it->first << ": " << it->second->to_json() << std::endl;
       return it->second;
    }
    else
@@ -144,7 +143,6 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
       case Atom::ATOM_BOOLEAN :
       case Atom::ATOM_NUMBER :
       case Atom::ATOM_STRING :
-         std::cout << expr->to_json() << std::endl;
          return expr;
       case Atom::ATOM_ERROR :
          io.err << expr->atom.error;
@@ -166,10 +164,8 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    while( has_type( program, Expr::EXPR_CONS ) )
    {
       Expr * expr = program->cons.car;
-      std::cout << "Program:\n" << expr->to_json() << "\n" << std::endl;
-      result  = eval( expr, context, io );
-      program = program->cons.cdr;
-      std::cout << "Result:\n" << result->to_json() << "\n" << std::endl;
+      result      = eval( expr, context, io );
+      program     = program->cons.cdr;
    }
    return result;
 }
@@ -409,6 +405,9 @@ void mark( Expr * expr )
    else if( expr->is_atom() )
    {
       // closures?
+      if( expr->is_lambda() )
+      {
+      }
    }
 }
 
