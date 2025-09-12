@@ -13,7 +13,7 @@ Expr * parse( const Tokens & tokens )
 
 Expr * parse( const std::string & source )
 {
-   Tokens tokens = tokenize( source );
+   Tokens tokens  = tokenize( source );
    Expr * program = parse( tokens );
    return program;
 }
@@ -21,21 +21,31 @@ Expr * parse( const std::string & source )
 Parser::Parser( const Tokens & tokens )
     : m_tokens( tokens )
     , m_current( m_tokens.begin() )
+    , m_parenthesis_depth( 0 )
 {
 }
 
 Expr * Parser::parse()
 {
-#if 1
    Expr * head = nullptr;
    Expr * tail = nullptr;
-
    Expr * expr = nullptr;
 
-   while( ( expr = parse_expr() ) )
+   do
    {
+      expr = parse_expr();
+      if( expr == nullptr )
+      {
+         break;
+      }
+
+      if( expr->is_error() )
+      {
+         return make_cons( expr, make_nil() );
+      }
 
       Expr * node = make_cons( expr, make_nil() );
+
       if( !head )
       {
 
@@ -47,12 +57,9 @@ Expr * Parser::parse()
          tail->cons.cdr = node;
          tail           = node;
       }
-   }
+   } while( true );
 
    return ( head != nullptr ) ? head : make_nil();
-#else
-   return parse_expr();
-#endif
 }
 
 Expr * Parser::parse_expr()
@@ -61,10 +68,23 @@ Expr * Parser::parse_expr()
 
    switch( tkn.type )
    {
+      case TokenType ::END :
+         {
+            if( m_parenthesis_depth != 0 )
+            {
+               return make_error( "missing-parenthesis" );
+            }
+            return nullptr;
+         }
       case TokenType ::LPAREN :
          {
             advance();
+            m_parenthesis_depth++;
             return parse_list();
+         }
+      case TokenType ::RPAREN :
+         {
+            return make_error( "unexpected-parenthesis" );
          }
       case TokenType ::TRUE :
          {
@@ -97,6 +117,10 @@ Expr * Parser::parse_expr()
             advance();
             Expr * quote  = make_symbol( "quote" );
             Expr * quoted = parse_expr();
+            if( quoted->is_error() )
+            {
+               return quoted;
+            }
             return make_cons( quote, make_cons( quoted, make_nil() ) );
          }
       case TokenType ::DEFINE :
@@ -104,7 +128,16 @@ Expr * Parser::parse_expr()
             advance();
             Expr * keyword = make_symbol( "define" );
             Expr * symbol  = parse_expr();
-            Expr * value   = parse_expr();
+            if( symbol->is_error() )
+            {
+               return symbol;
+            }
+
+            Expr * value = parse_expr();
+            if( value->is_error() )
+            {
+               return value;
+            }
             return make_cons( keyword, make_cons( symbol, make_cons( value, make_nil() ) ) );
          }
       case TokenType ::LAMBDA :
@@ -121,26 +154,38 @@ Expr * Parser::parse_list()
 {
    if( match( TokenType::RPAREN ) )
    {
-      // emtpy list
+      m_parenthesis_depth--;
       return make_nil();
    }
 
    Expr * head = parse_expr();
-   // TODO: dotted pair?
+   if( head->is_error() )
+   {
+      return head;
+   }
 
    Expr * tail = parse_list();
+   if( tail->is_error() )
+   {
+      return tail;
+   }
+
    return make_cons( head, tail );
 }
 
 Expr * Parser::parse_lambda()
 {
-
    Expr * keyword = make_symbol( "lambda" );
    Expr * params;
 
    if( match( TokenType::LPAREN ) )
    {
+      m_parenthesis_depth++;
       params = parse_list();
+      if( params->is_error() )
+      {
+         return params;
+      }
    }
    else
    {
@@ -148,6 +193,10 @@ Expr * Parser::parse_lambda()
    }
 
    Expr * body = parse_expr();
+   if( body->is_error() )
+   {
+      return body;
+   }
 
    return make_cons( keyword, make_cons( params, make_cons( body, make_nil() ) ) );
 }

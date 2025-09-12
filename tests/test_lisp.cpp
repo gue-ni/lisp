@@ -28,19 +28,27 @@ class LispTest : public ::testing::Test
    IO io;
 };
 
-TEST_F( LispTest, test_read_01 )
+TEST_F( LispTest, test_parse_01 )
 {
-   Expr * prog = parse( "(+ 2 3)" );
-   std::cout << prog->to_json() << std::endl;
-   EXPECT_EQ( err.str(), "" );
+   std::string src = "(+ 1 2";
+   eval( src, ctx, io );
+   EXPECT_EQ( err.str(), "(error: missing-parenthesis)" );
    EXPECT_EQ( out.str(), "" );
 }
 
-TEST_F( LispTest, test_read_02 )
+TEST_F( LispTest, test_parse_02 )
 {
-   Expr * prog = parse( "(define make-adder (lambda (a) (lambda (b) (+ a b))))" );
-   std::cout << prog->to_json() << std::endl;
-   EXPECT_EQ( err.str(), "" );
+   std::string src = "(+ 1 2 (* 3 4 )";
+   eval( src, ctx, io );
+   EXPECT_EQ( err.str(), "(error: missing-parenthesis)" );
+   EXPECT_EQ( out.str(), "" );
+}
+
+TEST_F( LispTest, test_parse_03 )
+{
+   std::string src = "(+ 1 2))";
+   eval( src, ctx, io );
+   EXPECT_EQ( err.str(), "(error: unexpected-parenthesis)" );
    EXPECT_EQ( out.str(), "" );
 }
 

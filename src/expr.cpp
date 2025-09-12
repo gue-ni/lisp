@@ -16,9 +16,9 @@ Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 
 Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 {
-   Expr * arg      = args;
-   Expr * param    = params;
-   //Context  local = Context( closure );
+   Expr * arg   = args;
+   Expr * param = params;
+   // Context  local = Context( closure );
 
    while( param->is_cons() && arg->is_cons() )
    {
@@ -122,12 +122,17 @@ bool Expr::is_atom() const
 
 bool Expr::is_symbol( const char * symbol ) const
 {
-   return ( is_atom() ) && ( atom.type == Atom::ATOM_SYMBOL ) && ( strcmp( atom.symbol, symbol ) == 0 );
+   return is_atom() && ( atom.type == Atom::ATOM_SYMBOL ) && ( strcmp( atom.symbol, symbol ) == 0 );
 }
 
 bool Expr::is_lambda() const
 {
-   return ( is_atom() ) && ( atom.type == Atom::ATOM_LAMBDA );
+   return is_atom() && ( atom.type == Atom::ATOM_LAMBDA );
+}
+
+bool Expr::is_error() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_ERROR );
 }
 
 bool Expr::is_truthy() const
@@ -227,7 +232,7 @@ Atom::Atom( Atom && other ) noexcept
          other.string = nullptr;
          break;
       case lisp::Atom::ATOM_LAMBDA :
-         lambda = other.lambda;
+         lambda               = other.lambda;
          other.lambda.closure = nullptr;
          break;
       case lisp::Atom::ATOM_NATIVE :
@@ -348,7 +353,7 @@ void Atom::print( const IO & io ) const
          }
       case Atom ::ATOM_ERROR :
          {
-            io.out << "(error: " << error << ")";
+            io.err << "(error: " << error << ")";
             break;
          }
       default :
@@ -454,13 +459,9 @@ std::string Expr::to_json() const
    switch( type )
    {
       case Expr::EXPR_ATOM :
-         {
-            return atom.to_json();
-         }
+         return atom.to_json();
       case Expr::EXPR_CONS :
-         {
-            return cons.to_json();
-         }
+         return cons.to_json();
       default :
          return "{}";
    }

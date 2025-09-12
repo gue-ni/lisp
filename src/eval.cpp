@@ -146,9 +146,7 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
       case Atom::ATOM_BOOLEAN :
       case Atom::ATOM_NUMBER :
       case Atom::ATOM_STRING :
-         return expr;
       case Atom::ATOM_ERROR :
-         io.err << expr->atom.error;
          return expr;
       case Atom::ATOM_SYMBOL :
          return context.lookup( expr->atom.symbol );

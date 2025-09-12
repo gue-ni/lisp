@@ -15,6 +15,7 @@ class Parser
  private:
    Tokens m_tokens;
    Tokens::const_iterator m_current;
+   int m_parenthesis_depth;
 
    void advance();
    bool match( TokenType );
