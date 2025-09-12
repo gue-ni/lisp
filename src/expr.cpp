@@ -16,31 +16,29 @@ Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 
 Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 {
-   // TODO
-
-   Expr * arg   = args;
-   Expr * param = params;
-
-   // TODO: should inherit from context
-   // Context closure;
+   Expr * arg      = args;
+   Expr * param    = params;
+   //Context  local = Context( closure );
 
    while( param->is_cons() && arg->is_cons() )
    {
-      context.define( param->cons.car->atom.symbol, arg->cons.car );
+      closure->define( param->cons.car->atom.symbol, arg->cons.car );
       arg   = arg->cons.cdr;
       param = param->cons.cdr;
    }
 
    // TODO: check arity
 
-   Expr * bdy = body->cons.car;
+   Expr * tmp_body = body;
+   Expr * result   = make_nil();
 
-#if 0
-   print_debug( std::cout, bdy );
-   std::cout << std::endl;
-#endif
+   while( tmp_body->is_cons() )
+   {
+      Expr * expr = tmp_body->cons.car;
+      result      = eval( expr, *closure, io );
+      tmp_body    = tmp_body->cons.cdr;
+   }
 
-   Expr * result = eval( bdy, context, io );
    return result;
 }
 
@@ -107,72 +105,6 @@ void Expr::print( const IO & io ) const
    }
 }
 
-void Expr::print_debug( std::ostream & os, bool newline ) const
-{
-   switch( type )
-   {
-      case Expr ::EXPR_ATOM :
-         {
-            switch( atom.type )
-            {
-               case Atom ::ATOM_NIL :
-                  {
-                     os << "Nil";
-                     break;
-                  }
-               case Atom ::ATOM_BOOLEAN :
-                  {
-                     os << "Boolean(" << ( atom.boolean ? "true" : "false" ) << ")";
-                     break;
-                  }
-               case Atom ::ATOM_NUMBER :
-                  {
-                     os << "Number(" << atom.number << ")";
-                     break;
-                  }
-               case Atom ::ATOM_STRING :
-                  {
-                     os << "String(\"" << atom.string << "\")";
-                     break;
-                  }
-               case Atom ::ATOM_SYMBOL :
-                  {
-                     os << "Symbol(" << atom.symbol << ")";
-                     break;
-                  }
-               case Atom ::ATOM_NATIVE :
-                  {
-                     os << "NativeFn";
-                     break;
-                  }
-               default :
-                  os << "Unprintable(" << atom.type << ")";
-                  break;
-            }
-            break;
-         }
-      case Expr ::EXPR_CONS :
-         {
-            os << "Cons(";
-            cons.car->print_debug( os );
-            os << ", ";
-            cons.cdr->print_debug( os );
-            os << ")";
-            break;
-         }
-      default :
-         {
-            os << "Void";
-            break;
-         }
-   }
-
-   if( newline )
-   {
-      os << std::endl;
-   }
-}
-
 bool Expr::is_void() const
 {
    return type == Expr::EXPR_VOID;
@@ -191,6 +123,11 @@ bool Expr::is_atom() const
 bool Expr::is_symbol( const char * symbol ) const
 {
    return ( is_atom() ) && ( atom.type == Atom::ATOM_SYMBOL ) && ( strcmp( atom.symbol, symbol ) == 0 );
+}
+
+bool Expr::is_lambda() const
+{
+   return ( is_atom() ) && ( atom.type == Atom::ATOM_LAMBDA );
 }
 
 bool Expr::is_truthy() const
@@ -238,7 +175,6 @@ Atom::~Atom()
       case lisp::Atom::ATOM_NIL :
       case lisp::Atom::ATOM_NUMBER :
       case lisp::Atom::ATOM_BOOLEAN :
-      case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
          break;
       case lisp::Atom::ATOM_SYMBOL :
@@ -257,6 +193,13 @@ Atom::~Atom()
          if( error )
          {
             free( error );
+         }
+         break;
+      case lisp::Atom::ATOM_LAMBDA :
+         if( lambda.closure )
+         {
+            delete lambda.closure;
+            lambda.closure = nullptr;
          }
          break;
    }
@@ -285,6 +228,7 @@ Atom::Atom( Atom && other ) noexcept
          break;
       case lisp::Atom::ATOM_LAMBDA :
          lambda = other.lambda;
+         other.lambda.closure = nullptr;
          break;
       case lisp::Atom::ATOM_NATIVE :
          native = other.native;

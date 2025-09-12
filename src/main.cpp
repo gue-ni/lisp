@@ -6,7 +6,7 @@
 
 int main( int argc, char ** argv )
 {
-   if( argc < 1 )
+   if(  1 < argc )
    {
       const char * filename = argv[1];
       std::ifstream file( filename );

@@ -29,7 +29,7 @@ using Env = std::map<std::string, Expr *>;
 class Context
 {
  public:
-   Context();
+   Context(Context* parent = nullptr);
    ~Context();
    Expr * lookup( const char * symbol ) const;
    void define( const char * symbol, Expr * expr );
@@ -40,7 +40,7 @@ class Context
    int exit_code;
 
  private:
-   Context * m_parent_scope;
+   Context * m_parent;
    Env m_env;
    void load_runtime();
    void load_stdlib();
@@ -66,6 +66,8 @@ Expr * eval( Expr * expr, Context & context, const IO & io );
 int eval( const std::string & source, Context & context, const IO & io, Flags flags = 0 );
 
 int eval( const std::string & source );
+
+Expr * eval_program( Expr * program, Context & context, const IO & io );
 
 int repl();
 

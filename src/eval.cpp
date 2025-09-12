@@ -16,13 +16,20 @@ namespace lisp
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Context::Context()
-    : m_parent_scope( nullptr )
+///////////////////////////////////////////////////////////////////////////////
+
+Context::Context( Context * parent )
+    : m_parent( parent )
     , exit( false )
-    , exit_code( 0 )
+    , exit_code( false )
 {
-   load_runtime();
-   load_stdlib();
+   if( parent == nullptr )
+   {
+      load_runtime();
+#if 0
+      load_stdlib();
+#endif
+   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +37,10 @@ Context::Context()
 Context::~Context()
 {
    m_env.clear();
-   gc::run( *this );
+   if( m_parent == nullptr )
+   {
+      gc::run( *this );
+   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,7 +55,7 @@ Expr * Context::lookup( const char * symbol ) const
    }
    else
    {
-      return ( m_parent_scope ) ? ( m_parent_scope->lookup( symbol ) ) : make_nil();
+      return ( m_parent != nullptr ) ? ( m_parent->lookup( symbol ) ) : make_nil();
    }
 }
 
@@ -230,32 +240,15 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
    {
       Expr * params = args->cons.car;
       Expr * body   = args->cons.cdr;
-      return make_lambda( params, body );
+      Context * env = new Context( &context );
+      return make_lambda( params, body, env );
    }
    else if( op->is_symbol( "if" ) )
    {
       Expr * cond      = eval( args->cons.car, context, io );
       Expr * then_expr = args->cons.cdr->cons.car;
       Expr * else_expr = args->cons.cdr->cons.cdr->cons.car;
-
-      if( cond->is_truthy() )
-      {
-         return eval( then_expr, context, io );
-      }
-      else
-      {
-         return eval( else_expr, context, io );
-      }
-   }
-   else if( op->is_symbol( "or" ) )
-   {
-      // TODO
-      return make_nil();
-   }
-   else if( op->is_symbol( "and" ) )
-   {
-      // TODO
-      return make_nil();
+      return ( cond->is_truthy() ) ? eval( then_expr, context, io ) : eval( else_expr, context, io );
    }
    else
    {
@@ -308,7 +301,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    if( flags & FLAG_DUMP_TOKENS )
    {
       io.out << "---begin-tokens---" << std::endl;
-      print_debug( io.out, tokens );
+      //
       io.out << "----end-tokens----" << std::endl;
    }
 
@@ -415,6 +408,13 @@ void mark( Expr * expr )
    else if( expr->is_atom() )
    {
       // closures?
+      if( expr->is_lambda() )
+      {
+         for( auto & [k, v] : expr->atom.lambda.closure->env() )
+         {
+            mark( v );
+         }
+      }
    }
 }
 

@@ -12,6 +12,8 @@ enum TokenType
    RPAREN,
    DOT,
    QUOTE,
+   QUASIQUOTE,
+   UNQUOTE,
    NUMBER,
    LAMBDA,
    DEFINE,
