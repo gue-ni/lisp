@@ -282,25 +282,18 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   Expr * fn = eval( op, *context, io );
                   args      = eval_list( args, *context, io );
 
-                  if( ( fn->is_atom() ) && !args->is_nil() )
+                  if( fn->is_native() && !args->is_nil() )
                   {
-                     if( fn->is_native() )
-                     {
-                        return fn->atom.native( args, *context, io );
-                     }
-                     else if( fn->is_lambda() )
-                     {
-                        Context * new_env = gc::alloc<Context>( fn->atom.lambda.closure );
-                        bind_params( new_env, fn->atom.lambda.params, args );
+                     return fn->atom.native( args, *context, io );
+                  }
+                  else if( fn->is_lambda() && !args->is_nil() )
+                  {
+                     Context * new_env = gc::alloc<Context>( fn->atom.lambda.closure );
+                     bind_params( new_env, fn->atom.lambda.params, args );
 
-                        expr    = fn->atom.lambda.body->cons.car;
-                        context = new_env;
-                        continue;
-                     }
-                     else
-                     {
-                        return fn;
-                     }
+                     expr    = fn->atom.lambda.body->cons.car;
+                     context = new_env;
+                     continue;
                   }
                   else
                   {
