@@ -220,88 +220,10 @@ Expr * eval_list( Expr * expr, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
-{
-   if( ( fn->is_atom() ) && !args->is_nil() )
-   {
-      if( fn->atom.type == Atom::ATOM_NATIVE )
-      {
-         return fn->atom.native( args, context, io );
-      }
-      else if( fn->atom.type == Atom::ATOM_LAMBDA )
-      {
-         return fn->atom.lambda( args, context, io );
-      }
-      else
-      {
-         return fn;
-      }
-   }
-
-   return fn;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-Expr * eval_cons( Expr * expr, Context & context, const IO & io )
-{
-   assert( expr->is_cons() );
-
-   Cons cons   = expr->cons;
-   Expr * op   = cons.car;
-   Expr * args = cons.cdr;
-
-   if( op->is_symbol( "quote" ) )
-   {
-      return args->cons.car;
-   }
-   else if( op->is_symbol( "define" ) )
-   {
-      Expr * var   = args->cons.car;
-      Expr * value = eval( args->cons.cdr->cons.car, context, io );
-      context.define( var->atom.symbol, value );
-      return make_void();
-   }
-   else if( op->is_symbol( "lambda" ) )
-   {
-      Expr * params = args->cons.car;
-      Expr * body   = args->cons.cdr;
-      Context * env = gc::alloc<Context>( &context );
-      return make_lambda( params, body, env );
-   }
-   else if( op->is_symbol( "if" ) )
-   {
-      Expr * cond      = eval( args->cons.car, context, io );
-      Expr * then_expr = args->cons.cdr->cons.car;
-      Expr * else_expr = args->cons.cdr->cons.cdr->cons.car;
-      return ( cond->is_truthy() ) ? eval( then_expr, context, io ) : eval( else_expr, context, io );
-   }
-   else
-   {
-      Expr * fn = eval( op, context, io );
-      args      = eval_list( args, context, io );
-      return apply( fn, args, context, io );
-   }
-}
-
-bool is_tail_call( Expr * expr )
-{
-   std::cout << expr->to_json() << std::endl;
-   return false;
-}
-
-Expr * transform_tail( Expr * expr, Context & context, const IO & io )
-{
-   return expr;
-}
-
 void bind_params( Context * local, Expr * params, Expr * args )
 {
    Expr * arg   = args;
    Expr * param = params;
-
-   // std::cout << "arg     : " << args->to_json() << std::endl;
-   // std::cout << "param   : " << param->to_json() << std::endl;
 
    while( param->is_cons() && arg->is_cons() )
    {
@@ -310,6 +232,8 @@ void bind_params( Context * local, Expr * params, Expr * args )
       param = param->cons.cdr;
    }
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * eval( Expr * expr, Context & _context, const IO & io )
 {
@@ -350,29 +274,13 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   Expr * cond      = eval( args->cons.car, *context, io );
                   Expr * then_expr = args->cons.cdr->cons.car;
                   Expr * else_expr = args->cons.cdr->cons.cdr->cons.car;
-                  if( cond->is_truthy() )
-                  {
-                     expr = then_expr;
-                  }
-                  else
-                  {
-                     expr = else_expr;
-                  }
+                  expr             = ( cond->is_truthy() ) ? then_expr : else_expr;
                   continue;
                }
                else
                {
-#if 0
-                  Expr * fn = eval( op, context, io );
-                  args      = eval_list( args, context, io );
-                  return apply( fn, args, context, io );
-#else
                   Expr * fn = eval( op, *context, io );
                   args      = eval_list( args, *context, io );
-
-                  // std::cout << std::endl;
-                  // std::cout << "fn   : " << fn->to_json() << std::endl;
-                  // std::cout << "args : " << args->to_json() << std::endl;
 
                   if( ( fn->is_atom() ) && !args->is_nil() )
                   {
@@ -382,19 +290,11 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      }
                      else if( fn->is_lambda() )
                      {
-                        // why are the closures circular references?
-                        // printf(
-                        //    "%s eval lambda with closure=%p, parent=%p\n", __FUNCTION__,
-                        //    ( void * ) fn->atom.lambda.closure, ( void * ) ( fn->atom.lambda.closure->parent() ) );
                         Context * new_env = gc::alloc<Context>( fn->atom.lambda.closure );
-                        // printf( "new_env: %p, parent=%p\n", ( void * ) new_env, ( void * ) new_env->parent() );
                         bind_params( new_env, fn->atom.lambda.params, args );
 
-                        expr = fn->atom.lambda.body->cons.car;
-                        // expr    = fn->atom.lambda.body;
-                        context = new_env; // this does not work!!!
-                        // printf( "context parent=%p\n", ( void * ) context->parent() );
-                        // std::cout << expr->to_json() << std::endl;
+                        expr    = fn->atom.lambda.body->cons.car;
+                        context = new_env;
                         continue;
                      }
                      else
@@ -406,7 +306,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   {
                      return fn;
                   }
-#endif
                }
             }
          default :
@@ -442,7 +341,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    if( flags & FLAG_DUMP_TOKENS )
    {
       io.out << "---begin-tokens---" << std::endl;
-      //
+      print_debug( io.out, tokens );
       io.out << "----end-tokens----" << std::endl;
    }
 

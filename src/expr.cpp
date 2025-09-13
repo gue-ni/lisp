@@ -14,39 +14,6 @@ Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
-{
-   std::cout << "Execute lambda " << std::endl;
-   Expr * arg      = args;
-   Expr * param    = params;
-   Expr * tmp_body = body;
-   Context * local = gc::alloc<Context>( closure );
-
-   std::cout << "arg     : " << args->to_json() << std::endl;
-   std::cout << "param   : " << param->to_json() << std::endl;
-   std::cout << "body    : " << tmp_body->to_json() << std::endl;
-
-   while( param->is_cons() && arg->is_cons() )
-   {
-      local->define( param->cons.car->atom.symbol, arg->cons.car );
-      arg   = arg->cons.cdr;
-      param = param->cons.cdr;
-   }
-
-   Expr * result = make_nil();
-
-   while( tmp_body->is_cons() )
-   {
-      Expr * expr = tmp_body->cons.car;
-      result      = eval( expr, *local, io );
-      tmp_body    = tmp_body->cons.cdr;
-   }
-
-   return result;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 Expr::~Expr()
 {
    switch( type )

@@ -42,7 +42,6 @@ struct LambdaFn
        , closure( clsr )
    {
    }
-   Expr * operator()( Expr * args, Context & context, const IO & io );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -217,20 +216,7 @@ inline Expr * make_native( NativeFunction fn )
    return make_expr( std::move( atom ) );
 }
 
-#if 0
-inline Expr * make_lambda( Expr * params, Expr * body, Context * closure )
-{
-   Atom atom;
-   atom.type   = Atom::ATOM_LAMBDA;
-   atom.lambda = LambdaFn( params, body, closure );
-   printf("%s closure=%p ", __FUNCTION__, (void*) closure);
-   printf("parent: %p\n", (void*)(closure->parent()));
-   return make_expr( std::move( atom ) );
-}
-#else
-
 Expr * make_lambda( Expr * params, Expr * body, Context * closure );
-#endif
 
 inline bool has_type( const Expr * e, Expr::Type t )
 {
