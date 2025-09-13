@@ -265,7 +265,7 @@ Expr * eval_cons( Expr * expr, Context & context, const IO & io )
    {
       Expr * params = args->cons.car;
       Expr * body   = args->cons.cdr;
-      Context * env = new Context( &context );
+      Context * env = gc::alloc<Context>( &context );
       return make_lambda( params, body, env );
    }
    else if( op->is_symbol( "if" ) )
