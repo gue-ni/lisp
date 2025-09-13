@@ -1,3 +1,4 @@
+#include <exception>
 #include <fstream>
 #include <sstream>
 
@@ -64,8 +65,10 @@ Expr * f_sub( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   double result  = 0;
    Expr * current = arg;
+
+   double result = current->cons.car->atom.number;
+   current = current->cons.cdr;
 
    while( ( current->is_cons() ) && has_type( current->cons.car, Expr::EXPR_ATOM )
           && ( current->cons.car->atom.type == Atom::ATOM_NUMBER ) )

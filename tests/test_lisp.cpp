@@ -100,18 +100,32 @@ TEST_F( LispTest, test_nil_01 )
    EXPECT_EQ( out.str(), "()" );
 }
 
-TEST_F( LispTest, test_eval_exp_with_native_fn_add_01 )
+TEST_F( LispTest, test_add_01 )
 {
    eval( "(+ 2 3)", ctx, io );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "5" );
 }
 
-TEST_F( LispTest, test_eval_exp_with_native_fn_mult_01 )
+TEST_F( LispTest, test_mult_01 )
 {
    eval( "(* 2 3)", ctx, io );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "6" );
+}
+
+TEST_F( LispTest, test_sub_01 )
+{
+   eval( "(- 5 3)", ctx, io );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "2" );
+}
+
+TEST_F( LispTest, test_sub_02 )
+{
+   eval( "(- 3 2 1)", ctx, io );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "0" );
 }
 
 TEST_F( LispTest, test_eval_num_01 )
@@ -445,8 +459,8 @@ TEST_F( LispTest, test_recursion_01 )
    std::string src = R"(
 (define factorial
   (lambda (n)
-    (if (= n 0)  
-        1 
+    (if (= n 0)
+        1
         (* n (factorial (- n 1))))))
 
 (factorial 5)
@@ -457,4 +471,3 @@ TEST_F( LispTest, test_recursion_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "120" );
 }
-

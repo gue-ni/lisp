@@ -26,7 +26,7 @@ constexpr Flags FLAG_DUMP_ENV    = 1 << 3;
 
 using Env = std::map<std::string, Expr *>;
 
-class Context
+class Context : public gc::Garbage
 {
  public:
    Context(Context* parent = nullptr);
@@ -35,6 +35,8 @@ class Context
    void define( const char * symbol, Expr * expr );
    void print( const IO & io ) const;
    const Env & env() const;
+   void mark() override;
+   Context * parent() { return m_parent; }
 
    bool exit;
    int exit_code;
@@ -44,20 +46,10 @@ class Context
    Env m_env;
    void load_runtime();
    void load_stdlib();
+  bool is_root() const;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// garbage collection
-namespace gc
-{
 
-void mark( Expr * expr );
-
-void sweep();
-
-void run( Context & context );
-
-} // namespace gc
 
 ///////////////////////////////////////////////////////////////////////////////
 

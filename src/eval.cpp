@@ -1,6 +1,7 @@
 #include "eval.h"
 #include "builtin.h"
 #include "expr.h"
+#include "gc.h"
 #include "parser.h"
 #include "tokenizer.h"
 
@@ -19,11 +20,12 @@ namespace lisp
 ///////////////////////////////////////////////////////////////////////////////
 
 Context::Context( Context * parent )
-    : m_parent( parent )
+    : gc::Garbage()
+    , m_parent( parent )
     , exit( false )
     , exit_code( false )
 {
-   if( parent == nullptr )
+   if( is_root() )
    {
       load_runtime();
 #if 0
@@ -37,10 +39,19 @@ Context::Context( Context * parent )
 Context::~Context()
 {
    m_env.clear();
+#if 0
    if( m_parent == nullptr )
    {
       gc::run( *this );
    }
+#endif
+
+#if 1
+   if( is_root() )
+   {
+      gc::delete_all();
+   }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,6 +95,17 @@ const Env & Context::env() const
    return m_env;
 }
 
+void Context::mark()
+{
+   set_marked( true );
+#if 0
+   for( const auto & [_, expr] : m_env )
+   {
+      expr->mark();
+   }
+#endif
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void Context::load_stdlib()
@@ -102,6 +124,11 @@ void Context::load_stdlib()
    )";
    int r               = eval( stdlib, *this, io );
    assert( r == 0 );
+}
+
+bool Context::is_root() const
+{
+   return m_parent == nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -193,85 +220,92 @@ Expr * eval_list( Expr * expr, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * apply( Expr * fn, Expr * args, Context & context, const IO & io )
+void bind_params( Context * local, Expr * params, Expr * args )
 {
-   if( ( fn->is_atom() ) && !args->is_nil() )
-   {
-      if( fn->atom.type == Atom::ATOM_NATIVE )
-      {
-         return fn->atom.native( args, context, io );
-      }
-      else if( fn->atom.type == Atom::ATOM_LAMBDA )
-      {
-         return fn->atom.lambda( args, context, io );
-      }
-      else
-      {
-         return fn;
-      }
-   }
+   Expr * arg   = args;
+   Expr * param = params;
 
-   return fn;
+   while( param->is_cons() && arg->is_cons() )
+   {
+      local->define( param->cons.car->atom.symbol, arg->cons.car );
+      arg   = arg->cons.cdr;
+      param = param->cons.cdr;
+   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * eval_cons( Expr * expr, Context & context, const IO & io )
+Expr * eval( Expr * expr, Context & _context, const IO & io )
 {
-   assert( expr->is_cons() );
+   Context * context = &( _context );
+   while( true )
+   {
+      switch( expr->type )
+      {
+         case Expr::EXPR_ATOM :
+            {
+               return eval_atom( expr, *context, io );
+            }
+         case Expr::EXPR_CONS :
+            {
+               Cons cons   = expr->cons;
+               Expr * op   = cons.car;
+               Expr * args = cons.cdr;
 
-   Cons cons   = expr->cons;
-   Expr * op   = cons.car;
-   Expr * args = cons.cdr;
+               if( op->is_symbol( "quote" ) )
+               {
+                  return args->cons.car;
+               }
+               else if( op->is_symbol( "define" ) )
+               {
+                  Expr * var   = args->cons.car;
+                  Expr * value = eval( args->cons.cdr->cons.car, *context, io );
+                  context->define( var->atom.symbol, value );
+                  return make_void();
+               }
+               else if( op->is_symbol( "lambda" ) )
+               {
+                  Expr * params = args->cons.car;
+                  Expr * body   = args->cons.cdr;
+                  return make_lambda( params, body, context );
+               }
+               else if( op->is_symbol( "if" ) )
+               {
+                  Expr * cond      = eval( args->cons.car, *context, io );
+                  Expr * then_expr = args->cons.cdr->cons.car;
+                  Expr * else_expr = args->cons.cdr->cons.cdr->cons.car;
+                  expr             = ( cond->is_truthy() ) ? then_expr : else_expr;
+                  continue;
+               }
+               else
+               {
+                  Expr * fn = eval( op, *context, io );
+                  args      = eval_list( args, *context, io );
 
-   if( op->is_symbol( "quote" ) )
-   {
-      return args->cons.car;
-   }
-   else if( op->is_symbol( "define" ) )
-   {
-      Expr * var   = args->cons.car;
-      Expr * value = eval( args->cons.cdr->cons.car, context, io );
-      context.define( var->atom.symbol, value );
-      return make_void();
-   }
-   else if( op->is_symbol( "lambda" ) )
-   {
-      Expr * params = args->cons.car;
-      Expr * body   = args->cons.cdr;
-      Context * env = new Context( &context );
-      return make_lambda( params, body, env );
-   }
-   else if( op->is_symbol( "if" ) )
-   {
-      Expr * cond      = eval( args->cons.car, context, io );
-      Expr * then_expr = args->cons.cdr->cons.car;
-      Expr * else_expr = args->cons.cdr->cons.cdr->cons.car;
-      return ( cond->is_truthy() ) ? eval( then_expr, context, io ) : eval( else_expr, context, io );
-   }
-   else
-   {
-      Expr * fn = eval( op, context, io );
-      args      = eval_list( args, context, io );
-      return apply( fn, args, context, io );
-   }
-}
+                  if( fn->is_native() && !args->is_nil() )
+                  {
+                     return fn->atom.native( args, *context, io );
+                  }
+                  else if( fn->is_lambda() && !args->is_nil() )
+                  {
+                     Context * new_env = gc::alloc<Context>( fn->atom.lambda.closure );
+                     bind_params( new_env, fn->atom.lambda.params, args );
 
-Expr * eval( Expr * expr, Context & context, const IO & io )
-{
-   switch( expr->type )
-   {
-      case Expr::EXPR_ATOM :
-         {
-            return eval_atom( expr, context, io );
-         }
-      case Expr::EXPR_CONS :
-         {
-            return eval_cons( expr, context, io );
-         }
-      default :
-         io.err << "unhandled-type" << std::endl;
-         return make_nil();
+                     expr    = fn->atom.lambda.body->cons.car;
+                     context = new_env;
+                     continue;
+                  }
+                  else
+                  {
+                     return fn;
+                  }
+               }
+            }
+         default :
+            assert( false );
+            io.err << "unhandled-type" << std::endl;
+            return make_nil();
+      }
    }
 }
 
@@ -300,7 +334,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
    if( flags & FLAG_DUMP_TOKENS )
    {
       io.out << "---begin-tokens---" << std::endl;
-      //
+      print_debug( io.out, tokens );
       io.out << "----end-tokens----" << std::endl;
    }
 
@@ -354,9 +388,7 @@ int eval( const std::string & source )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const std::string DBG_CMD  = "dbg";
-const std::string DBG_QUIT = "quit";
-const std::string LOAD_CMD = "load-file ";
+const std::string DBG_CMD = "dbg";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -390,66 +422,5 @@ int repl()
    } while( ( res == 0 ) && ( !ctx.exit ) );
    return ( ctx.exit_code == 0 ) ? res : ctx.exit_code;
 }
-
-namespace gc
-{
-
-///////////////////////////////////////////////////////////////////////////////
-
-void mark( Expr * expr )
-{
-   expr->marked = true;
-   if( expr->is_cons() )
-   {
-      mark( expr->cons.cdr );
-      mark( expr->cons.car );
-   }
-   else if( expr->is_atom() )
-   {
-      // closures?
-      if( expr->is_lambda() )
-      {
-         for( auto & [k, v] : expr->atom.lambda.closure->env() )
-         {
-            mark( v );
-         }
-      }
-   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void sweep()
-{
-   auto it = Expr::all.begin();
-   while( it != Expr::all.end() )
-   {
-      Expr * expr = *it;
-      if( !expr->marked )
-      {
-         delete expr;
-         it = Expr::all.erase( it );
-      }
-      else
-      {
-         expr->marked = false;
-         ++it;
-      }
-   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void run( Context & context )
-{
-   for( const auto & [symbol, expr] : context.env() )
-   {
-      mark( expr );
-   }
-
-   sweep();
-}
-
-} // namespace gc
 
 } // namespace lisp

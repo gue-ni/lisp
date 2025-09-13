@@ -7,45 +7,6 @@ namespace lisp
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
-{
-   return fn( args, context, io );
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
-{
-   Expr * arg   = args;
-   Expr * param = params;
-    Context * local = new Context( closure );
-
-   while( param->is_cons() && arg->is_cons() )
-   {
-      local->define( param->cons.car->atom.symbol, arg->cons.car );
-      arg   = arg->cons.cdr;
-      param = param->cons.cdr;
-   }
-
-   // TODO: check arity
-
-   Expr * tmp_body = body;
-   Expr * result   = make_nil();
-
-   while( tmp_body->is_cons() )
-   {
-      Expr * expr = tmp_body->cons.car;
-      result      = eval( expr, *local, io );
-      tmp_body    = tmp_body->cons.cdr;
-   }
-
-   return result;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-std::list<Expr *> Expr::all;
-
 Expr::~Expr()
 {
    switch( type )
@@ -61,26 +22,23 @@ Expr::~Expr()
 }
 
 Expr::Expr()
-    : type( EXPR_VOID )
-    , marked( false )
+    : gc::Garbage()
+    , type( EXPR_VOID )
 {
-   all.push_back( this );
 }
 
 Expr::Expr( Atom && a )
-    : type( EXPR_ATOM )
+    : gc::Garbage()
+    , type( EXPR_ATOM )
     , atom( std::move( a ) )
-    , marked( false )
 {
-   all.push_back( this );
 }
 
 Expr::Expr( Cons c )
-    : type( EXPR_CONS )
+    : gc::Garbage()
+    , type( EXPR_CONS )
     , cons( c )
-    , marked( false )
 {
-   all.push_back( this );
 }
 
 void Expr::print( const IO & io ) const
@@ -130,6 +88,11 @@ bool Expr::is_lambda() const
    return is_atom() && ( atom.type == Atom::ATOM_LAMBDA );
 }
 
+bool Expr::is_native() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_NATIVE );
+}
+
 bool Expr::is_error() const
 {
    return is_atom() && ( atom.type == Atom::ATOM_ERROR );
@@ -148,6 +111,29 @@ bool Expr::is_truthy() const
    else
    {
       return false;
+   }
+}
+
+void Expr::mark()
+{
+   set_marked( true );
+   if( is_cons() )
+   {
+      cons.car->mark();
+      cons.cdr->mark();
+   }
+   else if( is_atom() )
+   {
+      // closures?
+      if( is_lambda() )
+      {
+#if 0
+         for( auto & [k, v] : atom.lambda.closure->env() )
+         {
+            v->mark();
+         }
+#endif
+      }
    }
 }
 
@@ -180,6 +166,7 @@ Atom::~Atom()
       case lisp::Atom::ATOM_NIL :
       case lisp::Atom::ATOM_NUMBER :
       case lisp::Atom::ATOM_BOOLEAN :
+      case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
          break;
       case lisp::Atom::ATOM_SYMBOL :
@@ -200,13 +187,8 @@ Atom::~Atom()
             free( error );
          }
          break;
-      case lisp::Atom::ATOM_LAMBDA :
-         if( lambda.closure )
-         {
-            delete lambda.closure;
-            lambda.closure = nullptr;
-         }
-         break;
+      default :
+         assert( false && "unreachable" );
    }
 }
 
@@ -272,43 +254,26 @@ std::string Atom::to_json() const
    switch( type )
    {
       case Atom::ATOM_NIL :
-         {
-            return "null";
-         }
+         return "null";
       case Atom ::ATOM_BOOLEAN :
-         {
-            return ( boolean ? "true" : "false" );
-         }
+         return ( boolean ? "true" : "false" );
       case Atom::ATOM_NUMBER :
-         {
-            return std::to_string( number );
-         }
+         return std::to_string( number );
       case Atom::ATOM_SYMBOL :
-         {
-            return "\"symbol(" + std::string( symbol ) + ")\"";
-         }
+         return "\"symbol(" + std::string( symbol ) + ")\"";
       case Atom::ATOM_STRING :
-         {
-            return "\"" + std::string( string ) + "\"";
-         }
+         return "\"" + std::string( string ) + "\"";
       case Atom::ATOM_LAMBDA :
-         {
-            return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
-                   + " } }";
-         }
+         return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
+                + " } }";
+
       case Atom::ATOM_NATIVE :
-         {
-            return "\"native()\"";
-         }
+         return "\"native()\"";
       case Atom ::ATOM_ERROR :
-         {
-            return "\"error(" + std::string( error ) + ")\"";
-         }
+         return "\"error(" + std::string( error ) + ")\"";
       default :
-         {
-            assert( false && "Atom::to_json() unreachable" );
-            return "undefined";
-         }
+         assert( false && "Atom::to_json() unreachable" );
+         return "undefined";
    }
 }
 
@@ -385,7 +350,7 @@ bool Atom::operator==( const Atom & other ) const
       case lisp::Atom::ATOM_LAMBDA :
          return false;
       case lisp::Atom::ATOM_NATIVE :
-         return native.fn == other.native.fn;
+         return native == other.native;
       case lisp::Atom::ATOM_ERROR :
          return ( strcmp( error, other.error ) == 0 );
       default :
@@ -465,6 +430,14 @@ std::string Expr::to_json() const
       default :
          return "{}";
    }
+}
+
+
+Expr * make_lambda( Expr * params, Expr * body, Context * closure ){
+   Atom atom;
+   atom.type   = Atom::ATOM_LAMBDA;
+   atom.lambda = LambdaFn( params, body, closure );
+   return make_expr( std::move( atom ) );
 }
 
 } // namespace lisp

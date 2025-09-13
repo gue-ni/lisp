@@ -1,6 +1,8 @@
 #pragma once
 
 #include "builtin.h"
+#include "gc.h"
+
 #include <cassert>
 #include <cstring>
 #include <list>
@@ -21,26 +23,17 @@ struct Expr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct NativeFn
-{
-   NativeFunction fn;
-   Expr * operator()( Expr * args, Context & context, const IO & io );
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 struct LambdaFn
 {
    Expr * params;
    Expr * body;
-   Context* closure;
-   LambdaFn( Expr * p, Expr * bdy, Context* clsr )
+   Context * closure;
+   LambdaFn( Expr * p, Expr * bdy, Context * clsr )
        : params( p )
        , body( bdy )
        , closure( clsr )
    {
    }
-   Expr * operator()( Expr * args, Context & context, const IO & io );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,7 +61,7 @@ struct Atom
       char * string;
       char * error;
       LambdaFn lambda;
-      NativeFn native;
+      NativeFunction native;
    };
 
    ~Atom();
@@ -99,7 +92,7 @@ struct Cons
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct Expr
+struct Expr : public gc::Garbage
 {
    enum Type
    {
@@ -114,9 +107,6 @@ struct Expr
       Atom atom;
       Cons cons;
    };
-   bool marked;
-
-   static std::list<Expr *> all;
 
    ~Expr();
    Expr();
@@ -134,32 +124,34 @@ struct Expr
    bool is_string() const;
    bool is_number() const;
    bool is_symbol( const char * symbol ) const;
-   bool is_lambda( ) const;
+   bool is_lambda() const;
+   bool is_native() const;
    bool is_error() const;
    bool is_truthy() const;
-};
 
+   void mark() override;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
 inline Expr * make_void()
 {
-   return new Expr();
+   return gc::alloc<Expr>();
 }
 
 inline Expr * make_expr( Atom && atom )
 {
-   return new Expr( std::move( atom ) );
+   return gc::alloc<Expr>( std::move( atom ) );
 }
 
 inline Expr * make_expr( Cons cons )
 {
-   return new Expr( cons );
+   return gc::alloc<Expr>( cons );
 }
 
 inline Expr * make_nil()
 {
-   return new Expr( Atom() );
+   return gc::alloc<Expr>( Atom() );
 }
 
 inline Expr * make_cons( Expr * a, Expr * b )
@@ -212,17 +204,11 @@ inline Expr * make_native( NativeFunction fn )
 {
    Atom atom;
    atom.type   = Atom::ATOM_NATIVE;
-   atom.native = NativeFn{ fn };
+   atom.native = fn;
    return make_expr( std::move( atom ) );
 }
 
-inline Expr * make_lambda( Expr * params, Expr * body, Context * closure )
-{
-   Atom atom;
-   atom.type   = Atom::ATOM_LAMBDA;
-   atom.lambda = LambdaFn( params, body, closure );
-   return make_expr( std::move( atom ) );
-}
+Expr * make_lambda( Expr * params, Expr * body, Context * closure );
 
 inline bool has_type( const Expr * e, Expr::Type t )
 {
