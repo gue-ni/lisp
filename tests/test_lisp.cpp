@@ -471,3 +471,21 @@ TEST_F( LispTest, test_recursion_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "120" );
 }
+
+TEST_F( LispTest, test_recursion_02 )
+{
+   std::string src = R"(
+(define fib
+  (lambda (n)
+    (if (< n 2)
+        n
+        (+ (fib (- n 1)) (fib (- n 2))))))
+
+(fib 6)
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "8" );
+}
