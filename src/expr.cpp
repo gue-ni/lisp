@@ -16,9 +16,15 @@ Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 
 Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 {
+   std::cout << "Execute lambda " << std::endl;
    Expr * arg      = args;
    Expr * param    = params;
+   Expr * tmp_body = body;
    Context * local = gc::alloc<Context>( closure );
+
+   std::cout << "arg     : " << args->to_json() << std::endl;
+   std::cout << "param   : " << param->to_json() << std::endl;
+   std::cout << "body    : " << tmp_body->to_json() << std::endl;
 
    while( param->is_cons() && arg->is_cons() )
    {
@@ -27,10 +33,7 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
       param = param->cons.cdr;
    }
 
-   // TODO: check arity
-
-   Expr * tmp_body = body;
-   Expr * result   = make_nil();
+   Expr * result = make_nil();
 
    while( tmp_body->is_cons() )
    {
@@ -123,6 +126,11 @@ bool Expr::is_symbol( const char * symbol ) const
 bool Expr::is_lambda() const
 {
    return is_atom() && ( atom.type == Atom::ATOM_LAMBDA );
+}
+
+bool Expr::is_native() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_NATIVE );
 }
 
 bool Expr::is_error() const
@@ -220,7 +228,7 @@ Atom::~Atom()
          }
          break;
       default :
-        assert(false && "unreachable");
+         assert( false && "unreachable" );
    }
 }
 
@@ -286,43 +294,26 @@ std::string Atom::to_json() const
    switch( type )
    {
       case Atom::ATOM_NIL :
-         {
-            return "null";
-         }
+         return "null";
       case Atom ::ATOM_BOOLEAN :
-         {
-            return ( boolean ? "true" : "false" );
-         }
+         return ( boolean ? "true" : "false" );
       case Atom::ATOM_NUMBER :
-         {
-            return std::to_string( number );
-         }
+         return std::to_string( number );
       case Atom::ATOM_SYMBOL :
-         {
-            return "\"symbol(" + std::string( symbol ) + ")\"";
-         }
+         return "\"symbol(" + std::string( symbol ) + ")\"";
       case Atom::ATOM_STRING :
-         {
-            return "\"" + std::string( string ) + "\"";
-         }
+         return "\"" + std::string( string ) + "\"";
       case Atom::ATOM_LAMBDA :
-         {
-            return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
-                   + " } }";
-         }
+         return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
+                + " } }";
+
       case Atom::ATOM_NATIVE :
-         {
-            return "\"native()\"";
-         }
+         return "\"native()\"";
       case Atom ::ATOM_ERROR :
-         {
-            return "\"error(" + std::string( error ) + ")\"";
-         }
+         return "\"error(" + std::string( error ) + ")\"";
       default :
-         {
-            assert( false && "Atom::to_json() unreachable" );
-            return "undefined";
-         }
+         assert( false && "Atom::to_json() unreachable" );
+         return "undefined";
    }
 }
 
@@ -479,6 +470,14 @@ std::string Expr::to_json() const
       default :
          return "{}";
    }
+}
+
+
+Expr * make_lambda( Expr * params, Expr * body, Context * closure ){
+   Atom atom;
+   atom.type   = Atom::ATOM_LAMBDA;
+   atom.lambda = LambdaFn( params, body, closure );
+   return make_expr( std::move( atom ) );
 }
 
 } // namespace lisp

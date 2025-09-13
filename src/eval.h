@@ -36,6 +36,7 @@ class Context : public gc::Garbage
    void print( const IO & io ) const;
    const Env & env() const;
    void mark() override;
+   Context * parent() { return m_parent; }
 
    bool exit;
    int exit_code;

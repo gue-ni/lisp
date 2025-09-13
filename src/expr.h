@@ -134,6 +134,7 @@ struct Expr : public gc::Garbage
    bool is_number() const;
    bool is_symbol( const char * symbol ) const;
    bool is_lambda() const;
+   bool is_native() const;
    bool is_error() const;
    bool is_truthy() const;
 
@@ -216,13 +217,20 @@ inline Expr * make_native( NativeFunction fn )
    return make_expr( std::move( atom ) );
 }
 
+#if 0
 inline Expr * make_lambda( Expr * params, Expr * body, Context * closure )
 {
    Atom atom;
    atom.type   = Atom::ATOM_LAMBDA;
    atom.lambda = LambdaFn( params, body, closure );
+   printf("%s closure=%p ", __FUNCTION__, (void*) closure);
+   printf("parent: %p\n", (void*)(closure->parent()));
    return make_expr( std::move( atom ) );
 }
+#else
+
+Expr * make_lambda( Expr * params, Expr * body, Context * closure );
+#endif
 
 inline bool has_type( const Expr * e, Expr::Type t )
 {
