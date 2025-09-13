@@ -168,6 +168,26 @@ Expr * f_gt( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_lt( Expr * arg, Context & context, const IO & io )
+{
+   Expr * a = arg->cons.car;
+   Expr * b = arg->cons.cdr->cons.car;
+
+   bool is_lt = false;
+   if( ( a->type == b->type ) && a->is_atom() )
+   {
+      is_lt = ( b->atom ) > ( a->atom );
+   }
+   else
+   {
+      is_lt = false;
+   }
+
+   return make_boolean( is_lt );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_eq( Expr * arg, Context & context, const IO & io )
 {
    Expr * current = arg;

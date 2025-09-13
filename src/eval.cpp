@@ -115,6 +115,7 @@ void Context::load_runtime()
 
    define( "=", make_native( builtin::f_eq ) );
    define( ">", make_native( builtin::f_gt ) );
+   define( "<", make_native( builtin::f_lt ) );
    define( "not", make_native( builtin::f_not ) );
 
    define( "print", make_native( builtin::f_print ) );

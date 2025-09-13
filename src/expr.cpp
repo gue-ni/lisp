@@ -18,11 +18,11 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 {
    Expr * arg   = args;
    Expr * param = params;
-   // Context  local = Context( closure );
+    Context * local = new Context( closure );
 
    while( param->is_cons() && arg->is_cons() )
    {
-      closure->define( param->cons.car->atom.symbol, arg->cons.car );
+      local->define( param->cons.car->atom.symbol, arg->cons.car );
       arg   = arg->cons.cdr;
       param = param->cons.cdr;
    }
@@ -35,7 +35,7 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
    while( tmp_body->is_cons() )
    {
       Expr * expr = tmp_body->cons.car;
-      result      = eval( expr, *closure, io );
+      result      = eval( expr, *local, io );
       tmp_body    = tmp_body->cons.cdr;
    }
 

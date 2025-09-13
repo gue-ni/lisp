@@ -439,3 +439,22 @@ TEST_F( LispTest, test_lambda_06 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "78.5398" );
 }
+
+TEST_F( LispTest, test_recursion_01 )
+{
+   std::string src = R"(
+(define factorial
+  (lambda (n)
+    (if (= n 0)  
+        1 
+        (* n (factorial (- n 1))))))
+
+(factorial 5)
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "120" );
+}
+
