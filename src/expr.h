@@ -210,31 +210,6 @@ inline Expr * make_native( NativeFunction fn )
 
 Expr * make_lambda( Expr * params, Expr * body, Context * closure );
 
-inline bool has_type( const Expr * e, Expr::Type t )
-{
-   return e->type == t;
-}
-
-inline bool has_type( const Atom * a, Atom::Type t )
-{
-   return a->type == t;
-}
-
-inline bool has_type( const Atom & a, Atom::Type t )
-{
-   return a.type == t;
-}
-
-inline void assert_type( const Expr * e, Expr::Type t )
-{
-   assert( has_type( e, t ) );
-}
-
-inline void assert_type( const Atom * a, Atom::Type t )
-{
-   assert( has_type( a, t ) );
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 } // namespace lisp

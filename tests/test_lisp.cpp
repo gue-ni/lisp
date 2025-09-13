@@ -114,6 +114,20 @@ TEST_F( LispTest, test_mult_01 )
    EXPECT_EQ( out.str(), "6" );
 }
 
+TEST_F( LispTest, test_div_01 )
+{
+   eval( "(/ 5 2)", ctx, io );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "2.5" );
+}
+
+TEST_F( LispTest, test_div_02 )
+{
+   eval( "(/ 5 0)", ctx, io );
+   EXPECT_EQ( err.str(), "(error: division by zero)" );
+   EXPECT_EQ( out.str(), "" );
+}
+
 TEST_F( LispTest, test_sub_01 )
 {
    eval( "(- 5 3)", ctx, io );
@@ -479,7 +493,8 @@ TEST_F( LispTest, test_recursion_02 )
   (lambda (n)
     (if (< n 2)
         n
-        (+ (fib (- n 1)) (fib (- n 2))))))
+        (+ (fib (- n 1))
+           (fib (- n 2))))))
 
 (fib 6)
    )";

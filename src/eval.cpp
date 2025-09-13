@@ -190,7 +190,7 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 Expr * eval_program( Expr * program, Context & context, const IO & io )
 {
    Expr * result = make_nil();
-   while( has_type( program, Expr::EXPR_CONS ) )
+   while( program->is_cons() )
    {
       Expr * expr = program->cons.car;
       result      = eval( expr, context, io );

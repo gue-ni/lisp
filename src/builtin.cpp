@@ -18,7 +18,7 @@ namespace builtin
 
 Expr * f_print( Expr * arg, Context & context, const IO & io )
 {
-   if( !has_type( arg, Expr::EXPR_CONS ) )
+   if( !arg->is_cons() )
    {
       return make_error( "invalid-type" );
    }
@@ -46,14 +46,22 @@ Expr * f_add( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   double result  = 0;
-   Expr * current = arg;
-
-   while( ( current->is_cons() ) && has_type( current->cons.car, Expr::EXPR_ATOM )
-          && ( current->cons.car->atom.type == Atom::ATOM_NUMBER ) )
+   if( !arg->cons.car->is_number() )
    {
-      result += current->cons.car->atom.number;
-      current = current->cons.cdr;
+      return make_error( "expected a number" );
+   }
+
+   double result = arg->cons.car->atom.number;
+   arg           = arg->cons.cdr;
+
+   while( ( arg->is_cons() ) )
+   {
+      if( !arg->cons.car->is_number() )
+      {
+         return make_error( "expected a number" );
+      }
+      result += arg->cons.car->atom.number;
+      arg = arg->cons.cdr;
    }
 
    return make_number( result );
@@ -65,16 +73,22 @@ Expr * f_sub( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   Expr * current = arg;
-
-   double result = current->cons.car->atom.number;
-   current = current->cons.cdr;
-
-   while( ( current->is_cons() ) && has_type( current->cons.car, Expr::EXPR_ATOM )
-          && ( current->cons.car->atom.type == Atom::ATOM_NUMBER ) )
+   if( !arg->cons.car->is_number() )
    {
-      result -= current->cons.car->atom.number;
-      current = current->cons.cdr;
+      return make_error( "expected a number" );
+   }
+
+   double result = arg->cons.car->atom.number;
+   arg           = arg->cons.cdr;
+
+   while( ( arg->is_cons() ) )
+   {
+      if( !arg->cons.car->is_number() )
+      {
+         return make_error( "expected a number" );
+      }
+      result -= arg->cons.car->atom.number;
+      arg = arg->cons.cdr;
    }
 
    return make_number( result );
@@ -86,14 +100,22 @@ Expr * f_mul( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   double result  = 1;
-   Expr * current = arg;
-
-   while( ( current->is_cons() ) && ( current->cons.car->type == Expr::EXPR_ATOM )
-          && ( current->cons.car->atom.type == Atom::ATOM_NUMBER ) )
+   if( !arg->cons.car->is_number() )
    {
-      result *= current->cons.car->atom.number;
-      current = current->cons.cdr;
+      return make_error( "expected a number" );
+   }
+
+   double result = arg->cons.car->atom.number;
+   arg           = arg->cons.cdr;
+
+   while( ( arg->is_cons() ) )
+   {
+      if( !arg->cons.car->is_number() )
+      {
+         return make_error( "expected a number" );
+      }
+      result *= arg->cons.car->atom.number;
+      arg = arg->cons.cdr;
    }
 
    return make_number( result );
@@ -105,14 +127,27 @@ Expr * f_div( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   double result  = 1;
-   Expr * current = arg;
-
-   while( ( current->is_cons() ) && ( current->cons.car->type == Expr::EXPR_ATOM )
-          && ( current->cons.car->atom.type == Atom::ATOM_NUMBER ) )
+   if( !arg->cons.car->is_number() )
    {
-      result /= current->cons.car->atom.number;
-      current = current->cons.cdr;
+      return make_error( "expected a number" );
+   }
+
+   double result = arg->cons.car->atom.number;
+   arg           = arg->cons.cdr;
+
+   while( ( arg->is_cons() ) )
+   {
+      if( !arg->cons.car->is_number() )
+      {
+         return make_error( "expected a number" );
+      }
+
+      if( arg->cons.car->atom.number == 0 )
+      {
+         return make_error( "division by zero" );
+      }
+      result /= arg->cons.car->atom.number;
+      arg = arg->cons.cdr;
    }
 
    return make_number( result );
