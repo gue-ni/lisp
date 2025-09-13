@@ -7,13 +7,6 @@ namespace lisp
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
-{
-   return fn( args, context, io );
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 Expr::~Expr()
 {
    switch( type )
@@ -357,7 +350,7 @@ bool Atom::operator==( const Atom & other ) const
       case lisp::Atom::ATOM_LAMBDA :
          return false;
       case lisp::Atom::ATOM_NATIVE :
-         return native.fn == other.native.fn;
+         return native == other.native;
       case lisp::Atom::ATOM_ERROR :
          return ( strcmp( error, other.error ) == 0 );
       default :

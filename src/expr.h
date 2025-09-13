@@ -23,14 +23,6 @@ struct Expr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct NativeFn
-{
-   NativeFunction fn;
-   Expr * operator()( Expr * args, Context & context, const IO & io );
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 struct LambdaFn
 {
    Expr * params;
@@ -69,7 +61,7 @@ struct Atom
       char * string;
       char * error;
       LambdaFn lambda;
-      NativeFn native;
+      NativeFunction native;
    };
 
    ~Atom();
@@ -212,7 +204,7 @@ inline Expr * make_native( NativeFunction fn )
 {
    Atom atom;
    atom.type   = Atom::ATOM_NATIVE;
-   atom.native = NativeFn{ fn };
+   atom.native = fn;
    return make_expr( std::move( atom ) );
 }
 
