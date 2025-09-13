@@ -16,9 +16,9 @@ Expr * NativeFn::operator()( Expr * args, Context & context, const IO & io )
 
 Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 {
-   Expr * arg   = args;
-   Expr * param = params;
-    Context * local = new Context( closure );
+   Expr * arg      = args;
+   Expr * param    = params;
+   Context * local = gc::alloc<Context>( closure );
 
    while( param->is_cons() && arg->is_cons() )
    {
@@ -44,8 +44,6 @@ Expr * LambdaFn::operator()( Expr * args, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::list<Expr *> Expr::all;
-
 Expr::~Expr()
 {
    switch( type )
@@ -61,26 +59,23 @@ Expr::~Expr()
 }
 
 Expr::Expr()
-    : type( EXPR_VOID )
-    , marked( false )
+    : gc::Garbage()
+    , type( EXPR_VOID )
 {
-   all.push_back( this );
 }
 
 Expr::Expr( Atom && a )
-    : type( EXPR_ATOM )
+    : gc::Garbage()
+    , type( EXPR_ATOM )
     , atom( std::move( a ) )
-    , marked( false )
 {
-   all.push_back( this );
 }
 
 Expr::Expr( Cons c )
-    : type( EXPR_CONS )
+    : gc::Garbage()
+    , type( EXPR_CONS )
     , cons( c )
-    , marked( false )
 {
-   all.push_back( this );
 }
 
 void Expr::print( const IO & io ) const
@@ -148,6 +143,29 @@ bool Expr::is_truthy() const
    else
    {
       return false;
+   }
+}
+
+void Expr::mark()
+{
+   set_marked( true );
+   if( is_cons() )
+   {
+      cons.car->mark();
+      cons.cdr->mark();
+   }
+   else if( is_atom() )
+   {
+      // closures?
+      if( is_lambda() )
+      {
+#if 0
+         for( auto & [k, v] : atom.lambda.closure->env() )
+         {
+            v->mark();
+         }
+#endif
+      }
    }
 }
 

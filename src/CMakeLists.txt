@@ -1,6 +1,6 @@
 
-set(SRC_FILES "eval.cpp" "builtin.cpp" "expr.cpp" "parser.cpp" "tokenizer.cpp")
-set(INC_FILES "eval.h" "builtin.h" "expr.h" "parser.h" "tokenizer.h" "lisp.h")
+set(SRC_FILES "eval.cpp" "builtin.cpp" "expr.cpp" "parser.cpp" "tokenizer.cpp" "gc.cpp")
+set(INC_FILES "eval.h" "builtin.h" "expr.h" "parser.h" "tokenizer.h" "lisp.h" "gc.h")
 
 
 add_library(lisp_lib STATIC ${SRC_FILES} ${INC_FILES})

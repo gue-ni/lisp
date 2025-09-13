@@ -1,6 +1,8 @@
 #pragma once
 
 #include "builtin.h"
+#include "gc.h"
+
 #include <cassert>
 #include <cstring>
 #include <list>
@@ -33,8 +35,8 @@ struct LambdaFn
 {
    Expr * params;
    Expr * body;
-   Context* closure;
-   LambdaFn( Expr * p, Expr * bdy, Context* clsr )
+   Context * closure;
+   LambdaFn( Expr * p, Expr * bdy, Context * clsr )
        : params( p )
        , body( bdy )
        , closure( clsr )
@@ -99,7 +101,7 @@ struct Cons
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct Expr
+struct Expr : public gc::Garbage
 {
    enum Type
    {
@@ -114,9 +116,6 @@ struct Expr
       Atom atom;
       Cons cons;
    };
-   bool marked;
-
-   static std::list<Expr *> all;
 
    ~Expr();
    Expr();
@@ -134,32 +133,33 @@ struct Expr
    bool is_string() const;
    bool is_number() const;
    bool is_symbol( const char * symbol ) const;
-   bool is_lambda( ) const;
+   bool is_lambda() const;
    bool is_error() const;
    bool is_truthy() const;
-};
 
+   void mark() override;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
 inline Expr * make_void()
 {
-   return new Expr();
+   return gc::alloc<Expr>();
 }
 
 inline Expr * make_expr( Atom && atom )
 {
-   return new Expr( std::move( atom ) );
+   return gc::alloc<Expr>( std::move( atom ) );
 }
 
 inline Expr * make_expr( Cons cons )
 {
-   return new Expr( cons );
+   return gc::alloc<Expr>( cons );
 }
 
 inline Expr * make_nil()
 {
-   return new Expr( Atom() );
+   return gc::alloc<Expr>( Atom() );
 }
 
 inline Expr * make_cons( Expr * a, Expr * b )

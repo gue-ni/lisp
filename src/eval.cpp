@@ -19,11 +19,12 @@ namespace lisp
 ///////////////////////////////////////////////////////////////////////////////
 
 Context::Context( Context * parent )
-    : m_parent( parent )
+    : gc::Garbage()
+    , m_parent( parent )
     , exit( false )
     , exit_code( false )
 {
-   if( parent == nullptr )
+   if( is_root() )
    {
       load_runtime();
 #if 0
@@ -37,10 +38,19 @@ Context::Context( Context * parent )
 Context::~Context()
 {
    m_env.clear();
+#if 0
    if( m_parent == nullptr )
    {
       gc::run( *this );
    }
+#endif
+
+   #if 1
+   if( is_root() )
+   {
+      gc::delete_all();
+   }
+   #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,6 +94,17 @@ const Env & Context::env() const
    return m_env;
 }
 
+void Context::mark()
+{
+   set_marked( true );
+   #if 0
+   for( const auto & [_, expr] : m_env )
+   {
+      expr->mark();
+   }
+   #endif
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void Context::load_stdlib()
@@ -102,6 +123,11 @@ void Context::load_stdlib()
    )";
    int r               = eval( stdlib, *this, io );
    assert( r == 0 );
+}
+
+bool Context::is_root() const
+{
+   return m_parent == nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -354,9 +380,7 @@ int eval( const std::string & source )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const std::string DBG_CMD  = "dbg";
-const std::string DBG_QUIT = "quit";
-const std::string LOAD_CMD = "load-file ";
+const std::string DBG_CMD = "dbg";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -390,66 +414,5 @@ int repl()
    } while( ( res == 0 ) && ( !ctx.exit ) );
    return ( ctx.exit_code == 0 ) ? res : ctx.exit_code;
 }
-
-namespace gc
-{
-
-///////////////////////////////////////////////////////////////////////////////
-
-void mark( Expr * expr )
-{
-   expr->marked = true;
-   if( expr->is_cons() )
-   {
-      mark( expr->cons.cdr );
-      mark( expr->cons.car );
-   }
-   else if( expr->is_atom() )
-   {
-      // closures?
-      if( expr->is_lambda() )
-      {
-         for( auto & [k, v] : expr->atom.lambda.closure->env() )
-         {
-            mark( v );
-         }
-      }
-   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void sweep()
-{
-   auto it = Expr::all.begin();
-   while( it != Expr::all.end() )
-   {
-      Expr * expr = *it;
-      if( !expr->marked )
-      {
-         delete expr;
-         it = Expr::all.erase( it );
-      }
-      else
-      {
-         expr->marked = false;
-         ++it;
-      }
-   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void run( Context & context )
-{
-   for( const auto & [symbol, expr] : context.env() )
-   {
-      mark( expr );
-   }
-
-   sweep();
-}
-
-} // namespace gc
 
 } // namespace lisp
