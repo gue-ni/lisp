@@ -214,8 +214,8 @@ Atom::Atom( Atom && other ) noexcept
          other.string = nullptr;
          break;
       case lisp::Atom::ATOM_LAMBDA :
-         lambda               = other.lambda;
-         other.lambda.closure = nullptr;
+         lambda           = other.lambda;
+         other.lambda.env = nullptr;
          break;
       case lisp::Atom::ATOM_NATIVE :
          native = other.native;
@@ -430,14 +430,6 @@ std::string Expr::to_json() const
       default :
          return "{}";
    }
-}
-
-
-Expr * make_lambda( Expr * params, Expr * body, Context * closure ){
-   Atom atom;
-   atom.type   = Atom::ATOM_LAMBDA;
-   atom.lambda = LambdaFn( params, body, closure );
-   return make_expr( std::move( atom ) );
 }
 
 } // namespace lisp

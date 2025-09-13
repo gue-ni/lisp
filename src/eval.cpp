@@ -288,7 +288,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   }
                   else if( fn->is_lambda() && !args->is_nil() )
                   {
-                     Context * new_env = gc::alloc<Context>( fn->atom.lambda.closure );
+                     Context * new_env = gc::alloc<Context>( fn->atom.lambda.env );
                      bind_params( new_env, fn->atom.lambda.params, args );
 
                      expr    = fn->atom.lambda.body->cons.car;

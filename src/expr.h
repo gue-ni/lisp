@@ -27,11 +27,11 @@ struct LambdaFn
 {
    Expr * params;
    Expr * body;
-   Context * closure;
-   LambdaFn( Expr * p, Expr * bdy, Context * clsr )
+   Context * env;
+   LambdaFn( Expr * p, Expr * b, Context * e )
        : params( p )
-       , body( bdy )
-       , closure( clsr )
+       , body( b )
+       , env( e )
    {
    }
 };
@@ -208,7 +208,13 @@ inline Expr * make_native( NativeFunction fn )
    return make_expr( std::move( atom ) );
 }
 
-Expr * make_lambda( Expr * params, Expr * body, Context * closure );
+inline Expr * make_lambda( Expr * params, Expr * body, Context * env )
+{
+   Atom atom;
+   atom.type   = Atom::ATOM_LAMBDA;
+   atom.lambda = LambdaFn( params, body, env );
+   return make_expr( std::move( atom ) );
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
