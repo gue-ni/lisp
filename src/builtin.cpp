@@ -16,7 +16,7 @@ namespace builtin
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * f_print( Expr * arg, Context & context, const IO & io )
+Expr * f_display( Expr * arg, Context & context, const IO & io )
 {
    if( !arg->is_cons() )
    {
@@ -27,9 +27,9 @@ Expr * f_print( Expr * arg, Context & context, const IO & io )
    return make_void();
 }
 
-Expr * f_println( Expr * arg, Context & context, const IO & io )
+Expr * f_displayln( Expr * arg, Context & context, const IO & io )
 {
-   ( void ) f_print( arg, context, io );
+   ( void ) f_display( arg, context, io );
    io.out << std::endl;
    return make_void();
 }
@@ -206,6 +206,21 @@ Expr * f_gt( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_ge( Expr * arg, Context & context, const IO & io )
+{
+   Expr * a = arg->cons.car;
+   Expr * b = arg->cons.cdr->cons.car;
+
+   if( ( a->type != b->type ) && a->is_atom() )
+   {
+      return make_error( "atom expected" );
+   }
+
+   return make_boolean( ( a->atom == b->atom ) || ( a->atom > b->atom ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_lt( Expr * arg, Context & context, const IO & io )
 {
    Expr * a = arg->cons.car;
@@ -226,6 +241,22 @@ Expr * f_lt( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_le( Expr * arg, Context & context, const IO & io )
+{
+
+   Expr * a = arg->cons.car;
+   Expr * b = arg->cons.cdr->cons.car;
+
+   if( ( a->type != b->type ) && a->is_atom() )
+   {
+      return make_error( "atom expected" );
+   }
+
+   return make_boolean( ( a->atom == b->atom ) || ( b->atom > a->atom ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_eq( Expr * arg, Context & context, const IO & io )
 {
    Expr * current = arg;
@@ -240,9 +271,36 @@ Expr * f_eq( Expr * arg, Context & context, const IO & io )
    return make_boolean( is_eq );
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_not( Expr * arg, Context & context, const IO & io )
 {
+   assert( arg->is_cons() );
    return make_boolean( !( arg->cons.car->is_truthy() ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_is_null( Expr * arg, Context & context, const IO & io )
+{
+   assert( arg->is_cons() );
+   return make_boolean( arg->cons.car->is_nil() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_is_number( Expr * arg, Context & context, const IO & io )
+{
+   assert( arg->is_cons() );
+   return make_boolean( arg->cons.car->is_number() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_is_string( Expr * arg, Context & context, const IO & io )
+{
+   assert( arg->is_cons() );
+   return make_boolean( arg->cons.car->is_string() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -142,11 +142,13 @@ void Context::load_runtime()
 
    define( "=", make_native( builtin::f_eq ) );
    define( ">", make_native( builtin::f_gt ) );
+   define( ">=", make_native( builtin::f_ge ) );
    define( "<", make_native( builtin::f_lt ) );
+   define( "<=", make_native( builtin::f_le ) );
    define( "not", make_native( builtin::f_not ) );
 
-   define( "print", make_native( builtin::f_print ) );
-   define( "println", make_native( builtin::f_println ) );
+   define( "display", make_native( builtin::f_display ) );
+   define( "displayln", make_native( builtin::f_displayln ) );
    define( "print-debug", make_native( builtin::f_print_debug ) );
 
    define( "car", make_native( builtin::f_car ) );
@@ -161,6 +163,10 @@ void Context::load_runtime()
    define( "read-file", make_native( builtin::f_read_file ) );
 
    define( "exit", make_native( builtin::f_exit ) );
+
+   define( "null?", make_native( builtin::f_is_null ) );
+   define( "number?", make_native( builtin::f_is_number ) );
+   define( "string?", make_native( builtin::f_is_string ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
