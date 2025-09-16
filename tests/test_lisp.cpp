@@ -436,8 +436,8 @@ TEST_F( LispTest, test_stdlib_02 )
 TEST_F( LispTest, test_lambda_05 )
 {
    std::string src = R"(
-(define make-adder
-  (lambda (a) (lambda (b) (+ a b))))
+(define (make-adder a)
+  (lambda (b) (+ a b)))
 
 (define add5 (make-adder 5))
 
@@ -471,11 +471,10 @@ TEST_F( LispTest, test_lambda_06 )
 TEST_F( LispTest, test_recursion_01 )
 {
    std::string src = R"(
-(define factorial
-  (lambda (n)
+(define (factorial n)
     (if (= n 0)
         1
-        (* n (factorial (- n 1))))))
+        (* n (factorial (- n 1)))))
 
 (factorial 5)
    )";
@@ -489,12 +488,11 @@ TEST_F( LispTest, test_recursion_01 )
 TEST_F( LispTest, test_recursion_02 )
 {
    std::string src = R"(
-(define fib
-  (lambda (n)
+(define (fib n)
     (if (< n 2)
         n
         (+ (fib (- n 1))
-           (fib (- n 2))))))
+           (fib (- n 2)))))
 
 (fib 6)
    )";
@@ -503,4 +501,19 @@ TEST_F( LispTest, test_recursion_02 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "8" );
+}
+
+TEST_F( LispTest, test_define_02 )
+{
+   std::string src = R"(
+    (define (add x y) 
+      (+ x y)) 
+
+    (add 5 4)
+    )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "9" );
 }

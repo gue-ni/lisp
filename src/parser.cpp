@@ -27,9 +27,8 @@ Parser::Parser( const Tokens & tokens )
 
 Expr * Parser::parse()
 {
-   Expr * head = nullptr;
-   Expr * tail = nullptr;
-   Expr * expr = nullptr;
+   Expr *head, *tail, *expr;
+   expr = head = tail = nullptr;
 
    do
    {
@@ -118,27 +117,47 @@ Expr * Parser::parse_expr()
             Expr * quote  = make_symbol( "quote" );
             Expr * quoted = parse_expr();
             if( quoted->is_error() )
-            {
                return quoted;
-            }
+
             return make_cons( quote, make_cons( quoted, make_nil() ) );
          }
       case TokenType ::DEFINE :
          {
             advance();
             Expr * keyword = make_symbol( "define" );
-            Expr * symbol  = parse_expr();
-            if( symbol->is_error() )
+            if( peek().type == TokenType::LPAREN )
             {
-               return symbol;
-            }
+               m_parenthesis_depth++;
+               advance();
 
-            Expr * value = parse_expr();
-            if( value->is_error() )
-            {
-               return value;
+               Expr * tmp = parse_list();
+               if( tmp->is_error() )
+                  return tmp;
+
+               Expr * fn_name   = tmp->cons.car;
+               Expr * fn_params = tmp->cons.cdr;
+
+               Expr * fn_body = parse_expr();
+               if( fn_body->is_error() )
+                  return fn_body;
+
+               Expr * fn
+                   = make_cons( make_symbol( "lambda" ), make_cons( fn_params, make_cons( fn_body, make_nil() ) ) );
+
+               return make_cons( keyword, make_cons( fn_name, make_cons( fn, make_nil() ) ) );
             }
-            return make_cons( keyword, make_cons( symbol, make_cons( value, make_nil() ) ) );
+            else
+            {
+               Expr * symbol = parse_expr();
+               if( symbol->is_error() )
+                  return symbol;
+
+               Expr * value = parse_expr();
+               if( value->is_error() )
+                  return value;
+
+               return make_cons( keyword, make_cons( symbol, make_cons( value, make_nil() ) ) );
+            }
          }
       case TokenType ::LAMBDA :
          {
