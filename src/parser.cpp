@@ -119,7 +119,7 @@ Expr * Parser::parse_expr()
             if( quoted->is_error() )
                return quoted;
 
-            return make_cons( quote, make_cons( quoted, make_nil() ) );
+            return make_list( quote, quoted );
          }
       case TokenType ::DEFINE :
          {
@@ -141,10 +141,8 @@ Expr * Parser::parse_expr()
                if( fn_body->is_error() )
                   return fn_body;
 
-               Expr * fn
-                   = make_cons( make_symbol( "lambda" ), make_cons( fn_params, make_cons( fn_body, make_nil() ) ) );
-
-               return make_cons( keyword, make_cons( fn_name, make_cons( fn, make_nil() ) ) );
+               Expr * fn = make_list( make_symbol( "lambda" ), fn_params, fn_body );
+               return make_list( keyword, fn_name, fn );
             }
             else
             {
@@ -156,7 +154,7 @@ Expr * Parser::parse_expr()
                if( value->is_error() )
                   return value;
 
-               return make_cons( keyword, make_cons( symbol, make_cons( value, make_nil() ) ) );
+               return make_list( keyword, symbol, value );
             }
          }
       case TokenType ::LAMBDA :

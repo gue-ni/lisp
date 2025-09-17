@@ -25,6 +25,7 @@ NamespaceIndentation: None
 PointerAlignment: Middle
 QualifierAlignment: Left
 ReferenceAlignment: Middle
+AlwaysBreakTemplateDeclarations: Yes
 UseTab: Never
 SpaceAfterCStyleCast: true
 SpaceAroundPointerQualifiers: Both

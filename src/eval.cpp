@@ -149,7 +149,7 @@ void Context::load_runtime()
 
    define( "display", make_native( builtin::f_display ) );
    define( "displayln", make_native( builtin::f_displayln ) );
-   define( "print-debug", make_native( builtin::f_print_debug ) );
+   define( "to-json", make_native( builtin::f_to_json ) );
 
    define( "car", make_native( builtin::f_car ) );
    define( "cdr", make_native( builtin::f_cdr ) );
