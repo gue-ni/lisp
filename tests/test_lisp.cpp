@@ -170,7 +170,7 @@ TEST_F( LispTest, test_eval_math_02 )
 
 TEST_F( LispTest, test_define_01 )
 {
-   std::string source = "(define x 42) (print x)";
+   std::string source = "(define x 42) (display x)";
    int r              = eval( source, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -506,8 +506,8 @@ TEST_F( LispTest, test_recursion_02 )
 TEST_F( LispTest, test_define_02 )
 {
    std::string src = R"(
-    (define (add x y) 
-      (+ x y)) 
+    (define (add x y)
+      (+ x y))
 
     (add 5 4)
     )";
@@ -516,4 +516,76 @@ TEST_F( LispTest, test_define_02 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "9" );
+}
+
+TEST_F( LispTest, test_map_01 )
+{
+   std::string src = R"(
+(define (my-map fn lst)
+  (if (null? lst)
+    '()
+    (cons
+      (fn (car lst))
+      (my-map fn (cdr lst)))))
+
+(my-map (lambda (n) (* n n)) '(1 2 3 4))
+    )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 4 9 16)" );
+}
+
+TEST_F( LispTest, test_filter_01 )
+{
+   std::string src = R"(
+(define (my-filter pred lst)
+  (if (null? lst)
+    '()
+    (if (pred (car lst))
+      (cons (car lst) (my-filter pred (cdr lst)))
+      (my-filter pred (cdr lst)))))
+
+(my-filter (lambda (x) (> x 3)) '(1 2 3 4 5))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(4 5)" );
+}
+
+TEST_F( LispTest, test_reduce_01 )
+{
+   std::string src = R"(
+(define (my-reduce f init lst)
+  (if (null? lst)
+      init
+      (my-reduce f (f init (car lst)) (cdr lst))))
+
+(my-reduce + 0 '(1 2 3 4 5))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "15" );
+}
+
+TEST_F( LispTest, test_range_01 )
+{
+   std::string src = R"(
+(define (my-range start end)
+  (if (>= start end)
+      '()
+      (cons start (my-range (+ start 1) end))))
+
+(my-range 2 6)
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(2 3 4 5)" );
 }

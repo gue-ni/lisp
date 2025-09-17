@@ -19,9 +19,9 @@ typedef Expr * ( *NativeFunction )( Expr *, Context &, const IO & io );
 namespace builtin
 {
 
-Expr * f_print( Expr * arg, Context & context, const IO & io );
+Expr * f_display( Expr * arg, Context & context, const IO & io );
 
-Expr * f_println( Expr * arg, Context & context, const IO & io );
+Expr * f_displayln( Expr * arg, Context & context, const IO & io );
 
 Expr * f_print_debug( Expr * arg, Context & context, const IO & io );
 
@@ -41,13 +41,21 @@ Expr * f_cons( Expr * arg, Context & context, const IO & io );
 
 Expr * f_lt( Expr * arg, Context & context, const IO & io );
 
+Expr * f_le( Expr * arg, Context & context, const IO & io );
+
 Expr * f_gt( Expr * arg, Context & context, const IO & io );
+
+Expr * f_ge( Expr * arg, Context & context, const IO & io );
 
 Expr * f_eq( Expr * arg, Context & context, const IO & io );
 
 Expr * f_not( Expr * arg, Context & context, const IO & io );
 
-Expr * f_empty( Expr * arg, Context & context, const IO & io );
+Expr * f_is_null( Expr * arg, Context & context, const IO & io );
+
+Expr * f_is_number( Expr * arg, Context & context, const IO & io );
+
+Expr * f_is_string( Expr * arg, Context & context, const IO & io );
 
 Expr * f_eval( Expr * arg, Context & context, const IO & io );
 
