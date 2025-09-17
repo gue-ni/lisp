@@ -216,6 +216,17 @@ inline Expr * make_lambda( Expr * params, Expr * body, Context * env )
    return make_expr( std::move( atom ) );
 }
 
+inline Expr * make_list()
+{
+   return make_nil();
+}
+
+template <typename Car, typename... Cdr>
+inline Expr * make_list( Car car, Cdr... cdr )
+{
+   return make_cons( car, make_list( cdr... ) );
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 } // namespace lisp
