@@ -589,3 +589,19 @@ TEST_F( LispTest, test_range_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(2 3 4 5)" );
 }
+
+TEST_F( LispTest, test_macro_01 )
+{
+   std::string src = R"(
+(define (unless condition body)
+   (if (= 1 2) body '()))
+
+(unless (= 1 2) "test")
+   )";
+
+
+   int r = eval(src, ctx, io);
+
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "" );
+}
