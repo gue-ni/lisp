@@ -34,10 +34,9 @@ Expr * f_displayln( Expr * arg, Context & context, const IO & io )
    return make_void();
 }
 
-Expr * f_print_debug( Expr * arg, Context & context, const IO & io )
+Expr * f_to_json( Expr * arg, Context & context, const IO & io )
 {
-   io.out << arg->to_json() << std::endl;
-   return make_void();
+   return make_string( arg->cons.car->to_json().c_str() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

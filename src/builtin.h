@@ -23,7 +23,7 @@ Expr * f_display( Expr * arg, Context & context, const IO & io );
 
 Expr * f_displayln( Expr * arg, Context & context, const IO & io );
 
-Expr * f_print_debug( Expr * arg, Context & context, const IO & io );
+Expr * f_to_json( Expr * arg, Context & context, const IO & io );
 
 Expr * f_add( Expr * arg, Context & context, const IO & io );
 
