@@ -283,6 +283,20 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   expr             = ( cond->is_truthy() ) ? then_expr : else_expr;
                   continue;
                }
+               else if( op->is_symbol( "macro" ) )
+               {
+                  Expr * params = args->cons.car;
+                  Expr * body   = args->cons.cdr;
+                  return make_macro( params, body, context );
+               }
+               else if( op->is_macro() )
+               {
+                  Context * new_env = gc::alloc<Context>( op->atom.macro.env );
+                  bind_params( new_env, op->atom.macro.params, args );
+
+                  expr    = op->atom.lambda.body->cons.car;
+                  context = new_env;
+               }
                else
                {
                   Expr * fn = eval( op, *context, io );

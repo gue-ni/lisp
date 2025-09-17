@@ -98,6 +98,11 @@ bool Expr::is_error() const
    return is_atom() && ( atom.type == Atom::ATOM_ERROR );
 }
 
+bool Expr::is_macro() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_MACRO );
+}
+
 bool Expr::is_truthy() const
 {
    if( is_cons() )
@@ -168,6 +173,7 @@ Atom::~Atom()
       case lisp::Atom::ATOM_BOOLEAN :
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
+      case lisp::Atom::ATOM_MACRO :
          break;
       case lisp::Atom::ATOM_SYMBOL :
          if( symbol )
@@ -217,6 +223,9 @@ Atom::Atom( Atom && other ) noexcept
          lambda           = other.lambda;
          other.lambda.env = nullptr;
          break;
+      case lisp::Atom::ATOM_MACRO :
+         macro = other.macro;
+         break;
       case lisp::Atom::ATOM_NATIVE :
          native = other.native;
          break;
@@ -224,6 +233,8 @@ Atom::Atom( Atom && other ) noexcept
          error       = other.error;
          other.error = nullptr;
          break;
+      default :
+         assert( false );
    }
 }
 

@@ -23,17 +23,20 @@ struct Expr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct LambdaFn
+struct Macro
 {
    Expr * params;
    Expr * body;
    Context * env;
-   LambdaFn( Expr * p, Expr * b, Context * e )
-       : params( p )
-       , body( b )
-       , env( e )
-   {
-   }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct Lambda
+{
+   Expr * params;
+   Expr * body;
+   Context * env;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,6 +53,7 @@ struct Atom
       ATOM_LAMBDA,
       ATOM_NATIVE,
       ATOM_ERROR,
+      ATOM_MACRO,
    };
 
    Type type;
@@ -60,8 +64,9 @@ struct Atom
       char * symbol;
       char * string;
       char * error;
-      LambdaFn lambda;
-      NativeFunction native;
+      Lambda lambda;
+      Native native;
+      Macro macro;
    };
 
    ~Atom();
@@ -127,6 +132,7 @@ struct Expr : public gc::Garbage
    bool is_lambda() const;
    bool is_native() const;
    bool is_error() const;
+   bool is_macro() const;
    bool is_truthy() const;
 
    void mark() override;
@@ -200,7 +206,7 @@ inline Expr * make_string( const char * string )
    return make_expr( std::move( atom ) );
 }
 
-inline Expr * make_native( NativeFunction fn )
+inline Expr * make_native( Native fn )
 {
    Atom atom;
    atom.type   = Atom::ATOM_NATIVE;
@@ -212,7 +218,15 @@ inline Expr * make_lambda( Expr * params, Expr * body, Context * env )
 {
    Atom atom;
    atom.type   = Atom::ATOM_LAMBDA;
-   atom.lambda = LambdaFn( params, body, env );
+   atom.lambda = Lambda{ params, body, env };
+   return make_expr( std::move( atom ) );
+}
+
+inline Expr * make_macro( Expr * params, Expr * body, Context * env )
+{
+   Atom atom;
+   atom.type   = Atom::ATOM_MACRO;
+   atom.macro  = Macro{ params, body, env };
    return make_expr( std::move( atom ) );
 }
 
