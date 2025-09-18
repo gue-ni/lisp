@@ -199,8 +199,10 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    while( program->is_cons() )
    {
       Expr * expr = program->cons.car;
-      result      = eval( expr, context, io );
-      program     = program->cons.cdr;
+      std::cout << "input: " << expr->to_json() << std::endl;
+      result = eval( expr, context, io );
+      std::cout << std::endl << "output: " << result->to_json() << std::endl;
+      program = program->cons.cdr;
    }
    return result;
 }
@@ -241,6 +243,78 @@ void bind_params( Context * local, Expr * params, Expr * args )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * append( Expr * a, Expr * b )
+{
+   if( a->is_nil() )
+   {
+      return b;
+   }
+
+   // Expr * head = make_cons(a->cons.car)
+
+   return nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * expand( Expr * expr );
+
+Expr * expand_list( Expr * expr )
+{
+   if( expr->is_cons() )
+   {
+
+      Expr * car = expr->cons.car;
+      Expr * cdr = expr->cons.cdr;
+
+      std::cout << car->to_json() << std::endl;
+      std::cout << cdr->to_json() << std::endl;
+
+      // TODO: handle unquote-splicing
+
+      // TODO: this should actually use append
+
+      // return make_cons(expand(car), expand_list(cdr));
+
+      return make_list( make_symbol( "cons" ), expand( car ), expand_list( cdr ) );
+
+      /// return make_list(expand(car, context, io), expand_list(cdr, context, io));
+   }
+   else
+   {
+      return expr;
+   }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * expand( Expr * expr )
+{
+   std::cout << "expand" << std::endl;
+   std::cout << expr->to_json() << std::endl;
+
+   if( expr->is_cons() )
+   {
+      Expr * car = expr->cons.car;
+      Expr * cdr = expr->cons.cdr;
+
+      if( car->is_symbol( "unquote" ) )
+      {
+         return expr->cons.cdr->cons.car;
+      }
+
+      return expand_list( expr );
+   }
+   else
+   {
+
+      // return make_list(make_symbol("quote"), expr);
+      return expr;
+   }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * eval( Expr * expr, Context & _context, const IO & io )
 {
    Context * context = &( _context );
@@ -260,7 +334,26 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                if( op->is_symbol( "quote" ) )
                {
+                  std::cout << args->cons.car->to_json() << std::endl;
                   return args->cons.car;
+               }
+               else if( op->is_symbol( "unquote" ) )
+               {
+                  // TODO
+                  // return make_cons(make_symbol("quasiquote"), args);
+                  return make_nil();
+               }
+               else if( op->is_symbol( "quasiquote" ) )
+               {
+                  // TODO
+                  // if ()
+
+                  Expr * expanded = expand( args->cons.car );
+                  std::cout << expanded->to_json() << std::endl;
+
+                  Expr * tmp = make_list( make_symbol( "quote" ), expanded );
+
+                  return eval( expanded, *context, io );
                }
                else if( op->is_symbol( "define" ) )
                {
@@ -289,35 +382,44 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   Expr * body   = args->cons.cdr;
                   return make_macro( params, body, context );
                }
-               else if( op->is_macro() )
-               {
-                  Context * new_env = gc::alloc<Context>( op->atom.macro.env );
-                  bind_params( new_env, op->atom.macro.params, args );
-
-                  expr    = op->atom.lambda.body->cons.car;
-                  context = new_env;
-               }
                else
                {
                   Expr * fn = eval( op, *context, io );
-                  args      = eval_list( args, *context, io );
-
-                  if( fn->is_native() && !args->is_nil() )
+                  if( fn->is_macro() )
                   {
-                     return fn->atom.native( args, *context, io );
-                  }
-                  else if( fn->is_lambda() && !args->is_nil() )
-                  {
-                     Context * new_env = gc::alloc<Context>( fn->atom.lambda.env );
-                     bind_params( new_env, fn->atom.lambda.params, args );
+                     Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
+                     bind_params( new_env, fn->atom.macro.params, args );
 
-                     expr    = fn->atom.lambda.body->cons.car;
+                     std::cout << fn->to_json() << std::endl;
+                     std::cout << args->to_json() << std::endl;
+
+                     // TODO: implement backquote and quasiquote
+
+                     expr    = fn->atom.macro.body->cons.car;
                      context = new_env;
                      continue;
                   }
                   else
                   {
-                     return fn;
+                     args = eval_list( args, *context, io );
+
+                     if( fn->is_native() && !args->is_nil() )
+                     {
+                        return fn->atom.native( args, *context, io );
+                     }
+                     else if( fn->is_lambda() && !args->is_nil() )
+                     {
+                        Context * new_env = gc::alloc<Context>( fn->atom.lambda.env );
+                        bind_params( new_env, fn->atom.lambda.params, args );
+
+                        expr    = fn->atom.lambda.body->cons.car;
+                        context = new_env;
+                        continue;
+                     }
+                     else
+                     {
+                        return fn;
+                     }
                   }
                }
             }
@@ -370,6 +472,8 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << program->to_json() << std::endl;
       io.out << "----end-program----" << std::endl;
    }
+
+   std::cout << program->to_json() << std::endl;
 
    Expr * res = eval_program( program, context, io );
    if( !res )

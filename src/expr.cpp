@@ -277,7 +277,9 @@ std::string Atom::to_json() const
       case Atom::ATOM_LAMBDA :
          return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
                 + " } }";
-
+      case Atom::ATOM_MACRO :
+         return "{ \"macro\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
+                + " } }";
       case Atom::ATOM_NATIVE :
          return "\"native()\"";
       case Atom ::ATOM_ERROR :

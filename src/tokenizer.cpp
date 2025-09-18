@@ -14,10 +14,16 @@ Tokens tokenize( const std::string & source )
    return tkn.tokens();
 }
 
-std::map<std::string, TokenType> keywords = {
-    { "lambda", TokenType::LAMBDA }, { "define", TokenType::DEFINE }, { "quote", TokenType::QUOTE },
-    { "nil", TokenType::NIL },       { "true", TokenType::TRUE },     { "false", TokenType::FALSE },
-};
+std::map<std::string, TokenType> keywords
+    = { { "lambda", TokenType::LAMBDA },
+        { "define", TokenType::DEFINE },
+        { "quote", TokenType::QUOTE },
+        { "nil", TokenType::NIL },
+        { "true", TokenType::TRUE },
+        { "false", TokenType::FALSE },
+        { "quasiquote", TokenType::QUASIQUOTE },
+        { "unquote", TokenType::UNQUOTE },
+        { "unquote-splicing", TokenType::UNQUOTE_SPLICING } };
 
 Tokenizer::Tokenizer( const std::string & source )
     : m_source( source )
@@ -161,12 +167,12 @@ void Tokenizer::run()
             }
          case '`' :
             {
-               push( Token( QUASIQUOTE, c ) );
+               push( Token( QUASIQUOTE, "quasiquote" ) );
                break;
             }
          case ',' :
             {
-               push( Token( UNQUOTE, c ) );
+               push( Token( UNQUOTE, "unquote" ) );
                break;
             }
          case '\"' :

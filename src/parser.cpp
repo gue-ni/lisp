@@ -112,15 +112,18 @@ Expr * Parser::parse_expr()
             return make_symbol( tkn.lexeme.c_str() );
          }
       case TokenType ::QUOTE :
+      case TokenType ::UNQUOTE :
+      case TokenType ::QUASIQUOTE :
          {
             advance();
-            Expr * quote  = make_symbol( "quote" );
+            Expr * quote  = make_symbol( tkn.lexeme.c_str() );
             Expr * quoted = parse_expr();
             if( quoted->is_error() )
                return quoted;
 
             return make_list( quote, quoted );
          }
+
       case TokenType ::DEFINE :
          {
             advance();
@@ -141,7 +144,7 @@ Expr * Parser::parse_expr()
                if( fn_body->is_error() )
                   return fn_body;
 
-               Expr * fn = make_list( make_symbol( "lambda" ), fn_params, fn_body );
+               Expr * fn = make_list( make_symbol( "macro" ), fn_params, fn_body ); // TODO: fix this
                return make_list( keyword, fn_name, fn );
             }
             else
@@ -215,7 +218,8 @@ Expr * Parser::parse_lambda()
       return body;
    }
 
-   return make_cons( keyword, make_cons( params, make_cons( body, make_nil() ) ) );
+   //return make_cons( keyword, make_cons( params, make_cons( body, make_nil() ) ) );
+   return make_list(keyword, params, body);
 }
 
 void Parser::advance()

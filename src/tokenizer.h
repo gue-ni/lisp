@@ -14,6 +14,7 @@ enum TokenType
    QUOTE,
    QUASIQUOTE,
    UNQUOTE,
+   UNQUOTE_SPLICING,
    NUMBER,
    LAMBDA,
    DEFINE,
