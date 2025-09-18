@@ -162,7 +162,7 @@ void Tokenizer::run()
             }
          case '\'' :
             {
-               push( Token( QUOTE, c ) );
+               push( Token( QUOTE, "quote" ) );
                break;
             }
          case '`' :
