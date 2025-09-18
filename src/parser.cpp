@@ -144,7 +144,7 @@ Expr * Parser::parse_expr()
                if( fn_body->is_error() )
                   return fn_body;
 
-               Expr * fn = make_list( make_symbol( "macro" ), fn_params, fn_body ); // TODO: fix this
+               Expr * fn = make_list( make_symbol( "lambda" ), fn_params, fn_body ); // TODO: fix this
                return make_list( keyword, fn_name, fn );
             }
             else
