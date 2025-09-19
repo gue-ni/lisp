@@ -12,7 +12,7 @@ class Context;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef Expr * ( *NativeFunction )( Expr *, Context &, const IO & io );
+typedef Expr * ( *Native )( Expr *, Context &, const IO & io );
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -66,6 +66,10 @@ Expr * f_read_file( Expr * arg, Context & context, const IO & io );
 Expr * f_exit( Expr * arg, Context & context, const IO & io );
 
 Expr * f_list( Expr * arg, Context & context, const IO & io );
+
+Expr * f_append( Expr * arg, Context & context, const IO & io );
+
+Expr * f_length( Expr * arg, Context & context, const IO & io );
 
 } // namespace builtin
 

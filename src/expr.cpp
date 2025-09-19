@@ -98,6 +98,11 @@ bool Expr::is_error() const
    return is_atom() && ( atom.type == Atom::ATOM_ERROR );
 }
 
+bool Expr::is_macro() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_MACRO );
+}
+
 bool Expr::is_truthy() const
 {
    if( is_cons() )
@@ -137,6 +142,32 @@ void Expr::mark()
    }
 }
 
+Expr * Expr::car()
+{
+   if( is_cons() )
+   {
+      return cons.car;
+   }
+   else
+   {
+      assert( false );
+      return nullptr;
+   }
+}
+
+Expr * Expr::cdr()
+{
+   if( is_cons() )
+   {
+      return cons.cdr;
+   }
+   else
+   {
+      assert( false );
+      return nullptr;
+   }
+}
+
 bool Expr::is_nil() const
 {
    return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );
@@ -168,6 +199,7 @@ Atom::~Atom()
       case lisp::Atom::ATOM_BOOLEAN :
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
+      case lisp::Atom::ATOM_MACRO :
          break;
       case lisp::Atom::ATOM_SYMBOL :
          if( symbol )
@@ -217,6 +249,9 @@ Atom::Atom( Atom && other ) noexcept
          lambda           = other.lambda;
          other.lambda.env = nullptr;
          break;
+      case lisp::Atom::ATOM_MACRO :
+         macro = other.macro;
+         break;
       case lisp::Atom::ATOM_NATIVE :
          native = other.native;
          break;
@@ -224,6 +259,8 @@ Atom::Atom( Atom && other ) noexcept
          error       = other.error;
          other.error = nullptr;
          break;
+      default :
+         assert( false );
    }
 }
 
@@ -266,7 +303,9 @@ std::string Atom::to_json() const
       case Atom::ATOM_LAMBDA :
          return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
                 + " } }";
-
+      case Atom::ATOM_MACRO :
+         return "{ \"macro\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
+                + " } }";
       case Atom::ATOM_NATIVE :
          return "\"native()\"";
       case Atom ::ATOM_ERROR :
