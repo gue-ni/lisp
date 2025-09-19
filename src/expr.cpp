@@ -142,6 +142,32 @@ void Expr::mark()
    }
 }
 
+Expr * Expr::car()
+{
+   if( is_cons() )
+   {
+      return cons.car;
+   }
+   else
+   {
+      assert( false );
+      return nullptr;
+   }
+}
+
+Expr * Expr::cdr()
+{
+   if( is_cons() )
+   {
+      return cons.cdr;
+   }
+   else
+   {
+      assert( false );
+      return nullptr;
+   }
+}
+
 bool Expr::is_nil() const
 {
    return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );

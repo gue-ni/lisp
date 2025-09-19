@@ -200,9 +200,9 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    Expr * result = make_nil();
    while( program->is_cons() )
    {
-      Expr * expr = program->cons.car;
+      Expr * expr = program->car();
       result      = eval( expr, context, io );
-      program     = program->cons.cdr;
+      program     = program->cdr();
    }
    return result;
 }
@@ -221,8 +221,8 @@ Expr * eval_list( Expr * expr, Context & context, const IO & io )
       return make_nil();
    }
 
-   Expr * first = eval( expr->cons.car, context, io );
-   Expr * rest  = eval_list( expr->cons.cdr, context, io );
+   Expr * first = eval( expr->car(), context, io );
+   Expr * rest  = eval_list( expr->cdr(), context, io );
    return make_cons( first, rest );
 }
 
@@ -235,9 +235,9 @@ void bind_params( Context * local, Expr * params, Expr * args )
 
    while( param->is_cons() && arg->is_cons() )
    {
-      local->define( param->cons.car->atom.symbol, arg->cons.car );
-      arg   = arg->cons.cdr;
-      param = param->cons.cdr;
+      local->define( param->car()->atom.symbol, arg->car() );
+      arg   = arg->cdr();
+      param = param->cdr();
    }
 }
 
@@ -250,7 +250,7 @@ Expr * append( Expr * a, Expr * b )
       return b;
    }
 
-   // Expr * head = make_cons(a->cons.car)
+   // Expr * head = make_cons(a->car())
 
    return nullptr;
 }
@@ -263,12 +263,12 @@ Expr * expand_list( Expr * expr )
 {
    if( expr->is_cons() )
    {
-      Expr * car = expr->cons.car;
-      Expr * cdr = expr->cons.cdr;
+      Expr * car = expr->car();
+      Expr * cdr = expr->cdr();
 
-      if( car->is_cons() && car->cons.car->is_symbol( "unquote-splicing" ) )
+      if( car->is_cons() && car->car()->is_symbol( "unquote-splicing" ) )
       {
-         return make_list( make_symbol( "append" ), car->cons.cdr->cons.car, expand_list( cdr ) );
+         return make_list( make_symbol( "append" ), car->cdr()->car(), expand_list( cdr ) );
       }
 
       return make_list( make_symbol( "cons" ), expand( car ), expand_list( cdr ) );
@@ -285,12 +285,12 @@ Expr * expand( Expr * expr )
 {
    if( expr->is_cons() )
    {
-      Expr * car = expr->cons.car;
-      Expr * cdr = expr->cons.cdr;
+      Expr * car = expr->car();
+      Expr * cdr = expr->cdr();
 
       if( car->is_symbol( "unquote" ) )
       {
-         return expr->cons.cdr->cons.car;
+         return expr->cdr()->car();
       }
 
       return expand_list( expr );
@@ -322,38 +322,38 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                if( op->is_symbol( "quote" ) )
                {
-                  return args->cons.car;
+                  return args->car();
                }
                else if( op->is_symbol( "quasiquote" ) )
                {
-                  Expr * expanded = expand( args->cons.car );
+                  Expr * expanded = expand( args->car() );
                   return eval( expanded, *context, io );
                }
                else if( op->is_symbol( "define" ) )
                {
-                  Expr * var   = args->cons.car;
-                  Expr * value = eval( args->cons.cdr->cons.car, *context, io );
+                  Expr * var   = args->car();
+                  Expr * value = eval( args->cdr()->car(), *context, io );
                   context->define( var->atom.symbol, value );
                   return make_void();
                }
                else if( op->is_symbol( "lambda" ) )
                {
-                  Expr * params = args->cons.car;
-                  Expr * body   = args->cons.cdr;
+                  Expr * params = args->car();
+                  Expr * body   = args->cdr();
                   return make_lambda( params, body, context );
                }
                else if( op->is_symbol( "if" ) )
                {
-                  Expr * cond      = eval( args->cons.car, *context, io );
-                  Expr * then_expr = args->cons.cdr->cons.car;
-                  Expr * else_expr = args->cons.cdr->cons.cdr->cons.car;
+                  Expr * cond      = eval( args->car(), *context, io );
+                  Expr * then_expr = args->cdr()->car();
+                  Expr * else_expr = args->cdr()->cdr()->car();
                   expr             = ( cond->is_truthy() ) ? then_expr : else_expr;
                   continue;
                }
                else if( op->is_symbol( "macro" ) )
                {
-                  Expr * params = args->cons.car;
-                  Expr * body   = args->cons.cdr;
+                  Expr * params = args->car();
+                  Expr * body   = args->cdr();
                   return make_macro( params, body, context );
                }
                else
@@ -364,7 +364,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
                      bind_params( new_env, fn->atom.macro.params, args );
 
-                     expr    = fn->atom.macro.body->cons.car;
+                     expr    = fn->atom.macro.body->car();
                      context = new_env;
                      continue;
                   }
@@ -381,7 +381,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                         Context * new_env = gc::alloc<Context>( fn->atom.lambda.env );
                         bind_params( new_env, fn->atom.lambda.params, args );
 
-                        expr    = fn->atom.lambda.body->cons.car;
+                        expr    = fn->atom.lambda.body->car();
                         context = new_env;
                         continue;
                      }

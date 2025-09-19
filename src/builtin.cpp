@@ -22,7 +22,7 @@ Expr * f_display( Expr * arg, Context & context, const IO & io )
    {
       return make_error( "invalid-type" );
    }
-   Expr * expr = eval( arg->cons.car, context, io );
+   Expr * expr = eval( arg->car(), context, io );
    expr->print( io );
    return make_void();
 }
@@ -36,7 +36,7 @@ Expr * f_displayln( Expr * arg, Context & context, const IO & io )
 
 Expr * f_to_json( Expr * arg, Context & context, const IO & io )
 {
-   return make_string( arg->cons.car->to_json().c_str() );
+   return make_string( arg->car()->to_json().c_str() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,22 +45,22 @@ Expr * f_add( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   if( !arg->cons.car->is_number() )
+   if( !arg->car()->is_number() )
    {
       return make_error( "expected a number" );
    }
 
-   double result = arg->cons.car->atom.number;
-   arg           = arg->cons.cdr;
+   double result = arg->car()->atom.number;
+   arg           = arg->cdr();
 
    while( ( arg->is_cons() ) )
    {
-      if( !arg->cons.car->is_number() )
+      if( !arg->car()->is_number() )
       {
          return make_error( "expected a number" );
       }
-      result += arg->cons.car->atom.number;
-      arg = arg->cons.cdr;
+      result += arg->car()->atom.number;
+      arg = arg->cdr();
    }
 
    return make_number( result );
@@ -72,22 +72,22 @@ Expr * f_sub( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   if( !arg->cons.car->is_number() )
+   if( !arg->car()->is_number() )
    {
       return make_error( "expected a number" );
    }
 
-   double result = arg->cons.car->atom.number;
-   arg           = arg->cons.cdr;
+   double result = arg->car()->atom.number;
+   arg           = arg->cdr();
 
    while( ( arg->is_cons() ) )
    {
-      if( !arg->cons.car->is_number() )
+      if( !arg->car()->is_number() )
       {
          return make_error( "expected a number" );
       }
-      result -= arg->cons.car->atom.number;
-      arg = arg->cons.cdr;
+      result -= arg->car()->atom.number;
+      arg = arg->cdr();
    }
 
    return make_number( result );
@@ -99,22 +99,22 @@ Expr * f_mul( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   if( !arg->cons.car->is_number() )
+   if( !arg->car()->is_number() )
    {
       return make_error( "expected a number" );
    }
 
-   double result = arg->cons.car->atom.number;
-   arg           = arg->cons.cdr;
+   double result = arg->car()->atom.number;
+   arg           = arg->cdr();
 
    while( ( arg->is_cons() ) )
    {
-      if( !arg->cons.car->is_number() )
+      if( !arg->car()->is_number() )
       {
          return make_error( "expected a number" );
       }
-      result *= arg->cons.car->atom.number;
-      arg = arg->cons.cdr;
+      result *= arg->car()->atom.number;
+      arg = arg->cdr();
    }
 
    return make_number( result );
@@ -126,27 +126,27 @@ Expr * f_div( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
 
-   if( !arg->cons.car->is_number() )
+   if( !arg->car()->is_number() )
    {
       return make_error( "expected a number" );
    }
 
-   double result = arg->cons.car->atom.number;
-   arg           = arg->cons.cdr;
+   double result = arg->car()->atom.number;
+   arg           = arg->cdr();
 
    while( ( arg->is_cons() ) )
    {
-      if( !arg->cons.car->is_number() )
+      if( !arg->car()->is_number() )
       {
          return make_error( "expected a number" );
       }
 
-      if( arg->cons.car->atom.number == 0 )
+      if( arg->car()->atom.number == 0 )
       {
          return make_error( "division by zero" );
       }
-      result /= arg->cons.car->atom.number;
-      arg = arg->cons.cdr;
+      result /= arg->car()->atom.number;
+      arg = arg->cdr();
    }
 
    return make_number( result );
@@ -160,7 +160,7 @@ Expr * f_car( Expr * arg, Context & context, const IO & io )
    {
       make_error( "car expected 1 argument" );
    }
-   return arg->cons.car->cons.car;
+   return arg->car()->car();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -171,15 +171,15 @@ Expr * f_cdr( Expr * arg, Context & context, const IO & io )
    {
       make_error( "car expected 1 argument" );
    }
-   return arg->cons.car->cons.cdr;
+   return arg->car()->cdr();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_cons( Expr * arg, Context & context, const IO & io )
 {
-   Expr * a = arg->cons.car;
-   Expr * b = arg->cons.cdr->cons.car;
+   Expr * a = arg->car();
+   Expr * b = arg->cdr()->car();
    return make_cons( a, b );
 }
 
@@ -187,8 +187,8 @@ Expr * f_cons( Expr * arg, Context & context, const IO & io )
 
 Expr * f_gt( Expr * arg, Context & context, const IO & io )
 {
-   Expr * a = arg->cons.car;
-   Expr * b = arg->cons.cdr->cons.car;
+   Expr * a = arg->car();
+   Expr * b = arg->cdr()->car();
 
    bool is_gt = false;
    if( ( a->type == b->type ) && a->is_atom() )
@@ -207,8 +207,8 @@ Expr * f_gt( Expr * arg, Context & context, const IO & io )
 
 Expr * f_ge( Expr * arg, Context & context, const IO & io )
 {
-   Expr * a = arg->cons.car;
-   Expr * b = arg->cons.cdr->cons.car;
+   Expr * a = arg->car();
+   Expr * b = arg->cdr()->car();
 
    if( ( a->type != b->type ) && a->is_atom() )
    {
@@ -222,8 +222,8 @@ Expr * f_ge( Expr * arg, Context & context, const IO & io )
 
 Expr * f_lt( Expr * arg, Context & context, const IO & io )
 {
-   Expr * a = arg->cons.car;
-   Expr * b = arg->cons.cdr->cons.car;
+   Expr * a = arg->car();
+   Expr * b = arg->cdr()->car();
 
    bool is_lt = false;
    if( ( a->type == b->type ) && a->is_atom() )
@@ -243,8 +243,8 @@ Expr * f_lt( Expr * arg, Context & context, const IO & io )
 Expr * f_le( Expr * arg, Context & context, const IO & io )
 {
 
-   Expr * a = arg->cons.car;
-   Expr * b = arg->cons.cdr->cons.car;
+   Expr * a = arg->car();
+   Expr * b = arg->cdr()->car();
 
    if( ( a->type != b->type ) && a->is_atom() )
    {
@@ -261,10 +261,10 @@ Expr * f_eq( Expr * arg, Context & context, const IO & io )
    Expr * current = arg;
 
    bool is_eq = true;
-   while( ( is_eq ) && ( current->is_cons() ) && ( current->cons.car->is_atom() ) && ( !current->cons.cdr->is_nil() ) )
+   while( ( is_eq ) && ( current->is_cons() ) && ( current->car()->is_atom() ) && ( !current->cdr()->is_nil() ) )
    {
-      is_eq   = ( current->cons.car->atom == current->cons.cdr->cons.car->atom );
-      current = current->cons.cdr;
+      is_eq   = ( current->car()->atom == current->cdr()->car()->atom );
+      current = current->cdr();
    }
 
    return make_boolean( is_eq );
@@ -275,7 +275,7 @@ Expr * f_eq( Expr * arg, Context & context, const IO & io )
 Expr * f_not( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
-   return make_boolean( !( arg->cons.car->is_truthy() ) );
+   return make_boolean( !( arg->car()->is_truthy() ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ Expr * f_not( Expr * arg, Context & context, const IO & io )
 Expr * f_is_null( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
-   return make_boolean( arg->cons.car->is_nil() );
+   return make_boolean( arg->car()->is_nil() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -291,7 +291,7 @@ Expr * f_is_null( Expr * arg, Context & context, const IO & io )
 Expr * f_is_number( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
-   return make_boolean( arg->cons.car->is_number() );
+   return make_boolean( arg->car()->is_number() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -299,7 +299,7 @@ Expr * f_is_number( Expr * arg, Context & context, const IO & io )
 Expr * f_is_string( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
-   return make_boolean( arg->cons.car->is_string() );
+   return make_boolean( arg->car()->is_string() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -310,18 +310,18 @@ Expr * f_eval( Expr * arg, Context & context, const IO & io )
    {
       return make_error( "eval expects a cons" );
    }
-   return eval( arg->cons.car, context, io );
+   return eval( arg->car(), context, io );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_read( Expr * arg, Context & context, const IO & io )
 {
-   if( !( arg->is_cons() && arg->cons.car->is_string() ) )
+   if( !( arg->is_cons() && arg->car()->is_string() ) )
    {
       return make_error( "read expects a string" );
    }
-   const char * str = arg->cons.car->atom.string;
+   const char * str = arg->car()->atom.string;
    Expr * expr      = parse( tokenize( std::string( str ) ) );
    return expr;
 }
@@ -330,12 +330,12 @@ Expr * f_read( Expr * arg, Context & context, const IO & io )
 
 Expr * f_read_file( Expr * arg, Context & context, const IO & io )
 {
-   if( !( arg->is_cons() && arg->cons.car->is_string() ) )
+   if( !( arg->is_cons() && arg->car()->is_string() ) )
    {
       return make_error( "read-file expects a string" );
    }
 
-   const char * filename = arg->cons.car->atom.string;
+   const char * filename = arg->car()->atom.string;
    std::ifstream file( filename );
    if( !file )
    {
@@ -354,9 +354,9 @@ Expr * f_exit( Expr * arg, Context & context, const IO & io )
 {
    context.exit = true;
 
-   if( arg->cons.car->is_number() )
+   if( arg->car()->is_number() )
    {
-      context.exit_code = ( int ) arg->cons.car->atom.number;
+      context.exit_code = ( int ) arg->car()->atom.number;
    }
    else
    {
@@ -373,8 +373,8 @@ Expr * f_list( Expr * arg, Context & context, const IO & io )
 
 Expr * f_append( Expr * args, Context & context, const IO & io )
 {
-   Expr * arg1 = args->cons.car;
-   Expr * arg2 = args->cons.cdr->cons.car;
+   Expr * arg1 = args->car();
+   Expr * arg2 = args->cdr()->car();
 
    if( arg1->is_nil() )
    {
@@ -383,7 +383,7 @@ Expr * f_append( Expr * args, Context & context, const IO & io )
 
    Expr * it = nullptr;
 
-   for( it = arg1; it->cons.cdr->is_cons(); it = it->cons.cdr )
+   for( it = arg1; it->cdr()->is_cons(); it = it->cdr() )
    {
    }
 
@@ -394,7 +394,7 @@ Expr * f_append( Expr * args, Context & context, const IO & io )
 
 Expr * f_length( Expr * args, Context & context, const IO & io )
 {
-   Expr * arg1 = args->cons.car;
+   Expr * arg1 = args->car();
 
    if( arg1->is_nil() )
    {
@@ -408,7 +408,7 @@ Expr * f_length( Expr * args, Context & context, const IO & io )
 
    int length = 0;
 
-   for( Expr * it = arg1; it->is_cons(); it = it->cons.cdr )
+   for( Expr * it = arg1; it->is_cons(); it = it->cdr() )
    {
       length++;
    }

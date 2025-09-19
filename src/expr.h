@@ -136,6 +136,9 @@ struct Expr : public gc::Garbage
    bool is_truthy() const;
 
    void mark() override;
+
+   Expr * car();
+   Expr * cdr();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
