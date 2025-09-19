@@ -113,6 +113,7 @@ Expr * Parser::parse_expr()
          }
       case TokenType ::QUOTE :
       case TokenType ::UNQUOTE :
+      case TokenType ::UNQUOTE_SPLICING :
       case TokenType ::QUASIQUOTE :
          {
             advance();

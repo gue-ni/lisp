@@ -626,8 +626,7 @@ TEST_F( LispTest, test_length_02 )
    EXPECT_EQ( out.str(), "0" );
 }
 
-#if 1
-TEST_F( LispTest, test_quasiquote_01 )
+TEST_F( LispTest, test_unquote_01 )
 {
    std::string src = R"(
 `(1 2 ,(+ 3 4))
@@ -638,4 +637,13 @@ TEST_F( LispTest, test_quasiquote_01 )
    EXPECT_EQ( out.str(), "(1 2 7)" );
 }
 
-#endif
+TEST_F( LispTest, test_unquote_splice_01 )
+{
+   std::string src = R"(
+`(1 ,@'(2 3) 4)
+   )";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3 4)" );
+}

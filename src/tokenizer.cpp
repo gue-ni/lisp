@@ -172,7 +172,15 @@ void Tokenizer::run()
             }
          case ',' :
             {
-               push( Token( UNQUOTE, "unquote" ) );
+               if( peek() == '@' )
+               {
+                  next();
+                  push( Token( UNQUOTE_SPLICING, "unquote-splicing" ) );
+               }
+               else
+               {
+                  push( Token( UNQUOTE, "unquote" ) );
+               }
                break;
             }
          case '\"' :

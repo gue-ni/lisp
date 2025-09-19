@@ -156,8 +156,8 @@ void Context::load_runtime()
    define( "cons", make_native( builtin::f_cons ) );
 
    define( "list", make_native( builtin::f_list ) );
-   define( "append", make_native( builtin::f_append) );
-   define( "length", make_native( builtin::f_length) );
+   define( "append", make_native( builtin::f_append ) );
+   define( "length", make_native( builtin::f_length ) );
 
    define( "read", make_native( builtin::f_read ) );
    define( "eval", make_native( builtin::f_eval ) );
@@ -201,10 +201,8 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    while( program->is_cons() )
    {
       Expr * expr = program->cons.car;
-      //std::cout << "input: " << expr->to_json() << std::endl;
-      result = eval( expr, context, io );
-      //std::cout << std::endl << "output: " << result->to_json() << std::endl;
-      program = program->cons.cdr;
+      result      = eval( expr, context, io );
+      program     = program->cons.cdr;
    }
    return result;
 }
@@ -268,13 +266,9 @@ Expr * expand_list( Expr * expr )
       Expr * car = expr->cons.car;
       Expr * cdr = expr->cons.cdr;
 
-      //std::cout << car->to_json() << std::endl;
-      //std::cout << cdr->to_json() << std::endl;
-
-      if (car->is_symbol("unquote-splicing"))
+      if( car->is_cons() && car->cons.car->is_symbol( "unquote-splicing" ) )
       {
-        // TODO: handle with append
-        return make_list(make_symbol("append"), car->cons.cdr->cons.car, expand_list(cdr));
+         return make_list( make_symbol( "append" ), car->cons.cdr->cons.car, expand_list( cdr ) );
       }
 
       return make_list( make_symbol( "cons" ), expand( car ), expand_list( cdr ) );
@@ -289,9 +283,6 @@ Expr * expand_list( Expr * expr )
 
 Expr * expand( Expr * expr )
 {
-   //std::cout << "expand" << std::endl;
-   //std::cout << expr->to_json() << std::endl;
-
    if( expr->is_cons() )
    {
       Expr * car = expr->cons.car;
@@ -331,19 +322,11 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                if( op->is_symbol( "quote" ) )
                {
-                  //std::cout << args->cons.car->to_json() << std::endl;
                   return args->cons.car;
                }
                else if( op->is_symbol( "quasiquote" ) )
                {
-                  // TODO
-                  // if ()
-
                   Expr * expanded = expand( args->cons.car );
-                  //std::cout << expanded->to_json() << std::endl;
-
-                  //Expr * tmp = make_list( make_symbol( "quote" ), expanded );
-
                   return eval( expanded, *context, io );
                }
                else if( op->is_symbol( "define" ) )
@@ -380,11 +363,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   {
                      Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
                      bind_params( new_env, fn->atom.macro.params, args );
-
-                     //std::cout << fn->to_json() << std::endl;
-                     //std::cout << args->to_json() << std::endl;
-
-                     // TODO: implement backquote and quasiquote
 
                      expr    = fn->atom.macro.body->cons.car;
                      context = new_env;
@@ -464,8 +442,6 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << "----end-program----" << std::endl;
    }
 
-   //std::cout << program->to_json() << std::endl;
-
    Expr * res = eval_program( program, context, io );
    if( !res )
    {
@@ -481,7 +457,6 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 
    if( !res->is_void() )
    {
-
       res->print( io );
       if( flags & FLAG_NEWLINE )
       {
