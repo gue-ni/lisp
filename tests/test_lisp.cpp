@@ -590,6 +590,43 @@ TEST_F( LispTest, test_range_01 )
    EXPECT_EQ( out.str(), "(2 3 4 5)" );
 }
 
+TEST_F( LispTest, test_append_01 )
+{
+   std::string src = R"(
+(append '(1 2 3 4) '(5 6 7 8))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3 4 5 6 7 8)" );
+}
+
+TEST_F( LispTest, test_length_01 )
+{
+   std::string src = R"(
+(length '(1 2 3 4))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "4" );
+}
+
+TEST_F( LispTest, test_length_02 )
+{
+   std::string src = R"(
+(length '())
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "0" );
+}
+
+#if 1
 TEST_F( LispTest, test_quasiquote_01 )
 {
    std::string src = R"(
@@ -600,3 +637,5 @@ TEST_F( LispTest, test_quasiquote_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 2 7)" );
 }
+
+#endif

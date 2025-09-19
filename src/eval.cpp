@@ -156,6 +156,8 @@ void Context::load_runtime()
    define( "cons", make_native( builtin::f_cons ) );
 
    define( "list", make_native( builtin::f_list ) );
+   define( "append", make_native( builtin::f_append) );
+   define( "length", make_native( builtin::f_length) );
 
    define( "read", make_native( builtin::f_read ) );
    define( "eval", make_native( builtin::f_eval ) );

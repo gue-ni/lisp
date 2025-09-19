@@ -371,6 +371,51 @@ Expr * f_list( Expr * arg, Context & context, const IO & io )
    return arg;
 }
 
+Expr * f_append( Expr * args, Context & context, const IO & io )
+{
+   Expr * arg1 = args->cons.car;
+   Expr * arg2 = args->cons.cdr->cons.car;
+
+   if( arg1->is_nil() )
+   {
+      return arg2;
+   }
+
+   Expr * it = nullptr;
+
+   for( it = arg1; it->cons.cdr->is_cons(); it = it->cons.cdr )
+   {
+   }
+
+   it->cons.cdr = arg2;
+
+   return arg1;
+}
+
+Expr * f_length( Expr * args, Context & context, const IO & io )
+{
+   Expr * arg1 = args->cons.car;
+
+   if( arg1->is_nil() )
+   {
+      return make_number( 0 );
+   }
+
+   if( !arg1->is_cons() )
+   {
+      return make_error( "length exprected a list" );
+   }
+
+   int length = 0;
+
+   for( Expr * it = arg1; it->is_cons(); it = it->cons.cdr )
+   {
+      length++;
+   }
+
+   return make_number( length );
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 } // namespace builtin

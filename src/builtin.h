@@ -67,6 +67,10 @@ Expr * f_exit( Expr * arg, Context & context, const IO & io );
 
 Expr * f_list( Expr * arg, Context & context, const IO & io );
 
+Expr * f_append( Expr * arg, Context & context, const IO & io );
+
+Expr * f_length( Expr * arg, Context & context, const IO & io );
+
 } // namespace builtin
 
 ///////////////////////////////////////////////////////////////////////////////
