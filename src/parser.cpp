@@ -209,6 +209,11 @@ Expr * Parser::parse_expr()
             advance();
             return parse_lambda();
          }
+      case TokenType ::NIL :
+         {
+           advance();
+           return make_nil();
+         }
       default :
          assert( false );
          return nullptr;

@@ -168,6 +168,18 @@ Expr * Expr::cdr()
    }
 }
 
+const char * Expr::symbol() const
+{
+   if( is_symbol() )
+   {
+      return atom.symbol;
+   }
+   else
+   {
+      return nullptr;
+   }
+}
+
 bool Expr::is_nil() const
 {
    return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );
@@ -181,6 +193,11 @@ bool Expr::is_string() const
 bool Expr::is_number() const
 {
    return is_atom() && ( atom.type == Atom::ATOM_NUMBER );
+}
+
+bool Expr::is_symbol() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_SYMBOL );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

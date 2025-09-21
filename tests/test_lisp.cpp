@@ -637,6 +637,22 @@ TEST_F( LispTest, test_unquote_01 )
    EXPECT_EQ( out.str(), "(1 2 7)" );
 }
 
+TEST_F( LispTest, test_unquote_02 )
+{
+   std::string src = R"(
+(defmacro unless (test form)
+  `(if (not ,test)
+      ,form
+      nil))
+
+(unless (> 2 3) "hello")
+   )";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "" );
+}
+
 TEST_F( LispTest, test_unquote_splice_01 )
 {
    std::string src = R"(
@@ -647,3 +663,53 @@ TEST_F( LispTest, test_unquote_splice_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 2 3 4)" );
 }
+
+TEST_F( LispTest, test_defun_01 )
+{
+   std::string src = R"(
+(defun add (a b) (+ a b))
+
+(add 2 3)
+   )";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5" );
+}
+
+TEST_F( LispTest, test_defmacro_01 )
+{
+
+   std::string src = R"(
+(defmacro my-list (a b c)
+  `(cons ,a (cons ,b (cons ,c '()))))
+
+(my-list 1 2 3)
+)";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "" );
+}
+
+#if 0
+TEST_F( LispTest, test_defmacro_02 )
+{
+
+   std::string src = R"(
+(defmacro my-cond (clause1 clause2)
+  `(if ,(car clause1)
+       ,(cdr clause1)
+       (if ,(car clause2)
+           ,(cdr clause2) '())))
+
+(my-cond ((= x 0) 'zero)
+         ((= x 1) 'one))
+)";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "" );
+}
+#endif

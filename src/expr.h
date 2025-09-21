@@ -128,6 +128,7 @@ struct Expr : public gc::Garbage
    bool is_nil() const;
    bool is_string() const;
    bool is_number() const;
+   bool is_symbol() const;
    bool is_symbol( const char * symbol ) const;
    bool is_lambda() const;
    bool is_native() const;
@@ -139,6 +140,11 @@ struct Expr : public gc::Garbage
 
    Expr * car();
    Expr * cdr();
+
+   const char* string() const;
+   const char* error() const;
+   const char* symbol() const;
+   double number() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

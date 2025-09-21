@@ -372,7 +372,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   {
                      args = eval_list( args, *context, io );
 
-                     if( fn->is_native())
+                     if( fn->is_native() )
                      {
                         return fn->atom.native( args, *context, io );
                      }
