@@ -354,7 +354,7 @@ Expr * f_exit( Expr * arg, Context & context, const IO & io )
 {
    context.exit = true;
 
-   if( arg->car()->is_number() )
+   if( arg->is_cons() && arg->car()->is_number() )
    {
       context.exit_code = ( int ) arg->car()->atom.number;
    }

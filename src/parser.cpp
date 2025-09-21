@@ -109,7 +109,50 @@ Expr * Parser::parse_expr()
       case TokenType ::SYMBOL :
          {
             advance();
-            return make_symbol( tkn.lexeme.c_str() );
+            if( tkn.lexeme == "defun" )
+            {
+               Expr * fn_name = parse_expr();
+               if( fn_name->is_error() )
+                  return fn_name;
+
+               expect( TokenType::LPAREN );
+               m_parenthesis_depth++;
+
+               Expr * fn_params = parse_list();
+               if( fn_params->is_error() )
+                  return fn_params;
+
+               Expr * fn_body = parse_expr();
+               if( fn_body->is_error() )
+                  return fn_body;
+
+               return make_list(
+                   make_symbol( "define" ), fn_name, make_list( make_symbol( "lambda" ), fn_params, fn_body ) );
+            }
+            else if( tkn.lexeme == "defmacro" )
+            {
+               Expr * macro_name = parse_expr();
+               if( macro_name->is_error() )
+                  return macro_name;
+
+               expect( TokenType::LPAREN );
+               m_parenthesis_depth++;
+
+               Expr * macro_params = parse_list();
+               if( macro_params->is_error() )
+                  return macro_params;
+
+               Expr * macro_body = parse_expr();
+               if( macro_body->is_error() )
+                  return macro_body;
+
+               return make_list(
+                   make_symbol( "define" ), macro_name, make_list( make_symbol( "macro" ), macro_params, macro_body ) );
+            }
+            else
+            {
+               return make_symbol( tkn.lexeme.c_str() );
+            }
          }
       case TokenType ::QUOTE :
       case TokenType ::UNQUOTE :
@@ -145,7 +188,7 @@ Expr * Parser::parse_expr()
                if( fn_body->is_error() )
                   return fn_body;
 
-               Expr * fn = make_list( make_symbol( "lambda" ), fn_params, fn_body ); // TODO: fix this
+               Expr * fn = make_list( make_symbol( "lambda" ), fn_params, fn_body );
                return make_list( keyword, fn_name, fn );
             }
             else
@@ -167,6 +210,7 @@ Expr * Parser::parse_expr()
             return parse_lambda();
          }
       default :
+         assert( false );
          return nullptr;
    }
 }
@@ -219,8 +263,7 @@ Expr * Parser::parse_lambda()
       return body;
    }
 
-   //return make_cons( keyword, make_cons( params, make_cons( body, make_nil() ) ) );
-   return make_list(keyword, params, body);
+   return make_list( keyword, params, body );
 }
 
 void Parser::advance()
@@ -237,6 +280,20 @@ bool Parser::match( TokenType type )
    }
    else
    {
+      return false;
+   }
+}
+
+bool Parser::expect( TokenType type )
+{
+   if( peek().type == type )
+   {
+      advance();
+      return true;
+   }
+   else
+   {
+      assert( false );
       return false;
    }
 }

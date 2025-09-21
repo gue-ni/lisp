@@ -326,8 +326,8 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                }
                else if( op->is_symbol( "quasiquote" ) )
                {
-                  Expr * expanded = expand( args->car() );
-                  return eval( expanded, *context, io );
+                  expr = expand( args->car() );
+                  continue;
                }
                else if( op->is_symbol( "define" ) )
                {
@@ -372,7 +372,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   {
                      args = eval_list( args, *context, io );
 
-                     if( fn->is_native() && !args->is_nil() )
+                     if( fn->is_native())
                      {
                         return fn->atom.native( args, *context, io );
                      }

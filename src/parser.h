@@ -19,6 +19,7 @@ class Parser
 
    void advance();
    bool match( TokenType );
+   bool expect( TokenType );
    Token peek();
 
    Expr * parse_expr();
@@ -26,7 +27,7 @@ class Parser
    Expr * parse_lambda();
 };
 
-Expr * parse( const std::string& source );
+Expr * parse( const std::string & source );
 
 Expr * parse( const Tokens & tokens );
 
