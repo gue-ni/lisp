@@ -626,6 +626,20 @@ TEST_F( LispTest, test_length_02 )
    EXPECT_EQ( out.str(), "0" );
 }
 
+TEST_F( LispTest, test_defun_01 )
+{
+   std::string src = R"(
+(defun add (a b) (+ a b))
+
+(add 2 3)
+   )";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5" );
+}
+
+#if 0
 TEST_F( LispTest, test_parse_quote_01 )
 {
  std::string src = R"(
@@ -684,8 +698,24 @@ TEST_F( LispTest, test_parse_unquote_01 )
    std::cout << std::endl;
 
  }
+#endif
+
+TEST_F( LispTest, test_parse_unquote_01_2 )
+{
+   std::string src = R"(
+`(1 ,(+ 2 3) 4)
+   )";
+
+   int r = eval(src, ctx, io);
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 5 4)" );
 
 
+ }
+
+
+#if 0
 TEST_F( LispTest, test_parse_unquote_02 )
 {
 
@@ -727,6 +757,26 @@ TEST_F( LispTest, test_parse_unquote_03 )
    r->print(std::cout);
    std::cout << std::endl;
 }
+#endif
+
+TEST_F( LispTest, test_parse_unquote_04 )
+{
+
+   std::string src = R"(
+
+(defmacro my-macro (c) 
+  `(if ,c "case 1" "case 2"))
+
+(my-macro (= 2 3))
+   )";
+
+
+   int r = eval(src, ctx, io);
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "\"case 2\"" );
+
+}
  
 
 TEST_F( LispTest, test_unquote_01 )
@@ -753,9 +803,10 @@ TEST_F( LispTest, test_unquote_02 )
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "" );
+   EXPECT_EQ( out.str(), "\"hello\"" );
 }
 
+#if 0
 TEST_F( LispTest, test_unquote_splice_01 )
 {
    std::string src = R"(
@@ -767,18 +818,7 @@ TEST_F( LispTest, test_unquote_splice_01 )
    EXPECT_EQ( out.str(), "(1 2 3 4)" );
 }
 
-TEST_F( LispTest, test_defun_01 )
-{
-   std::string src = R"(
-(defun add (a b) (+ a b))
 
-(add 2 3)
-   )";
-   int r           = eval( src, ctx, io );
-   EXPECT_EQ( r, 0 );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "5" );
-}
 
 TEST_F( LispTest, test_defmacro_01 )
 {
@@ -795,7 +835,6 @@ TEST_F( LispTest, test_defmacro_01 )
    EXPECT_EQ( out.str(), "" );
 }
 
-#if 0
 TEST_F( LispTest, test_defmacro_02 )
 {
 

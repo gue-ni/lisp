@@ -147,7 +147,7 @@ void Context::load_runtime()
    define( "<=", make_native( builtin::f_le ) );
    define( "not", make_native( builtin::f_not ) );
 
-   define("if", make_symbol("if"));
+   define( "if", make_symbol( "if" ) );
 
    define( "display", make_native( builtin::f_display ) );
    define( "displayln", make_native( builtin::f_displayln ) );
@@ -203,9 +203,9 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    for( ; program->is_cons(); program = program->cdr() )
    {
       Expr * expr = program->car();
-     std::cout << "in: " << expr->to_json() << std::endl;
-      result      = eval( expr, context, io );
-     std::cout << "out: " << result->to_json() << std::endl;
+      // std::cout << "in: " << expr->to_json() << std::endl;
+      result = eval( expr, context, io );
+      // std::cout << "out: " << result->to_json() << std::endl;
    }
    return result;
 }
@@ -289,21 +289,19 @@ Expr * expand( Expr * ast )
       Expr * car = ast->car();
       Expr * cdr = ast->cdr();
 
-      std::cout << "car: " << car->to_json() << std::endl;
-      std::cout << "cdr: " << cdr->to_json() << std::endl;
+      // std::cout << "car: " << car->to_json() << std::endl;
+      // std::cout << "cdr: " << cdr->to_json() << std::endl;
 
       if( car->is_cons() && car->car()->is_symbol( "unquote" ) )
       {
-        Expr * tmp = car->cdr()->car();
-        std::cout << tmp->to_json() << std::endl;
-         //return tmp;
-
-        return make_list(make_symbol("cons"), tmp, expand(cdr));
+         Expr * unquoted = car->cdr()->car();
+         // std::cout << tmp->to_json() << std::endl;
+         return make_list( make_symbol( "cons" ), unquoted, expand( cdr ) );
       }
 
-      //return expand_list( ast );
+      // TODO: unquote-splice
 
-      return make_list(make_symbol("cons"), car, expand(cdr));
+      return make_list( make_symbol( "cons" ), car, expand( cdr ) );
    }
    else
    {
@@ -335,9 +333,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                }
                else if( op->is_symbol( "quasiquote" ) )
                {
-                 std::cout << args->car()->to_json() << std::endl;
                   expr = expand( args->car() );
-                  std::cout << expr->to_json() << std::endl;
                   continue;
                }
                else if( op->is_symbol( "define" ) )
@@ -377,6 +373,8 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                      expr    = fn->atom.macro.body->car();
                      context = new_env;
+
+                     expr = eval( expr, *context, io );
                      continue;
                   }
                   else
