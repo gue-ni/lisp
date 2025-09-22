@@ -148,9 +148,13 @@ void Context::load_runtime()
    define( "not", make_native( builtin::f_not ) );
 
    define( "if", make_symbol( "if" ) );
+   define( "lambda", make_symbol( "lambda" ) );
+   define( "define", make_symbol( "define" ) );
 
    define( "display", make_native( builtin::f_display ) );
+   define( "print", make_native( builtin::f_display ) );
    define( "displayln", make_native( builtin::f_displayln ) );
+   define( "println", make_native( builtin::f_displayln ) );
    define( "to-json", make_native( builtin::f_to_json ) );
 
    define( "car", make_native( builtin::f_car ) );

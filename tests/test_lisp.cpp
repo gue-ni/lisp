@@ -639,105 +639,19 @@ TEST_F( LispTest, test_defun_01 )
    EXPECT_EQ( out.str(), "5" );
 }
 
-#if 0
-TEST_F( LispTest, test_parse_quote_01 )
-{
- std::string src = R"(
-'(+ 2 3)
-   )";
-
-   Expr * program = parse(src);
-   Expr * ast = program->car();
-
-   std::cout << ast->to_json() << std::endl;
-
-}
-
-TEST_F( LispTest, test_parse_unquote_00 )
-{
-   std::string src = R"(
-`(1 2 3)
-   )";
-
-   Expr * program = parse(src);
-   std::cout << "program: " << program->to_json() << std::endl;
-
-   Expr * ast = program->car();
-   std::cout << ast->to_json() << std::endl;
-
-   Expr * expanded = expand(ast->cdr()->car());
-   std::cout << "e: " << expanded->to_json() << std::endl;
-
-
-   Expr * r = eval(expanded, ctx, io);
-   std::cout << "r: " << r->to_json() << std::endl;
-   r->print(std::cout);
-
- }
-
-TEST_F( LispTest, test_parse_unquote_01 )
-{
-   std::string src = R"(
-`(1 ,(+ 3 4) 3)
-   )";
-
-   Expr * program = parse(src);
-   std::cout << "program: " << program->to_json() << std::endl;
-
-   Expr * ast = program->car();
-   std::cout << ast->to_json() << std::endl;
-
-   Expr * quasiquote = ast->cdr()->car();
-   Expr * expanded = expand(quasiquote);
-   std::cout << "e: " << expanded->to_json() << std::endl;
-
-
-   Expr * r = eval(expanded, ctx, io);
-   std::cout << "r: " << r->to_json() << std::endl;
-   r->print(std::cout);
-   std::cout << std::endl;
-
- }
-#endif
-
-TEST_F( LispTest, test_parse_unquote_01_2 )
+TEST_F( LispTest, test_unquote_01 )
 {
    std::string src = R"(
 `(1 ,(+ 2 3) 4)
    )";
 
-   int r = eval(src, ctx, io);
+   int r = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 5 4)" );
-
-
- }
-
-
-#if 0
-TEST_F( LispTest, test_parse_unquote_02 )
-{
-
-   std::string src = R"(
-
-(define c '(= 2 3))
-
-`(if ,c "case 1" "case 2")
-   )";
-
-   Expr * program = parse(src);
-   std::cout << "program: " << program->to_json() << std::endl;
-
-   Expr * r = eval_program(program, ctx, io);
-
-   std::cout << "r: " << r->to_json() << std::endl;
-   r->print(std::cout);
-   std::cout << std::endl;
 }
 
-
-TEST_F( LispTest, test_parse_unquote_03 )
+TEST_F( LispTest, test_macro_01 )
 {
 
    std::string src = R"(
@@ -748,46 +662,28 @@ TEST_F( LispTest, test_parse_unquote_03 )
 (my-macro (= 2 3))
    )";
 
-   Expr * program = parse(src);
-   std::cout << "program: " << program->to_json() << std::endl;
-
-   Expr * r = eval_program(program, ctx, io);
-
-   std::cout << "r: " << r->to_json() << std::endl;
-   r->print(std::cout);
-   std::cout << std::endl;
-}
-#endif
-
-TEST_F( LispTest, test_parse_unquote_04 )
-{
-
-   std::string src = R"(
-
-(defmacro my-macro (c) 
-  `(if ,c "case 1" "case 2"))
-
-(my-macro (= 2 3))
-   )";
-
-
-   int r = eval(src, ctx, io);
+   int r = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "\"case 2\"" );
-
 }
- 
 
-TEST_F( LispTest, test_unquote_01 )
+TEST_F( LispTest, test_macro_02 )
 {
+
    std::string src = R"(
-`(1 2 ,(+ 3 4))
+
+(defmacro my-macro (t c1 c2) 
+  `(if ,t c1 c2))
+
+(print (my-macro (= 2 3) "c-1" "c-2"))
+
    )";
-   int r           = eval( src, ctx, io );
+
+   int r = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "(1 2 7)" );
+   EXPECT_EQ( out.str(), "\"c-2\"" );
 }
 
 TEST_F( LispTest, test_unquote_02 )
@@ -796,9 +692,10 @@ TEST_F( LispTest, test_unquote_02 )
 (defmacro unless (test form)
   `(if (not ,test)
       ,form
-      nil))
+      "wrong"))
 
-(unless (> 2 3) "hello")
+
+(unless (= 2 2) "hello")
    )";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
@@ -816,42 +713,5 @@ TEST_F( LispTest, test_unquote_splice_01 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 2 3 4)" );
-}
-
-
-
-TEST_F( LispTest, test_defmacro_01 )
-{
-
-   std::string src = R"(
-(defmacro my-list (a b c)
-  `(cons ,a (cons ,b (cons ,c '()))))
-
-(my-list 1 2 3)
-)";
-   int r           = eval( src, ctx, io );
-   EXPECT_EQ( r, 0 );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "" );
-}
-
-TEST_F( LispTest, test_defmacro_02 )
-{
-
-   std::string src = R"(
-(defmacro my-cond (clause1 clause2)
-  `(if ,(car clause1)
-       ,(cdr clause1)
-       (if ,(car clause2)
-           ,(cdr clause2) '())))
-
-(my-cond ((= x 0) 'zero)
-         ((= x 1) 'one))
-)";
-
-   int r = eval( src, ctx, io );
-   EXPECT_EQ( r, 0 );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "" );
 }
 #endif

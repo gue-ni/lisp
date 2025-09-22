@@ -150,6 +150,7 @@ Expr * Expr::car()
    }
    else
    {
+      std::cerr << "tried to access car of non-cons" << std::endl;
       assert( false );
       return nullptr;
    }
@@ -163,6 +164,7 @@ Expr * Expr::cdr()
    }
    else
    {
+      std::cerr << "tried to access cdr of non-cons" << std::endl;
       assert( false );
       return nullptr;
    }
@@ -291,12 +293,13 @@ bool Atom::is_truthy() const
          return boolean;
       case lisp::Atom::ATOM_NUMBER :
          return number != 0;
+
+      case lisp::Atom::ATOM_ERROR :
+         return false;
       case lisp::Atom::ATOM_SYMBOL :
       case lisp::Atom::ATOM_STRING :
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
-      case lisp::Atom::ATOM_ERROR :
-         return false;
       default :
          assert( false );
          return false;
