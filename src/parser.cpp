@@ -6,7 +6,7 @@ namespace lisp
 Expr * parse( const Tokens & tokens )
 {
    Parser parser( tokens );
-   return parser.parse();
+   return parser.parse_program();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ Parser::Parser( const Tokens & tokens )
 {
 }
 
-Expr * Parser::parse()
+Expr * Parser::parse_program()
 {
    Expr *head, *tail, *expr;
    expr = head = tail = nullptr;

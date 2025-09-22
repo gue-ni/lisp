@@ -53,6 +53,11 @@ class Context : public gc::Garbage
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
+Expr * expand( Expr * expr );
+
+Expr * expand_list( Expr * expr );
+
 Expr * eval( Expr * expr, Context & context, const IO & io );
 
 int eval( const std::string & source, Context & context, const IO & io, Flags flags = 0 );

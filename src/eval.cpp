@@ -147,6 +147,8 @@ void Context::load_runtime()
    define( "<=", make_native( builtin::f_le ) );
    define( "not", make_native( builtin::f_not ) );
 
+   define("if", make_symbol("if"));
+
    define( "display", make_native( builtin::f_display ) );
    define( "displayln", make_native( builtin::f_displayln ) );
    define( "to-json", make_native( builtin::f_to_json ) );
@@ -198,11 +200,12 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 Expr * eval_program( Expr * program, Context & context, const IO & io )
 {
    Expr * result = make_nil();
-   while( program->is_cons() )
+   for( ; program->is_cons(); program = program->cdr() )
    {
       Expr * expr = program->car();
+     std::cout << "in: " << expr->to_json() << std::endl;
       result      = eval( expr, context, io );
-      program     = program->cdr();
+     std::cout << "out: " << result->to_json() << std::endl;
    }
    return result;
 }
@@ -257,8 +260,6 @@ Expr * append( Expr * a, Expr * b )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * expand( Expr * expr );
-
 Expr * expand_list( Expr * expr )
 {
    if( expr->is_cons() )
@@ -281,23 +282,32 @@ Expr * expand_list( Expr * expr )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * expand( Expr * expr )
+Expr * expand( Expr * ast )
 {
-   if( expr->is_cons() )
+   if( ast->is_cons() )
    {
-      Expr * car = expr->car();
-      Expr * cdr = expr->cdr();
+      Expr * car = ast->car();
+      Expr * cdr = ast->cdr();
 
-      if( car->is_symbol( "unquote" ) )
+      std::cout << "car: " << car->to_json() << std::endl;
+      std::cout << "cdr: " << cdr->to_json() << std::endl;
+
+      if( car->is_cons() && car->car()->is_symbol( "unquote" ) )
       {
-         return expr->cdr()->car();
+        Expr * tmp = car->cdr()->car();
+        std::cout << tmp->to_json() << std::endl;
+         //return tmp;
+
+        return make_list(make_symbol("cons"), tmp, expand(cdr));
       }
 
-      return expand_list( expr );
+      //return expand_list( ast );
+
+      return make_list(make_symbol("cons"), car, expand(cdr));
    }
    else
    {
-      return expr;
+      return make_list( make_symbol( "quote" ), ast );
    }
 }
 
@@ -316,9 +326,8 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
             }
          case Expr::EXPR_CONS :
             {
-               Cons cons   = expr->cons;
-               Expr * op   = cons.car;
-               Expr * args = cons.cdr;
+               Expr * op   = expr->car();
+               Expr * args = expr->cdr();
 
                if( op->is_symbol( "quote" ) )
                {
@@ -326,7 +335,9 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                }
                else if( op->is_symbol( "quasiquote" ) )
                {
+                 std::cout << args->car()->to_json() << std::endl;
                   expr = expand( args->car() );
+                  std::cout << expr->to_json() << std::endl;
                   continue;
                }
                else if( op->is_symbol( "define" ) )

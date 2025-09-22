@@ -626,6 +626,109 @@ TEST_F( LispTest, test_length_02 )
    EXPECT_EQ( out.str(), "0" );
 }
 
+TEST_F( LispTest, test_parse_quote_01 )
+{
+ std::string src = R"(
+'(+ 2 3)
+   )";
+
+   Expr * program = parse(src);
+   Expr * ast = program->car();
+
+   std::cout << ast->to_json() << std::endl;
+
+}
+
+TEST_F( LispTest, test_parse_unquote_00 )
+{
+   std::string src = R"(
+`(1 2 3)
+   )";
+
+   Expr * program = parse(src);
+   std::cout << "program: " << program->to_json() << std::endl;
+
+   Expr * ast = program->car();
+   std::cout << ast->to_json() << std::endl;
+
+   Expr * expanded = expand(ast->cdr()->car());
+   std::cout << "e: " << expanded->to_json() << std::endl;
+
+
+   Expr * r = eval(expanded, ctx, io);
+   std::cout << "r: " << r->to_json() << std::endl;
+   r->print(std::cout);
+
+ }
+
+TEST_F( LispTest, test_parse_unquote_01 )
+{
+   std::string src = R"(
+`(1 ,(+ 3 4) 3)
+   )";
+
+   Expr * program = parse(src);
+   std::cout << "program: " << program->to_json() << std::endl;
+
+   Expr * ast = program->car();
+   std::cout << ast->to_json() << std::endl;
+
+   Expr * quasiquote = ast->cdr()->car();
+   Expr * expanded = expand(quasiquote);
+   std::cout << "e: " << expanded->to_json() << std::endl;
+
+
+   Expr * r = eval(expanded, ctx, io);
+   std::cout << "r: " << r->to_json() << std::endl;
+   r->print(std::cout);
+   std::cout << std::endl;
+
+ }
+
+
+TEST_F( LispTest, test_parse_unquote_02 )
+{
+
+   std::string src = R"(
+
+(define c '(= 2 3))
+
+`(if ,c "case 1" "case 2")
+   )";
+
+   Expr * program = parse(src);
+   std::cout << "program: " << program->to_json() << std::endl;
+
+   Expr * r = eval_program(program, ctx, io);
+
+   std::cout << "r: " << r->to_json() << std::endl;
+   r->print(std::cout);
+   std::cout << std::endl;
+}
+
+
+TEST_F( LispTest, test_parse_unquote_03 )
+{
+
+   std::string src = R"(
+
+(defmacro my-macro (c) 
+  `(if ,c "case 1" "case 2"))
+
+(my-macro (= 2 3))
+   )";
+
+   Expr * program = parse(src);
+   std::cout << "program: " << program->to_json() << std::endl;
+
+   Expr * r = eval_program(program, ctx, io);
+
+   std::cout << "r: " << r->to_json() << std::endl;
+   r->print(std::cout);
+   std::cout << std::endl;
+}
+ 
+
 TEST_F( LispTest, test_unquote_01 )
 {
    std::string src = R"(

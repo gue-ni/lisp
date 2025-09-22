@@ -10,7 +10,7 @@ class Parser
 {
  public:
    Parser( const Tokens & tokens );
-   Expr * parse();
+   Expr * parse_program();
 
  private:
    Tokens m_tokens;
