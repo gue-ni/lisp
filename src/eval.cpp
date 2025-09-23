@@ -237,10 +237,8 @@ Expr * eval_list( Expr * expr, Context & context, const IO & io )
 
 void bind_params( Context * local, Expr * params, Expr * args )
 {
-   Expr * arg   = args;
-   Expr * param = params;
-
-   while( param->is_cons() && arg->is_cons() )
+   Expr *arg, *param;
+   for( arg = args, param = params; param->is_cons() && arg->is_cons(); arg = arg->cdr(), param = param->cdr() )
    {
       const char * symbol = param->car()->symbol();
 
@@ -251,23 +249,7 @@ void bind_params( Context * local, Expr * params, Expr * args )
       }
 
       local->define( symbol, arg->car() );
-      arg   = arg->cdr();
-      param = param->cdr();
    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-Expr * append( Expr * a, Expr * b )
-{
-   if( a->is_nil() )
-   {
-      return b;
-   }
-
-   // Expr * head = make_cons(a->car())
-
-   return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -309,6 +291,13 @@ Expr * expand( Expr * ast )
          Expr * unquoted = car->cdr()->car();
          // std::cout << tmp->to_json() << std::endl;
          return make_list( make_symbol( "cons" ), unquoted, expand( cdr ) );
+      }
+
+      // TODO:  test this
+      if( car->is_cons() && car->car()->is_symbol( "unquote-splice" ) )
+      {
+         Expr * unquoted = car->cdr()->car();
+         return make_list( make_symbol( "append" ), unquoted, expand( cdr ) );
       }
 
       // TODO: unquote-splice
