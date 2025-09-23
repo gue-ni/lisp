@@ -6,7 +6,7 @@ namespace lisp
 Expr * parse( const Tokens & tokens )
 {
    Parser parser( tokens );
-   return parser.parse();
+   return parser.parse_program();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ Parser::Parser( const Tokens & tokens )
 {
 }
 
-Expr * Parser::parse()
+Expr * Parser::parse_program()
 {
    Expr *head, *tail, *expr;
    expr = head = tail = nullptr;
@@ -109,22 +109,69 @@ Expr * Parser::parse_expr()
       case TokenType ::SYMBOL :
          {
             advance();
-            return make_symbol( tkn.lexeme.c_str() );
+            if( tkn.lexeme == KW_DEFINE_FUNCTION )
+            {
+               Expr * fn_name = parse_expr();
+               if( fn_name->is_error() )
+                  return fn_name;
+
+               expect( TokenType::LPAREN );
+               m_parenthesis_depth++;
+
+               Expr * fn_params = parse_list();
+               if( fn_params->is_error() )
+                  return fn_params;
+
+               Expr * fn_body = parse_expr();
+               if( fn_body->is_error() )
+                  return fn_body;
+
+               return make_list(
+                   make_symbol( KW_DEFINE ), fn_name, make_list( make_symbol( KW_LAMBDA ), fn_params, fn_body ) );
+            }
+            else if( tkn.lexeme == KW_DEFINE_MACRO )
+            {
+               Expr * macro_name = parse_expr();
+               if( macro_name->is_error() )
+                  return macro_name;
+
+               expect( TokenType::LPAREN );
+               m_parenthesis_depth++;
+
+               Expr * macro_params = parse_list();
+               if( macro_params->is_error() )
+                  return macro_params;
+
+               Expr * macro_body = parse_expr();
+               if( macro_body->is_error() )
+                  return macro_body;
+
+               return make_list(
+                   make_symbol( KW_DEFINE ), macro_name, make_list( make_symbol( KW_MACRO ), macro_params, macro_body ) );
+            }
+            else
+            {
+               return make_symbol( tkn.lexeme.c_str() );
+            }
          }
       case TokenType ::QUOTE :
+      case TokenType ::UNQUOTE :
+      case TokenType ::UNQUOTE_SPLICING :
+      case TokenType ::QUASIQUOTE :
          {
             advance();
-            Expr * quote  = make_symbol( "quote" );
+            Expr * quote  = make_symbol( tkn.lexeme.c_str() );
             Expr * quoted = parse_expr();
             if( quoted->is_error() )
                return quoted;
 
             return make_list( quote, quoted );
          }
+
       case TokenType ::DEFINE :
          {
             advance();
-            Expr * keyword = make_symbol( "define" );
+            Expr * keyword = make_symbol( KW_DEFINE );
             if( peek().type == TokenType::LPAREN )
             {
                m_parenthesis_depth++;
@@ -141,7 +188,7 @@ Expr * Parser::parse_expr()
                if( fn_body->is_error() )
                   return fn_body;
 
-               Expr * fn = make_list( make_symbol( "lambda" ), fn_params, fn_body );
+               Expr * fn = make_list( make_symbol( KW_LAMBDA ), fn_params, fn_body );
                return make_list( keyword, fn_name, fn );
             }
             else
@@ -162,7 +209,13 @@ Expr * Parser::parse_expr()
             advance();
             return parse_lambda();
          }
+      case TokenType ::NIL :
+         {
+           advance();
+           return make_nil();
+         }
       default :
+         assert( false );
          return nullptr;
    }
 }
@@ -192,7 +245,7 @@ Expr * Parser::parse_list()
 
 Expr * Parser::parse_lambda()
 {
-   Expr * keyword = make_symbol( "lambda" );
+   Expr * keyword = make_symbol( KW_LAMBDA );
    Expr * params;
 
    if( match( TokenType::LPAREN ) )
@@ -215,7 +268,7 @@ Expr * Parser::parse_lambda()
       return body;
    }
 
-   return make_cons( keyword, make_cons( params, make_cons( body, make_nil() ) ) );
+   return make_list( keyword, params, body );
 }
 
 void Parser::advance()
@@ -232,6 +285,20 @@ bool Parser::match( TokenType type )
    }
    else
    {
+      return false;
+   }
+}
+
+bool Parser::expect( TokenType type )
+{
+   if( peek().type == type )
+   {
+      advance();
+      return true;
+   }
+   else
+   {
+      assert( false );
       return false;
    }
 }

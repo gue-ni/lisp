@@ -10,15 +10,16 @@ class Parser
 {
  public:
    Parser( const Tokens & tokens );
-   Expr * parse();
+   Expr * parse_program();
 
  private:
-   Tokens m_tokens;
+   const Tokens m_tokens;
    Tokens::const_iterator m_current;
    int m_parenthesis_depth;
 
    void advance();
    bool match( TokenType );
+   bool expect( TokenType );
    Token peek();
 
    Expr * parse_expr();
@@ -26,7 +27,7 @@ class Parser
    Expr * parse_lambda();
 };
 
-Expr * parse( const std::string& source );
+Expr * parse( const std::string & source );
 
 Expr * parse( const Tokens & tokens );
 

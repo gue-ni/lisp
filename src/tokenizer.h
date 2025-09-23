@@ -3,6 +3,25 @@
 #include <string>
 #include <vector>
 
+// keywords
+#define KW_NIL "nil"
+#define KW_TRUE "true"
+#define KW_FALSE "false"
+#define KW_CAR "car"
+#define KW_CDR "cdr"
+#define KW_CONS "cons"
+#define KW_APPEND "append"
+#define KW_DEFINE "define"
+#define KW_MACRO "macro"
+#define KW_LAMBDA "lambda"
+#define KW_IF "if"
+#define KW_QUOTE "quote"
+#define KW_QUASIQUOTE "quasiquote"
+#define KW_UNQUOTE "unquote"
+#define KW_UNQUOTE_SPLICE "unquote-splicing"
+#define KW_DEFINE_FUNCTION "defun"
+#define KW_DEFINE_MACRO "defmacro"
+
 namespace lisp
 {
 
@@ -14,6 +33,7 @@ enum TokenType
    QUOTE,
    QUASIQUOTE,
    UNQUOTE,
+   UNQUOTE_SPLICING,
    NUMBER,
    LAMBDA,
    DEFINE,
@@ -60,7 +80,7 @@ class Tokenizer
    Tokens tokens();
 
  private:
-   std::string m_source;
+   const std::string m_source;
    std::string::const_iterator m_current;
    Tokens m_tokens;
 
@@ -71,7 +91,7 @@ class Tokenizer
    bool is_finished() const;
    void handle_string();
    void handle_number();
-   void handle_identifier();
+   void handle_identifier( bool is_rest = false );
    void push( const Token & );
 };
 

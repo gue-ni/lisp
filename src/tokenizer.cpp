@@ -14,10 +14,16 @@ Tokens tokenize( const std::string & source )
    return tkn.tokens();
 }
 
-std::map<std::string, TokenType> keywords = {
-    { "lambda", TokenType::LAMBDA }, { "define", TokenType::DEFINE }, { "quote", TokenType::QUOTE },
-    { "nil", TokenType::NIL },       { "true", TokenType::TRUE },     { "false", TokenType::FALSE },
-};
+std::map<std::string, TokenType> keywords
+    = { { KW_LAMBDA, TokenType::LAMBDA },
+        { KW_DEFINE, TokenType::DEFINE },
+        { KW_QUOTE, TokenType::QUOTE },
+        { KW_NIL, TokenType::NIL },
+        { KW_TRUE, TokenType::TRUE },
+        { KW_FALSE, TokenType::FALSE },
+        { KW_QUASIQUOTE, TokenType::QUASIQUOTE },
+        { KW_UNQUOTE, TokenType::UNQUOTE },
+        { KW_UNQUOTE_SPLICE, TokenType::UNQUOTE_SPLICING } };
 
 Tokenizer::Tokenizer( const std::string & source )
     : m_source( source )
@@ -101,15 +107,22 @@ void Tokenizer::handle_number()
    m_tokens.push_back( Token( NUMBER, number ) );
 }
 
-void Tokenizer::handle_identifier()
+void Tokenizer::handle_identifier( bool is_rest )
 {
    auto start = m_current - 1;
 
    // end of identifier
-   std::string chars = " )\n";
-   auto end = std::find_if( start, m_source.cend(), [&]( char c ) { return chars.find( c ) != std::string::npos; } );
+   std::vector<char> chars = { ' ', ')', '\n' };
+
+   auto end = std::find_if(
+       start, m_source.cend(), [&]( char c ) { return std::find( chars.begin(), chars.end(), c ) != chars.end(); } );
 
    std::string identifier( start, end );
+
+   if( is_rest )
+   {
+      identifier = "&" + identifier;
+   }
 
    auto it = keywords.find( identifier );
 
@@ -156,17 +169,35 @@ void Tokenizer::run()
             }
          case '\'' :
             {
-               push( Token( QUOTE, c ) );
+               push( Token( QUOTE, KW_QUOTE ) );
                break;
             }
          case '`' :
             {
-               push( Token( QUASIQUOTE, c ) );
+               push( Token( QUASIQUOTE, KW_QUASIQUOTE ) );
                break;
             }
          case ',' :
             {
-               push( Token( UNQUOTE, c ) );
+               if( peek() == '@' )
+               {
+                  next();
+                  push( Token( UNQUOTE_SPLICING, KW_UNQUOTE_SPLICE ) );
+               }
+               else
+               {
+                  push( Token( UNQUOTE, KW_UNQUOTE ) );
+               }
+               break;
+            }
+         case '&' :
+            {
+               if( isspace( peek() ) )
+               {
+                  skip_whitespace();
+               }
+               next();
+               handle_identifier( true );
                break;
             }
          case '\"' :
@@ -176,7 +207,7 @@ void Tokenizer::run()
             }
          default :
             {
-               if( isdigit( c ) )
+               if( isdigit( c ) || ( c == '-' ) && isdigit( peek() ) )
                {
                   handle_number();
                }

@@ -1,5 +1,6 @@
 #include "expr.h"
 #include "eval.h"
+#include "tokenizer.h"
 #include <string>
 
 namespace lisp
@@ -98,6 +99,11 @@ bool Expr::is_error() const
    return is_atom() && ( atom.type == Atom::ATOM_ERROR );
 }
 
+bool Expr::is_macro() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_MACRO );
+}
+
 bool Expr::is_truthy() const
 {
    if( is_cons() )
@@ -137,6 +143,47 @@ void Expr::mark()
    }
 }
 
+Expr * Expr::car()
+{
+   if( is_cons() )
+   {
+      return cons.car;
+   }
+   else
+   {
+      std::cerr << "tried to access car of non-cons" << std::endl;
+      assert( false );
+      return nullptr;
+   }
+}
+
+Expr * Expr::cdr()
+{
+   if( is_cons() )
+   {
+      return cons.cdr;
+   }
+   else
+   {
+      std::cerr << "tried to access cdr of non-cons" << std::endl;
+      assert( false );
+      return nullptr;
+   }
+}
+
+const char * Expr::symbol() const
+{
+   if( is_symbol() )
+   {
+      return atom.symbol;
+   }
+   else
+   {
+      assert( false && "unreachable" );
+      return nullptr;
+   }
+}
+
 bool Expr::is_nil() const
 {
    return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );
@@ -150,6 +197,11 @@ bool Expr::is_string() const
 bool Expr::is_number() const
 {
    return is_atom() && ( atom.type == Atom::ATOM_NUMBER );
+}
+
+bool Expr::is_symbol() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_SYMBOL );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -168,6 +220,7 @@ Atom::~Atom()
       case lisp::Atom::ATOM_BOOLEAN :
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
+      case lisp::Atom::ATOM_MACRO :
          break;
       case lisp::Atom::ATOM_SYMBOL :
          if( symbol )
@@ -217,6 +270,9 @@ Atom::Atom( Atom && other ) noexcept
          lambda           = other.lambda;
          other.lambda.env = nullptr;
          break;
+      case lisp::Atom::ATOM_MACRO :
+         macro = other.macro;
+         break;
       case lisp::Atom::ATOM_NATIVE :
          native = other.native;
          break;
@@ -224,6 +280,8 @@ Atom::Atom( Atom && other ) noexcept
          error       = other.error;
          other.error = nullptr;
          break;
+      default :
+         assert( false );
    }
 }
 
@@ -237,12 +295,13 @@ bool Atom::is_truthy() const
          return boolean;
       case lisp::Atom::ATOM_NUMBER :
          return number != 0;
+
+      case lisp::Atom::ATOM_ERROR :
+         return false;
       case lisp::Atom::ATOM_SYMBOL :
       case lisp::Atom::ATOM_STRING :
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
-      case lisp::Atom::ATOM_ERROR :
-         return false;
       default :
          assert( false );
          return false;
@@ -256,7 +315,7 @@ std::string Atom::to_json() const
       case Atom::ATOM_NIL :
          return "null";
       case Atom ::ATOM_BOOLEAN :
-         return ( boolean ? "true" : "false" );
+         return ( boolean ? KW_TRUE : KW_FALSE );
       case Atom::ATOM_NUMBER :
          return std::to_string( number );
       case Atom::ATOM_SYMBOL :
@@ -266,7 +325,9 @@ std::string Atom::to_json() const
       case Atom::ATOM_LAMBDA :
          return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
                 + " } }";
-
+      case Atom::ATOM_MACRO :
+         return "{ \"macro\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
+                + " } }";
       case Atom::ATOM_NATIVE :
          return "\"native()\"";
       case Atom ::ATOM_ERROR :
@@ -288,7 +349,7 @@ void Atom::print( const IO & io ) const
          }
       case Atom ::ATOM_BOOLEAN :
          {
-            io.out << ( boolean ? "true" : "false" );
+            io.out << ( boolean ? KW_TRUE : KW_FALSE );
             break;
          }
       case Atom::ATOM_NUMBER :

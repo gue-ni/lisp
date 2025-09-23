@@ -589,3 +589,156 @@ TEST_F( LispTest, test_range_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(2 3 4 5)" );
 }
+
+TEST_F( LispTest, test_append_01 )
+{
+   std::string src = R"(
+(append '(1 2 3 4) '(5 6 7 8))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3 4 5 6 7 8)" );
+}
+
+TEST_F( LispTest, test_length_01 )
+{
+   std::string src = R"(
+(length '(1 2 3 4))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "4" );
+}
+
+TEST_F( LispTest, test_length_02 )
+{
+   std::string src = R"(
+(length '())
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "0" );
+}
+
+TEST_F( LispTest, test_defun_01 )
+{
+   std::string src = R"(
+(defun add (a b) (+ a b))
+
+(add 2 3)
+   )";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5" );
+}
+
+TEST_F( LispTest, test_unquote_01 )
+{
+   std::string src = R"(
+`(1 ,(+ 2 3) 4)
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 5 4)" );
+}
+
+TEST_F( LispTest, test_macro_01 )
+{
+
+   std::string src = R"(
+
+(defmacro my-macro (c) 
+  `(if ,c "case 1" "case 2"))
+
+(my-macro (= 2 3))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "\"case 2\"" );
+}
+
+TEST_F( LispTest, test_macro_02 )
+{
+
+   std::string src = R"(
+
+(defmacro my-macro (t c1 c2) 
+  `(if ,t c1 c2))
+
+(print (my-macro (= 2 3) "c-1" "c-2"))
+
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "\"c-2\"" );
+}
+
+TEST_F( LispTest, test_unquote_02 )
+{
+   std::string src = R"(
+(defmacro unless (test form)
+  `(if (not ,test)
+      ,form
+      "wrong"))
+
+
+(unless (= 2 2) "hello")
+   )";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "\"hello\"" );
+}
+
+TEST_F( LispTest, test_unquote_splice_01 )
+{
+   std::string src = R"(
+`(1 ,@'(2 3) 4)
+   )";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3 4)" );
+}
+
+TEST_F( LispTest, test_rest_argument_01 )
+{
+   std::string src = R"(
+(defun my-fn (a b & rest) 
+  rest)
+
+(my-fn 1 2 3 4)
+   )";
+
+   int r = eval( src, ctx, io );
+
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(3 4)" );
+}
+
+TEST_F( LispTest, test_negative_number_01 )
+{
+   std::string src = R"(
+(+ -4.5 3)
+   )";
+
+   int r = eval( src, ctx, io );
+
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "-1.5" );
+}
