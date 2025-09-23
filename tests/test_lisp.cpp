@@ -703,7 +703,6 @@ TEST_F( LispTest, test_unquote_02 )
    EXPECT_EQ( out.str(), "\"hello\"" );
 }
 
-#if 1
 TEST_F( LispTest, test_unquote_splice_01 )
 {
    std::string src = R"(
@@ -714,7 +713,6 @@ TEST_F( LispTest, test_unquote_splice_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 2 3 4)" );
 }
-#endif
 
 TEST_F( LispTest, test_rest_argument_01 )
 {

@@ -261,24 +261,17 @@ Expr * expand( Expr * ast )
       Expr * car = ast->car();
       Expr * cdr = ast->cdr();
 
-      // std::cout << "car: " << car->to_json() << std::endl;
-      // std::cout << "cdr: " << cdr->to_json() << std::endl;
-
       if( car->is_cons() && car->car()->is_symbol( KW_UNQUOTE ) )
       {
          Expr * unquoted = car->cdr()->car();
-         // std::cout << tmp->to_json() << std::endl;
          return make_list( make_symbol( KW_CONS ), unquoted, expand( cdr ) );
       }
 
-      // TODO:  test this
       if( car->is_cons() && car->car()->is_symbol( KW_UNQUOTE_SPLICE ) )
       {
          Expr * unquoted = car->cdr()->car();
          return make_list( make_symbol( KW_APPEND ), unquoted, expand( cdr ) );
       }
-
-      // TODO: unquote-splice
 
       return make_list( make_symbol( KW_CONS ), car, expand( cdr ) );
    }
