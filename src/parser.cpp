@@ -109,7 +109,7 @@ Expr * Parser::parse_expr()
       case TokenType ::SYMBOL :
          {
             advance();
-            if( tkn.lexeme == "defun" )
+            if( tkn.lexeme == KW_DEFINE_FUNCTION )
             {
                Expr * fn_name = parse_expr();
                if( fn_name->is_error() )
@@ -127,9 +127,9 @@ Expr * Parser::parse_expr()
                   return fn_body;
 
                return make_list(
-                   make_symbol( "define" ), fn_name, make_list( make_symbol( "lambda" ), fn_params, fn_body ) );
+                   make_symbol( KW_DEFINE ), fn_name, make_list( make_symbol( KW_LAMBDA ), fn_params, fn_body ) );
             }
-            else if( tkn.lexeme == "defmacro" )
+            else if( tkn.lexeme == KW_DEFINE_MACRO )
             {
                Expr * macro_name = parse_expr();
                if( macro_name->is_error() )
@@ -147,7 +147,7 @@ Expr * Parser::parse_expr()
                   return macro_body;
 
                return make_list(
-                   make_symbol( "define" ), macro_name, make_list( make_symbol( "macro" ), macro_params, macro_body ) );
+                   make_symbol( KW_DEFINE ), macro_name, make_list( make_symbol( KW_MACRO ), macro_params, macro_body ) );
             }
             else
             {
@@ -171,7 +171,7 @@ Expr * Parser::parse_expr()
       case TokenType ::DEFINE :
          {
             advance();
-            Expr * keyword = make_symbol( "define" );
+            Expr * keyword = make_symbol( KW_DEFINE );
             if( peek().type == TokenType::LPAREN )
             {
                m_parenthesis_depth++;
@@ -188,7 +188,7 @@ Expr * Parser::parse_expr()
                if( fn_body->is_error() )
                   return fn_body;
 
-               Expr * fn = make_list( make_symbol( "lambda" ), fn_params, fn_body );
+               Expr * fn = make_list( make_symbol( KW_LAMBDA ), fn_params, fn_body );
                return make_list( keyword, fn_name, fn );
             }
             else
@@ -245,7 +245,7 @@ Expr * Parser::parse_list()
 
 Expr * Parser::parse_lambda()
 {
-   Expr * keyword = make_symbol( "lambda" );
+   Expr * keyword = make_symbol( KW_LAMBDA );
    Expr * params;
 
    if( match( TokenType::LPAREN ) )

@@ -1,5 +1,6 @@
 #include "expr.h"
 #include "eval.h"
+#include "tokenizer.h"
 #include <string>
 
 namespace lisp
@@ -178,7 +179,7 @@ const char * Expr::symbol() const
    }
    else
    {
-      assert(false && "unreachable");
+      assert( false && "unreachable" );
       return nullptr;
    }
 }
@@ -314,7 +315,7 @@ std::string Atom::to_json() const
       case Atom::ATOM_NIL :
          return "null";
       case Atom ::ATOM_BOOLEAN :
-         return ( boolean ? "true" : "false" );
+         return ( boolean ? KW_TRUE : KW_FALSE );
       case Atom::ATOM_NUMBER :
          return std::to_string( number );
       case Atom::ATOM_SYMBOL :
@@ -348,7 +349,7 @@ void Atom::print( const IO & io ) const
          }
       case Atom ::ATOM_BOOLEAN :
          {
-            io.out << ( boolean ? "true" : "false" );
+            io.out << ( boolean ? KW_TRUE : KW_FALSE );
             break;
          }
       case Atom::ATOM_NUMBER :

@@ -15,15 +15,15 @@ Tokens tokenize( const std::string & source )
 }
 
 std::map<std::string, TokenType> keywords
-    = { { "lambda", TokenType::LAMBDA },
-        { "define", TokenType::DEFINE },
-        { "quote", TokenType::QUOTE },
-        { "nil", TokenType::NIL },
-        { "true", TokenType::TRUE },
-        { "false", TokenType::FALSE },
-        { "quasiquote", TokenType::QUASIQUOTE },
-        { "unquote", TokenType::UNQUOTE },
-        { "unquote-splicing", TokenType::UNQUOTE_SPLICING } };
+    = { { KW_LAMBDA, TokenType::LAMBDA },
+        { KW_DEFINE, TokenType::DEFINE },
+        { KW_QUOTE, TokenType::QUOTE },
+        { KW_NIL, TokenType::NIL },
+        { KW_TRUE, TokenType::TRUE },
+        { KW_FALSE, TokenType::FALSE },
+        { KW_QUASIQUOTE, TokenType::QUASIQUOTE },
+        { KW_UNQUOTE, TokenType::UNQUOTE },
+        { KW_UNQUOTE_SPLICE, TokenType::UNQUOTE_SPLICING } };
 
 Tokenizer::Tokenizer( const std::string & source )
     : m_source( source )
@@ -169,12 +169,12 @@ void Tokenizer::run()
             }
          case '\'' :
             {
-               push( Token( QUOTE, "quote" ) );
+               push( Token( QUOTE, KW_QUOTE ) );
                break;
             }
          case '`' :
             {
-               push( Token( QUASIQUOTE, "quasiquote" ) );
+               push( Token( QUASIQUOTE, KW_QUASIQUOTE ) );
                break;
             }
          case ',' :
@@ -182,11 +182,11 @@ void Tokenizer::run()
                if( peek() == '@' )
                {
                   next();
-                  push( Token( UNQUOTE_SPLICING, "unquote-splicing" ) );
+                  push( Token( UNQUOTE_SPLICING, KW_UNQUOTE_SPLICE ) );
                }
                else
                {
-                  push( Token( UNQUOTE, "unquote" ) );
+                  push( Token( UNQUOTE, KW_UNQUOTE ) );
                }
                break;
             }
@@ -207,7 +207,7 @@ void Tokenizer::run()
             }
          default :
             {
-               if( isdigit( c ) || (c == '-') && isdigit(peek()) )
+               if( isdigit( c ) || ( c == '-' ) && isdigit( peek() ) )
                {
                   handle_number();
                }
