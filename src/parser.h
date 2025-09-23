@@ -13,7 +13,7 @@ class Parser
    Expr * parse_program();
 
  private:
-   Tokens m_tokens;
+   const Tokens m_tokens;
    Tokens::const_iterator m_current;
    int m_parenthesis_depth;
 

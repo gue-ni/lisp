@@ -242,7 +242,15 @@ void bind_params( Context * local, Expr * params, Expr * args )
 
    while( param->is_cons() && arg->is_cons() )
    {
-      local->define( param->car()->atom.symbol, arg->car() );
+      const char * symbol = param->car()->symbol();
+
+      if( symbol[0] == '&' )
+      {
+         local->define( symbol + 1, arg );
+         break;
+      }
+
+      local->define( symbol, arg->car() );
       arg   = arg->cdr();
       param = param->cdr();
    }

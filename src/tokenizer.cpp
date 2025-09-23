@@ -107,15 +107,22 @@ void Tokenizer::handle_number()
    m_tokens.push_back( Token( NUMBER, number ) );
 }
 
-void Tokenizer::handle_identifier()
+void Tokenizer::handle_identifier( bool is_rest )
 {
    auto start = m_current - 1;
 
    // end of identifier
-   std::string chars = " )\n";
-   auto end = std::find_if( start, m_source.cend(), [&]( char c ) { return chars.find( c ) != std::string::npos; } );
+   std::vector<char> chars = { ' ', ')', '\n' };
+
+   auto end = std::find_if(
+       start, m_source.cend(), [&]( char c ) { return std::find( chars.begin(), chars.end(), c ) != chars.end(); } );
 
    std::string identifier( start, end );
+
+   if( is_rest )
+   {
+      identifier = "&" + identifier;
+   }
 
    auto it = keywords.find( identifier );
 
@@ -183,6 +190,16 @@ void Tokenizer::run()
                }
                break;
             }
+         case '&' :
+            {
+               if( isspace( peek() ) )
+               {
+                  skip_whitespace();
+               }
+               next();
+               handle_identifier( true );
+               break;
+            }
          case '\"' :
             {
                handle_string();
@@ -190,7 +207,7 @@ void Tokenizer::run()
             }
          default :
             {
-               if( isdigit( c ) )
+               if( isdigit( c ) || (c == '-') && isdigit(peek()) )
                {
                   handle_number();
                }

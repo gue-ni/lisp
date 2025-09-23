@@ -178,6 +178,7 @@ const char * Expr::symbol() const
    }
    else
    {
+      assert(false && "unreachable");
       return nullptr;
    }
 }

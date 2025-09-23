@@ -61,7 +61,7 @@ class Tokenizer
    Tokens tokens();
 
  private:
-   std::string m_source;
+   const std::string m_source;
    std::string::const_iterator m_current;
    Tokens m_tokens;
 
@@ -72,7 +72,7 @@ class Tokenizer
    bool is_finished() const;
    void handle_string();
    void handle_number();
-   void handle_identifier();
+   void handle_identifier(bool is_rest = false);
    void push( const Token & );
 };
 
