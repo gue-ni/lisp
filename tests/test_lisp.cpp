@@ -742,3 +742,13 @@ TEST_F( LispTest, test_negative_number_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "-1.5" );
 }
+
+TEST_F( LispTest, test_do_01 )
+{
+   std::string src = "(progn (print 1) (print 2) (* 4 5))";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "1220" );
+}
