@@ -16,17 +16,26 @@ namespace builtin
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_str( Expr * arg, Context & context, const IO & io )
+{
+   std::string str = "";
+   for( Expr * it = arg; it->is_cons(); it = it->cdr() )
+   {
+      str += to_string( it->car() );
+   }
+   return make_string( str.c_str() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_print( Expr * arg, Context & context, const IO & io )
 {
-   if( !arg->is_cons() )
-   {
-      return make_error( "invalid-type" );
-   }
-   Expr * expr     = arg->car();
-   std::string str = to_string( expr );
-   io.out << str;
+   Expr * str = f_str( arg, context, io );
+   io.out << str->atom.string;
    return make_void();
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_println( Expr * arg, Context & context, const IO & io )
 {
@@ -34,6 +43,8 @@ Expr * f_println( Expr * arg, Context & context, const IO & io )
    io.out << std::endl;
    return make_void();
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_to_json( Expr * arg, Context & context, const IO & io )
 {
@@ -415,6 +426,37 @@ Expr * f_length( Expr * args, Context & context, const IO & io )
    }
 
    return make_number( length );
+}
+
+Expr * f_map( Expr * arg, Context & context, const IO & io )
+{
+   Expr * fn = arg->car();
+
+   assert( fn->is_lambda() || fn->is_native() );
+
+   Expr *head, *tail;
+   head = nullptr;
+
+   Expr * list = arg->cdr()->car();
+   for( Expr * it = list; it->is_cons(); it = it->cdr() )
+   {
+      Expr * el          = it->car();
+      Expr * expr        = make_list( fn, el );
+      Expr * result      = eval( expr, context, io );
+      Expr * result_cons = make_cons( result, make_nil() );
+
+      if( head == nullptr )
+      {
+         head = tail = result_cons;
+      }
+      else
+      {
+         tail->cons.cdr = result_cons;
+         tail           = tail->cdr();
+      }
+   }
+
+   return head;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

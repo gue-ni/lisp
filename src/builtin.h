@@ -19,6 +19,8 @@ typedef Expr * ( *Native )( Expr *, Context &, const IO & io );
 namespace builtin
 {
 
+Expr * f_str( Expr * arg, Context & context, const IO & io );
+
 Expr * f_print( Expr * arg, Context & context, const IO & io );
 
 Expr * f_println( Expr * arg, Context & context, const IO & io );
@@ -70,6 +72,16 @@ Expr * f_list( Expr * arg, Context & context, const IO & io );
 Expr * f_append( Expr * arg, Context & context, const IO & io );
 
 Expr * f_length( Expr * arg, Context & context, const IO & io );
+
+Expr * f_filter( Expr * arg, Context & context, const IO & io );
+
+Expr * f_map( Expr * arg, Context & context, const IO & io );
+
+Expr * f_reduce( Expr * arg, Context & context, const IO & io );
+
+Expr * f_every( Expr * arg, Context & context, const IO & io );
+
+Expr * f_some( Expr * arg, Context & context, const IO & io );
 
 } // namespace builtin
 

@@ -59,26 +59,6 @@ TEST_F( LispTest, test_eval_number_01 )
    EXPECT_EQ( out.str(), "2.5" );
 }
 
-TEST_F( LispTest, test_eval_nil_01 )
-{
-   Expr * exp = make_nil();
-   eval( "'()", ctx, io );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "()" );
-}
-
-#if 0
-TEST_F( LispTest, test_eval_string_01 )
-{
-   Expr * exp = make_string( "Hello, LISP!" );
-
-   eval( exp, ctx, io );
-
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "\"Hello, LISP!\"" );
-}
-#endif
-
 TEST_F( LispTest, test_eval_symbol_01 )
 {
    eval( "+", ctx, io );
@@ -89,15 +69,22 @@ TEST_F( LispTest, test_eval_symbol_01 )
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
 {
    eval( "does-not-exist", ctx, io );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "()" );
+   EXPECT_EQ( err.str(), "(error: undefined symbol)" );
+   EXPECT_EQ( out.str(), "" );
 }
 
 TEST_F( LispTest, test_nil_01 )
 {
    eval( "'()", ctx, io );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "()" );
+   EXPECT_EQ( out.str(), "nil" );
+}
+
+TEST_F( LispTest, test_nil_02 )
+{
+   eval( "nil", ctx, io );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "nil" );
 }
 
 TEST_F( LispTest, test_add_01 )
@@ -170,7 +157,7 @@ TEST_F( LispTest, test_eval_math_02 )
 
 TEST_F( LispTest, test_define_01 )
 {
-   std::string source = "(define x 42) (display x)";
+   std::string source = "(define x 42) (print x)";
    int r              = eval( source, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -809,4 +796,49 @@ TEST_F( LispTest, test_let_05 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "30" );
+}
+
+TEST_F( LispTest, test_print_01 )
+{
+   std::string src = "(print 1 2 3)";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "123" );
+}
+
+TEST_F( LispTest, test_str_01 )
+{
+   std::string src = "(print (str \"hello \" \"world\"))";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "hello world" );
+}
+
+TEST_F( LispTest, test_map_02 )
+{
+   std::string src = "(map (lambda (n) (* 2 n)) (list 1 2 3 4))";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(2 4 6 8)" );
+}
+
+TEST_F( LispTest, test_map_03 )
+{
+   std::string src = R"(
+(defun square (n) 
+  (* n n))
+
+(map square (list 1 2 3 4))
+)";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 4 9 16)" );
 }

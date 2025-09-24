@@ -345,7 +345,7 @@ void Atom::print( const IO & io ) const
    {
       case Atom::ATOM_NIL :
          {
-            io.out << "()";
+            io.out << "nil";
             break;
          }
       case Atom ::ATOM_BOOLEAN :

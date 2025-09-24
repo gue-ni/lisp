@@ -54,7 +54,7 @@ Expr * Parser::parse_program()
       else
       {
          tail->cons.cdr = node;
-         tail           = node;
+         tail           = tail->cdr();
       }
    } while( true );
 
