@@ -752,3 +752,13 @@ TEST_F( LispTest, test_do_01 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "1220" );
 }
+
+TEST_F( LispTest, test_let_01 )
+{
+   std::string src = "(let ((x 2) (y 3)) (* x y))";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "6" );
+}
