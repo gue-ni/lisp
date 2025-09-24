@@ -856,8 +856,18 @@ TEST_F( LispTest, test_filter_02 )
 TEST_F( LispTest, test_filter_03 )
 {
    std::string src = "(filter number? (list 1 \"two\" 3 \"four\"))";
-   int r = eval( src, ctx, io );
+   int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 3)" );
+}
+
+TEST_F( LispTest, test_back_inserter_01 )
+{
+   ListBuilder builder;
+   builder.append( make_number( 1 ) );
+   builder.append( make_number( 2 ) );
+   builder.append( make_number( 3 ) );
+   Expr * list = builder.list();
+   EXPECT_EQ(to_string( list ), "(1 2 3)");
 }

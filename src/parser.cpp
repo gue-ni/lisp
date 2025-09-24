@@ -30,6 +30,8 @@ Expr * Parser::parse_program()
    Expr *head, *tail, *expr;
    expr = head = tail = nullptr;
 
+   ListBuilder builder;
+
    do
    {
       expr = parse_expr();
@@ -43,22 +45,11 @@ Expr * Parser::parse_program()
          return make_cons( expr, make_nil() );
       }
 
-      Expr * node = make_cons( expr, make_nil() );
+      builder.append( expr );
 
-      if( !head )
-      {
-
-         head = node;
-         tail = node;
-      }
-      else
-      {
-         tail->cons.cdr = node;
-         tail           = tail->cdr();
-      }
    } while( true );
 
-   return ( head != nullptr ) ? head : make_nil();
+   return ( builder.list() != nullptr ) ? builder.list() : make_nil();
 }
 
 Expr * Parser::parse_expr()
@@ -147,7 +138,8 @@ Expr * Parser::parse_expr()
                   return macro_body;
 
                return make_list(
-                   make_symbol( KW_DEFINE ), macro_name, make_list( make_symbol( KW_MACRO ), macro_params, macro_body ) );
+                   make_symbol( KW_DEFINE ), macro_name,
+                   make_list( make_symbol( KW_MACRO ), macro_params, macro_body ) );
             }
             else
             {
@@ -211,8 +203,8 @@ Expr * Parser::parse_expr()
          }
       case TokenType ::NIL :
          {
-           advance();
-           return make_nil();
+            advance();
+            return make_nil();
          }
       default :
          assert( false );

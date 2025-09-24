@@ -433,7 +433,7 @@ Expr * f_filter( Expr * arg, Context & context, const IO & io )
    Expr * fn = arg->car();
    assert( fn->is_lambda() || fn->is_native() );
 
-   Expr *head = nullptr, *tail;
+   ListBuilder builder;
 
    Expr * list = arg->cdr()->car();
    for( Expr * it = list; it->is_cons(); it = it->cdr() )
@@ -443,20 +443,11 @@ Expr * f_filter( Expr * arg, Context & context, const IO & io )
 
       if( result->is_truthy() )
       {
-         Expr * result_cons = make_cons( el, make_nil() );
-         if( head == nullptr )
-         {
-            head = tail = result_cons;
-         }
-         else
-         {
-            tail->cons.cdr = result_cons;
-            tail           = tail->cdr();
-         }
+        builder.append(el);
       }
    }
 
-   return head;
+   return builder.list();
 }
 
 Expr * f_map( Expr * arg, Context & context, const IO & io )
@@ -464,28 +455,17 @@ Expr * f_map( Expr * arg, Context & context, const IO & io )
    Expr * fn = arg->car();
    assert( fn->is_lambda() || fn->is_native() );
 
-   Expr *head, *tail;
-   head = nullptr;
+   ListBuilder builder;
 
    Expr * list = arg->cdr()->car();
    for( Expr * it = list; it->is_cons(); it = it->cdr() )
    {
-      Expr * el          = it->car();
-      Expr * result      = eval( make_list( fn, el ), context, io );
-      Expr * result_cons = make_cons( result, make_nil() );
-
-      if( head == nullptr )
-      {
-         head = tail = result_cons;
-      }
-      else
-      {
-         tail->cons.cdr = result_cons;
-         tail           = tail->cdr();
-      }
+      Expr * el     = it->car();
+      Expr * result = eval( make_list( fn, el ), context, io );
+      builder.append( result );
    }
 
-   return head;
+   return builder.list();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
