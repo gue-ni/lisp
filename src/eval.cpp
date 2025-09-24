@@ -152,10 +152,10 @@ void Context::load_runtime()
    define( KW_DEFINE, make_symbol( KW_DEFINE ) );
    define( KW_QUOTE, make_symbol( KW_QUOTE ) );
 
-   define( "display", make_native( builtin::f_display ) );
-   define( "print", make_native( builtin::f_display ) );
-   define( "displayln", make_native( builtin::f_displayln ) );
-   define( "println", make_native( builtin::f_displayln ) );
+   define( "display", make_native( builtin::f_print ) );
+   define( "print", make_native( builtin::f_print ) );
+   define( "displayln", make_native( builtin::f_println ) );
+   define( "println", make_native( builtin::f_println ) );
    define( "to-json", make_native( builtin::f_to_json ) );
 
    define( KW_CAR, make_native( builtin::f_car ) );

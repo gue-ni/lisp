@@ -1,6 +1,7 @@
 #include "expr.h"
 #include "eval.h"
 #include "tokenizer.h"
+#include <sstream>
 #include <string>
 
 namespace lisp
@@ -490,6 +491,52 @@ std::string Expr::to_json() const
          return cons.to_json();
       default :
          return "{}";
+   }
+}
+
+std::string to_string( Expr * expr )
+{
+   switch( expr->type )
+   {
+      case Expr::EXPR_ATOM :
+         {
+            switch( expr->atom.type )
+            {
+               case Atom ::ATOM_NIL :
+                  return "nil";
+               case Atom ::ATOM_STRING :
+                  return std::string( expr->atom.string );
+               case Atom ::ATOM_SYMBOL :
+                  return std::string( expr->atom.symbol );
+               case Atom ::ATOM_ERROR :
+                  return std::string( expr->atom.error );
+               case Atom ::ATOM_NUMBER :
+                  {
+                     std::stringstream ss;
+                     ss << expr->atom.number;
+                     return ss.str();
+                  }
+               case Atom ::ATOM_BOOLEAN :
+                  return ( expr->atom.boolean ? KW_TRUE : KW_FALSE );
+               default :
+                  assert( false );
+                  return "#unprintable";
+            }
+         }
+      case Expr::EXPR_CONS :
+         {
+            std::string str = "(";
+            for( Expr * it = expr; it->is_cons(); it = it->cdr() )
+            {
+               if( it != expr )
+                  str += " ";
+               str += to_string( it->car() );
+            }
+            str += ")";
+            return str;
+         }
+      case Expr ::EXPR_VOID :
+         return "";
    }
 }
 

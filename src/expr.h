@@ -147,6 +147,10 @@ struct Expr : public gc::Garbage
    double number() const;
 };
 
+std::string to_string(Expr* expr);
+
+std::string to_string_repr(Expr* expr);
+
 ///////////////////////////////////////////////////////////////////////////////
 
 inline Expr * make_void()

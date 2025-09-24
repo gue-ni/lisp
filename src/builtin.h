@@ -19,9 +19,9 @@ typedef Expr * ( *Native )( Expr *, Context &, const IO & io );
 namespace builtin
 {
 
-Expr * f_display( Expr * arg, Context & context, const IO & io );
+Expr * f_print( Expr * arg, Context & context, const IO & io );
 
-Expr * f_displayln( Expr * arg, Context & context, const IO & io );
+Expr * f_println( Expr * arg, Context & context, const IO & io );
 
 Expr * f_to_json( Expr * arg, Context & context, const IO & io );
 

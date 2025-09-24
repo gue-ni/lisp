@@ -683,7 +683,7 @@ TEST_F( LispTest, test_macro_02 )
    int r = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "\"c-2\"" );
+   EXPECT_EQ( out.str(), "c-2" );
 }
 
 TEST_F( LispTest, test_unquote_02 )

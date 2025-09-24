@@ -16,20 +16,21 @@ namespace builtin
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * f_display( Expr * arg, Context & context, const IO & io )
+Expr * f_print( Expr * arg, Context & context, const IO & io )
 {
    if( !arg->is_cons() )
    {
       return make_error( "invalid-type" );
    }
-   Expr * expr = eval( arg->car(), context, io );
-   expr->print( io );
+   Expr * expr     = arg->car();
+   std::string str = to_string( expr );
+   io.out << str;
    return make_void();
 }
 
-Expr * f_displayln( Expr * arg, Context & context, const IO & io )
+Expr * f_println( Expr * arg, Context & context, const IO & io )
 {
-   ( void ) f_display( arg, context, io );
+   ( void ) f_print( arg, context, io );
    io.out << std::endl;
    return make_void();
 }
