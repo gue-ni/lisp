@@ -656,7 +656,7 @@ TEST_F( LispTest, test_macro_01 )
 
    std::string src = R"(
 
-(defmacro my-macro (c) 
+(defmacro my-macro (c)
   `(if ,c "case 1" "case 2"))
 
 (my-macro (= 2 3))
@@ -673,7 +673,7 @@ TEST_F( LispTest, test_macro_02 )
 
    std::string src = R"(
 
-(defmacro my-macro (t c1 c2) 
+(defmacro my-macro (t c1 c2)
   `(if ,t c1 c2))
 
 (print (my-macro (= 2 3) "c-1" "c-2"))
@@ -717,7 +717,7 @@ TEST_F( LispTest, test_unquote_splice_01 )
 TEST_F( LispTest, test_rest_argument_01 )
 {
    std::string src = R"(
-(defun my-fn (a b & rest) 
+(defun my-fn (a b & rest)
   rest)
 
 (my-fn 1 2 3 4)
@@ -761,4 +761,52 @@ TEST_F( LispTest, test_let_01 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "6" );
+}
+
+TEST_F( LispTest, test_let_02 )
+{
+   std::string src = R"(
+(let ((x 5)
+     (y (* 2 2)))
+     (+ x y))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "9" );
+}
+
+TEST_F( LispTest, test_let_03 )
+{
+   std::string src = "(let ((x 10)) (* 2 x))";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "20" );
+}
+
+TEST_F( LispTest, test_let_04 )
+{
+   std::string src = R"(
+(let ((x 5)
+     (y (let ((x 10)) (* 2 x))))
+     (+ x y))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "25" );
+}
+
+TEST_F( LispTest, test_let_05 )
+{
+   std::string src = "(let ((a 10) (b (* 2 a))) (+ a b))";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "30" );
 }

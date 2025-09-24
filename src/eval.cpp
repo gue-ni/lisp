@@ -354,9 +354,10 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   for( Expr * it = bindings; it->is_cons(); it = it->cdr() )
                   {
                      Expr * binding = it->car();
-                     Expr * car     = binding->car();
-                     Expr * cdr     = binding->cdr();
-                     local->define( car->symbol(), cdr->car() );
+                     Expr * symbol  = binding->car();
+                     Expr * value   = binding->cdr()->car();
+                     value          = eval( value, *local, io );
+                     local->define( symbol->symbol(), value );
                   }
 
                   context = local;
