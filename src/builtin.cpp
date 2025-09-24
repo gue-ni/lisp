@@ -16,23 +16,35 @@ namespace builtin
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * f_display( Expr * arg, Context & context, const IO & io )
+Expr * f_str( Expr * arg, Context & context, const IO & io )
 {
-   if( !arg->is_cons() )
+   std::string str = "";
+   for( Expr * it = arg; it->is_cons(); it = it->cdr() )
    {
-      return make_error( "invalid-type" );
+      str += to_string( it->car() );
    }
-   Expr * expr = eval( arg->car(), context, io );
-   expr->print( io );
+   return make_string( str.c_str() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_print( Expr * arg, Context & context, const IO & io )
+{
+   Expr * str = f_str( arg, context, io );
+   io.out << str->atom.string;
    return make_void();
 }
 
-Expr * f_displayln( Expr * arg, Context & context, const IO & io )
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_println( Expr * arg, Context & context, const IO & io )
 {
-   ( void ) f_display( arg, context, io );
+   ( void ) f_print( arg, context, io );
    io.out << std::endl;
    return make_void();
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_to_json( Expr * arg, Context & context, const IO & io )
 {
@@ -242,7 +254,6 @@ Expr * f_lt( Expr * arg, Context & context, const IO & io )
 
 Expr * f_le( Expr * arg, Context & context, const IO & io )
 {
-
    Expr * a = arg->car();
    Expr * b = arg->cdr()->car();
 
@@ -304,6 +315,13 @@ Expr * f_is_string( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_is_error( Expr * arg, Context & context, const IO & io )
+{
+   return make_boolean( arg->car()->is_error() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_eval( Expr * arg, Context & context, const IO & io )
 {
    if( !arg->is_cons() )
@@ -350,6 +368,8 @@ Expr * f_read_file( Expr * arg, Context & context, const IO & io )
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_exit( Expr * arg, Context & context, const IO & io )
 {
    context.exit = true;
@@ -366,10 +386,22 @@ Expr * f_exit( Expr * arg, Context & context, const IO & io )
    return make_void();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_error( Expr * arg, Context & context, const IO & io )
+{
+   const char * message = arg->car()->atom.string;
+   return make_error( message );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_list( Expr * arg, Context & context, const IO & io )
 {
    return arg;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_append( Expr * args, Context & context, const IO & io )
 {
@@ -391,6 +423,8 @@ Expr * f_append( Expr * args, Context & context, const IO & io )
 
    return arg1;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_length( Expr * args, Context & context, const IO & io )
 {
@@ -414,6 +448,50 @@ Expr * f_length( Expr * args, Context & context, const IO & io )
    }
 
    return make_number( length );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_filter( Expr * arg, Context & context, const IO & io )
+{
+   Expr * fn = arg->car();
+   assert( fn->is_lambda() || fn->is_native() );
+
+   ListBuilder builder;
+
+   Expr * list = arg->cdr()->car();
+   for( Expr * it = list; it->is_cons(); it = it->cdr() )
+   {
+      Expr * el     = it->car();
+      Expr * result = eval( make_list( fn, el ), context, io );
+
+      if( result->is_truthy() )
+      {
+         builder.append( el );
+      }
+   }
+
+   return builder.list();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_map( Expr * arg, Context & context, const IO & io )
+{
+   Expr * fn = arg->car();
+   assert( fn->is_lambda() || fn->is_native() );
+
+   ListBuilder builder;
+
+   Expr * list = arg->cdr()->car();
+   for( Expr * it = list; it->is_cons(); it = it->cdr() )
+   {
+      Expr * el     = it->car();
+      Expr * result = eval( make_list( fn, el ), context, io );
+      builder.append( result );
+   }
+
+   return builder.list();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

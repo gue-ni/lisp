@@ -141,11 +141,16 @@ struct Expr : public gc::Garbage
    Expr * car();
    Expr * cdr();
 
-   const char* string() const;
-   const char* error() const;
-   const char* symbol() const;
-   double number() const;
+   bool as_boolean() const;
+   double as_number() const;
+   const char * as_string() const;
+   const char * as_error() const;
+   const char * as_symbol() const;
 };
+
+std::string to_string( Expr * expr );
+
+std::string to_string_repr( Expr * expr );
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -234,8 +239,8 @@ inline Expr * make_lambda( Expr * params, Expr * body, Context * env )
 inline Expr * make_macro( Expr * params, Expr * body, Context * env )
 {
    Atom atom;
-   atom.type   = Atom::ATOM_MACRO;
-   atom.macro  = Macro{ params, body, env };
+   atom.type  = Atom::ATOM_MACRO;
+   atom.macro = Macro{ params, body, env };
    return make_expr( std::move( atom ) );
 }
 
@@ -249,6 +254,39 @@ inline Expr * make_list( Car car, Cdr... cdr )
 {
    return make_cons( car, make_list( cdr... ) );
 }
+
+class ListBuilder
+{
+ public:
+   ListBuilder()
+       : head( nullptr )
+       , tail( nullptr )
+   {
+   }
+
+   void append( Expr * data )
+   {
+      Expr * cons = make_cons( data, make_nil() );
+      if( head == nullptr )
+      {
+         head = tail = cons;
+      }
+      else
+      {
+         tail->cons.cdr = cons;
+         tail           = tail->cdr();
+      }
+   }
+
+   Expr * list()
+   {
+      return head;
+   }
+
+ private:
+   Expr * head;
+   Expr * tail;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 

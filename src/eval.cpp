@@ -66,7 +66,7 @@ Expr * Context::lookup( const char * symbol ) const
    }
    else
    {
-      return ( m_parent != nullptr ) ? ( m_parent->lookup( symbol ) ) : make_nil();
+      return ( m_parent != nullptr ) ? ( m_parent->lookup( symbol ) ) : make_error("undefined symbol");
    }
 }
 
@@ -152,10 +152,9 @@ void Context::load_runtime()
    define( KW_DEFINE, make_symbol( KW_DEFINE ) );
    define( KW_QUOTE, make_symbol( KW_QUOTE ) );
 
-   define( "display", make_native( builtin::f_display ) );
-   define( "print", make_native( builtin::f_display ) );
-   define( "displayln", make_native( builtin::f_displayln ) );
-   define( "println", make_native( builtin::f_displayln ) );
+   define( "str", make_native( builtin::f_str ) );
+   define( "print", make_native( builtin::f_print ) );
+   define( "println", make_native( builtin::f_println ) );
    define( "to-json", make_native( builtin::f_to_json ) );
 
    define( KW_CAR, make_native( builtin::f_car ) );
@@ -171,10 +170,15 @@ void Context::load_runtime()
    define( "read-file", make_native( builtin::f_read_file ) );
 
    define( "exit", make_native( builtin::f_exit ) );
+   define( "error", make_native( builtin::f_error ) );
 
    define( "null?", make_native( builtin::f_is_null ) );
    define( "number?", make_native( builtin::f_is_number ) );
    define( "string?", make_native( builtin::f_is_string ) );
+   define( "error?", make_native( builtin::f_is_error ) );
+
+   define( "map", make_native( builtin::f_map ) );
+   define( "filter", make_native( builtin::f_filter ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -188,14 +192,16 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
       case Atom::ATOM_BOOLEAN :
       case Atom::ATOM_NUMBER :
       case Atom::ATOM_STRING :
+
       case Atom::ATOM_ERROR :
+      case Atom::ATOM_LAMBDA :
+      case Atom::ATOM_NATIVE :
          return expr;
       case Atom::ATOM_SYMBOL :
          return context.lookup( expr->atom.symbol );
-      case Atom::ATOM_LAMBDA :
-      case Atom::ATOM_NATIVE :
       default :
-         return make_nil();
+        assert(false && "unreachable");
+        return make_nil();
    }
 }
 
@@ -240,7 +246,7 @@ void bind_params( Context * local, Expr * params, Expr * args )
    Expr *arg, *param;
    for( arg = args, param = params; param->is_cons() && arg->is_cons(); arg = arg->cdr(), param = param->cdr() )
    {
-      const char * symbol = param->car()->symbol();
+      const char * symbol = param->car()->as_symbol();
 
       if( symbol[0] == '&' )
       {
@@ -357,7 +363,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      Expr * symbol  = binding->car();
                      Expr * value   = binding->cdr()->car();
                      value          = eval( value, *local, io );
-                     local->define( symbol->symbol(), value );
+                     local->define( symbol->as_symbol(), value );
                   }
 
                   context = local;
@@ -390,6 +396,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                      if( fn->is_native() )
                      {
+                        assert( args->is_cons() );
                         return fn->atom.native( args, *context, io );
                      }
                      else if( fn->is_lambda() && !args->is_nil() )
