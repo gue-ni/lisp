@@ -329,6 +329,24 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   expr             = ( cond->is_truthy() ) ? then_expr : else_expr;
                   continue;
                }
+               else if( op->is_symbol( KW_PROGN ) )
+               {
+
+                  for( Expr * it = args; it->is_cons(); it = it->cdr() )
+                  {
+                     Expr * car = it->car();
+                     Expr * cdr = it->cdr();
+                     if( cdr->is_nil() )
+                     {
+                        expr = car;
+                     }
+                     else
+                     {
+                        ( void ) eval( car, *context, io );
+                     }
+                  }
+                  continue;
+               }
                else if( op->is_symbol( KW_MACRO ) )
                {
                   Expr * params = args->car();

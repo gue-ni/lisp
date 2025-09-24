@@ -15,6 +15,7 @@
 #define KW_MACRO "macro"
 #define KW_LAMBDA "lambda"
 #define KW_IF "if"
+#define KW_PROGN "progn"
 #define KW_QUOTE "quote"
 #define KW_QUASIQUOTE "quasiquote"
 #define KW_UNQUOTE "unquote"
