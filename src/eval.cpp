@@ -331,7 +331,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                }
                else if( op->is_symbol( KW_PROGN ) )
                {
-
                   for( Expr * it = args; it->is_cons(); it = it->cdr() )
                   {
                      Expr * car = it->car();
@@ -345,6 +344,23 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                         ( void ) eval( car, *context, io );
                      }
                   }
+                  continue;
+               }
+               else if( op->is_symbol( KW_LET ) )
+               {
+                  Expr * bindings = args->car();
+                  Expr * body     = args->cdr()->car();
+                  Context * local = gc::alloc<Context>( context );
+                  for( Expr * it = bindings; it->is_cons(); it = it->cdr() )
+                  {
+                     Expr * binding = it->car();
+                     Expr * car     = binding->car();
+                     Expr * cdr     = binding->cdr();
+                     local->define( car->symbol(), cdr->car() );
+                  }
+
+                  context = local;
+                  expr    = body;
                   continue;
                }
                else if( op->is_symbol( KW_MACRO ) )
