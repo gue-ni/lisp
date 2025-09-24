@@ -176,6 +176,7 @@ void Context::load_runtime()
    define( "string?", make_native( builtin::f_is_string ) );
 
    define( "map", make_native( builtin::f_map ) );
+   define( "filter", make_native( builtin::f_filter ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

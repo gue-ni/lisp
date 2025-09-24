@@ -842,3 +842,22 @@ TEST_F( LispTest, test_map_03 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "(1 4 9 16)" );
 }
+
+TEST_F( LispTest, test_filter_02 )
+{
+   std::string src = "(filter (lambda (n) (> n 2)) (list 1 2 3 4 5))";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(3 4 5)" );
+}
+
+TEST_F( LispTest, test_filter_03 )
+{
+   std::string src = "(filter number? (list 1 \"two\" 3 \"four\"))";
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 3)" );
+}

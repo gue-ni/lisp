@@ -428,10 +428,40 @@ Expr * f_length( Expr * args, Context & context, const IO & io )
    return make_number( length );
 }
 
+Expr * f_filter( Expr * arg, Context & context, const IO & io )
+{
+   Expr * fn = arg->car();
+   assert( fn->is_lambda() || fn->is_native() );
+
+   Expr *head = nullptr, *tail;
+
+   Expr * list = arg->cdr()->car();
+   for( Expr * it = list; it->is_cons(); it = it->cdr() )
+   {
+      Expr * el     = it->car();
+      Expr * result = eval( make_list( fn, el ), context, io );
+
+      if( result->is_truthy() )
+      {
+         Expr * result_cons = make_cons( el, make_nil() );
+         if( head == nullptr )
+         {
+            head = tail = result_cons;
+         }
+         else
+         {
+            tail->cons.cdr = result_cons;
+            tail           = tail->cdr();
+         }
+      }
+   }
+
+   return head;
+}
+
 Expr * f_map( Expr * arg, Context & context, const IO & io )
 {
    Expr * fn = arg->car();
-
    assert( fn->is_lambda() || fn->is_native() );
 
    Expr *head, *tail;
@@ -441,8 +471,7 @@ Expr * f_map( Expr * arg, Context & context, const IO & io )
    for( Expr * it = list; it->is_cons(); it = it->cdr() )
    {
       Expr * el          = it->car();
-      Expr * expr        = make_list( fn, el );
-      Expr * result      = eval( expr, context, io );
+      Expr * result      = eval( make_list( fn, el ), context, io );
       Expr * result_cons = make_cons( result, make_nil() );
 
       if( head == nullptr )
