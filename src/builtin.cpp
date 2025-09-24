@@ -315,6 +315,13 @@ Expr * f_is_string( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_is_error( Expr * arg, Context & context, const IO & io )
+{
+   return make_boolean( arg->car()->is_error() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_eval( Expr * arg, Context & context, const IO & io )
 {
    if( !arg->is_cons() )
@@ -377,6 +384,14 @@ Expr * f_exit( Expr * arg, Context & context, const IO & io )
    }
 
    return make_void();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_error( Expr * arg, Context & context, const IO & io )
+{
+   const char * message = arg->car()->atom.string;
+   return make_error( message );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -452,7 +467,7 @@ Expr * f_filter( Expr * arg, Context & context, const IO & io )
 
       if( result->is_truthy() )
       {
-        builder.append(el);
+         builder.append( el );
       }
    }
 

@@ -172,7 +172,7 @@ Expr * Expr::cdr()
    }
 }
 
-const char * Expr::symbol() const
+const char * Expr::as_symbol() const
 {
    if( is_symbol() )
    {

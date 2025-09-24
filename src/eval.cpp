@@ -170,10 +170,12 @@ void Context::load_runtime()
    define( "read-file", make_native( builtin::f_read_file ) );
 
    define( "exit", make_native( builtin::f_exit ) );
+   define( "error", make_native( builtin::f_error ) );
 
    define( "null?", make_native( builtin::f_is_null ) );
    define( "number?", make_native( builtin::f_is_number ) );
    define( "string?", make_native( builtin::f_is_string ) );
+   define( "error?", make_native( builtin::f_is_error ) );
 
    define( "map", make_native( builtin::f_map ) );
    define( "filter", make_native( builtin::f_filter ) );
@@ -244,7 +246,7 @@ void bind_params( Context * local, Expr * params, Expr * args )
    Expr *arg, *param;
    for( arg = args, param = params; param->is_cons() && arg->is_cons(); arg = arg->cdr(), param = param->cdr() )
    {
-      const char * symbol = param->car()->symbol();
+      const char * symbol = param->car()->as_symbol();
 
       if( symbol[0] == '&' )
       {
@@ -361,7 +363,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      Expr * symbol  = binding->car();
                      Expr * value   = binding->cdr()->car();
                      value          = eval( value, *local, io );
-                     local->define( symbol->symbol(), value );
+                     local->define( symbol->as_symbol(), value );
                   }
 
                   context = local;

@@ -141,10 +141,11 @@ struct Expr : public gc::Garbage
    Expr * car();
    Expr * cdr();
 
-   const char * string() const;
-   const char * error() const;
-   const char * symbol() const;
-   double number() const;
+   bool as_boolean() const;
+   double as_number() const;
+   const char * as_string() const;
+   const char * as_error() const;
+   const char * as_symbol() const;
 };
 
 std::string to_string( Expr * expr );
