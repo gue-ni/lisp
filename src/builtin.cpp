@@ -254,7 +254,6 @@ Expr * f_lt( Expr * arg, Context & context, const IO & io )
 
 Expr * f_le( Expr * arg, Context & context, const IO & io )
 {
-
    Expr * a = arg->car();
    Expr * b = arg->cdr()->car();
 
@@ -362,6 +361,8 @@ Expr * f_read_file( Expr * arg, Context & context, const IO & io )
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_exit( Expr * arg, Context & context, const IO & io )
 {
    context.exit = true;
@@ -378,10 +379,14 @@ Expr * f_exit( Expr * arg, Context & context, const IO & io )
    return make_void();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_list( Expr * arg, Context & context, const IO & io )
 {
    return arg;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_append( Expr * args, Context & context, const IO & io )
 {
@@ -403,6 +408,8 @@ Expr * f_append( Expr * args, Context & context, const IO & io )
 
    return arg1;
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_length( Expr * args, Context & context, const IO & io )
 {
@@ -428,6 +435,8 @@ Expr * f_length( Expr * args, Context & context, const IO & io )
    return make_number( length );
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_filter( Expr * arg, Context & context, const IO & io )
 {
    Expr * fn = arg->car();
@@ -449,6 +458,8 @@ Expr * f_filter( Expr * arg, Context & context, const IO & io )
 
    return builder.list();
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_map( Expr * arg, Context & context, const IO & io )
 {
