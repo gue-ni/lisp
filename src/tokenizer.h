@@ -21,8 +21,8 @@
 #define KW_QUASIQUOTE "quasiquote"
 #define KW_UNQUOTE "unquote"
 #define KW_UNQUOTE_SPLICE "unquote-splicing"
-#define KW_DEFINE_FUNCTION "defun"
-#define KW_DEFINE_MACRO "defmacro"
+#define KW_DEFUN "defun"
+#define KW_DEFMACRO "defmacro"
 
 namespace lisp
 {

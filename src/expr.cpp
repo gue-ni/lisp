@@ -304,7 +304,7 @@ bool Atom::is_truthy() const
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
       default :
-         assert( false );
+         assert( false && "" );
          return false;
    }
 }

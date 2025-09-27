@@ -100,7 +100,7 @@ Expr * Parser::parse_expr()
       case TokenType ::SYMBOL :
          {
             advance();
-            if( tkn.lexeme == KW_DEFINE_FUNCTION )
+            if( tkn.lexeme == KW_DEFUN )
             {
                Expr * fn_name = parse_expr();
                if( fn_name->is_error() )
@@ -120,7 +120,7 @@ Expr * Parser::parse_expr()
                return make_list(
                    make_symbol( KW_DEFINE ), fn_name, make_list( make_symbol( KW_LAMBDA ), fn_params, fn_body ) );
             }
-            else if( tkn.lexeme == KW_DEFINE_MACRO )
+            else if( tkn.lexeme == KW_DEFMACRO )
             {
                Expr * macro_name = parse_expr();
                if( macro_name->is_error() )
