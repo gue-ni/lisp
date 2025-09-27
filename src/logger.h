@@ -20,7 +20,6 @@ std::string to_string( LogLevel );
 
 class NullBuffer : public std::streambuf
 {
-
  protected:
    int overflow( int c ) override
    {
@@ -56,14 +55,7 @@ class Logger
 
    std::ostream & operator()( LogLevel level = LL_DEBUG )
    {
-      if( m_level <= level )
-      {
-         return m_logstream;
-      }
-      else
-      {
-         return m_nullstream;
-      }
+      return ( m_level <= level ) ? m_logstream : m_nullstream;
    }
 
  private:

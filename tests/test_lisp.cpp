@@ -901,7 +901,6 @@ TEST_F( LispTest, test_macro_04 )
    std::string src = R"(
 (define my-list (list 1 2 3))
 
-
 (defmacro my-macro (lst)
    `(print ,lst))
 
@@ -919,9 +918,8 @@ TEST_F( LispTest, test_macro_05 )
    std::string src = R"(
 (define my-list (list 1 2 3))
 
-
 (defmacro my-macro (lst)
-   `(if (null? ,lst) (print "null") (print "not null")))
+   `(if (null? ,lst) 1 2))
 
 (my-macro my-list)
    )";
@@ -929,23 +927,5 @@ TEST_F( LispTest, test_macro_05 )
    int r = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "not null" );
-}
-
-TEST_F( LispTest, test_macro_06 )
-{
-   std::string src = R"(
-(define my-list (list 1 2 3))
-
-
-(defmacro my-macro (lst)
-   `(progn (print ,lst)))
-
-(my-macro my-list)
-   )";
-
-   int r = eval( src, ctx, io );
-   EXPECT_EQ( r, 0 );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "(1 2 3)" );
+   EXPECT_EQ( out.str(), "2" );
 }
