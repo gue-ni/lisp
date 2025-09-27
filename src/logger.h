@@ -9,6 +9,7 @@ namespace lisp
 
 enum LogLevel : int
 {
+   LL_NONE,
    LL_DEBUG,
    LL_INFO,
    LL_WARNING,
@@ -17,48 +18,60 @@ enum LogLevel : int
 
 std::string to_string( LogLevel );
 
+class NullBuffer : public std::streambuf
+{
+
+ protected:
+   int overflow( int c ) override
+   {
+      return c;
+   }
+};
+
+class NullStream : public std::ostream
+{
+ public:
+   NullStream()
+       : std::ostream( &m_sb )
+   {
+   }
+
+ private:
+   NullBuffer m_sb;
+};
+
+class LogStream : public std::ostream
+{
+ public:
+};
+
 class Logger
 {
  public:
-   static const Logger & instance();
-
-   void log( LogLevel log_level, const std::string & message ) const;
-
-   void log_debug( const std::string & message ) const;
-
-   template <typename T>
-   Logger & operator<<( const T & value )
+   Logger( LogLevel level )
+       : m_level( level )
+       , m_logstream( std::cout )
    {
-      if( m_level <= m_message_level )
+   }
+
+   std::ostream & operator()( LogLevel level = LL_DEBUG )
+   {
+      if( m_level <= level )
       {
-         std::cerr << value;
+         return m_logstream;
       }
-      return *this;
-   }
-
-   Logger & operator<<( std::ostream & ( *manip )( std::ostream & ) )
-   {
-      if( m_level <= m_message_level )
+      else
       {
-         std::cout << manip;
+         return m_nullstream;
       }
-      return *this;
    }
-
-   Logger & operator()( LogLevel level = LL_DEBUG )
-   {
-      m_message_level = level;
-      return *this;
-   }
-
-   Logger( LogLevel );
 
  private:
    LogLevel m_level;
-   LogLevel m_message_level;
-   std::ostringstream m_buffer;
+   std::ostream & m_logstream;
+   NullStream m_nullstream;
 };
 
-extern Logger logger;
+extern Logger log;
 
 } // namespace lisp

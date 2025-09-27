@@ -279,17 +279,17 @@ Expr * expand( Expr * ast )
       Expr * car = ast->car();
       Expr * cdr = ast->cdr();
 
-      logger << __FUNCTION__ << std::endl;
-      logger << "CAR: " << car->to_json() << std::endl;
-      logger << "CDR: " << cdr->to_json() << std::endl;
+      log(LL_INFO) << __FUNCTION__ << std::endl;
+      log(LL_INFO) << "CAR: " << car->to_json() << std::endl;
+      log(LL_INFO) << "CDR: " << cdr->to_json() << std::endl;
 
       if( car->is_cons() && car->car()->is_symbol( KW_UNQUOTE ) )
       {
          Expr * sy       = make_symbol( KW_CONS );
          Expr * unquoted = car->cdr()->car();
-         logger << "UNQUOTED: " << unquoted->to_json() << std::endl;
+         log() << "UNQUOTED: " << unquoted->to_json() << std::endl;
          Expr * rest     = expand( cdr );
-         logger << "REST: " << rest->to_json() << std::endl;
+         log() << "REST: " << rest->to_json() << std::endl;
          return make_list( sy, unquoted, rest );
       }
 
@@ -297,17 +297,17 @@ Expr * expand( Expr * ast )
       {
          Expr * sy       = make_symbol( KW_APPEND );
          Expr * unquoted = car->cdr()->car();
-         logger << "UNQUOTED: " << unquoted->to_json() << std::endl;
+         log(LL_INFO) << "UNQUOTED: " << unquoted->to_json() << std::endl;
          Expr * rest     = expand( cdr );
-         logger << "REST: " << rest->to_json() << std::endl;
+         log() << "REST: " << rest->to_json() << std::endl;
          return make_list( sy, unquoted, rest );
       }
 
       Expr * sy   = make_symbol( KW_CONS );
       Expr * rest = expand( cdr );
-      logger << "REST: " << rest->to_json() << std::endl;
+      log() << "REST: " << rest->to_json() << std::endl;
       Expr * tmp = make_list(make_symbol("quote"), car);
-      logger << tmp->to_json() << std::endl;
+      log() << tmp->to_json() << std::endl;
       return make_list( sy, tmp, rest );
    }
    else if (ast->is_nil())
@@ -316,7 +316,7 @@ Expr * expand( Expr * ast )
    }
    else
    {
-      logger << ast->to_json() << std::endl;
+      log()<< ast->to_json() << std::endl;
       return make_list( make_symbol( KW_QUOTE ), ast );
    }
 }
@@ -332,7 +332,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
       {
          case Expr::EXPR_ATOM :
             {
-               logger << "ATOM: " << expr->to_json() << std::endl;
+               log() << "ATOM: " << expr->to_json() << std::endl;
                return eval_atom( expr, *context, io );
             }
          case Expr::EXPR_CONS :
@@ -340,8 +340,8 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                Expr * op   = expr->car();
                Expr * args = expr->cdr();
 
-               logger << "OP  : " << op->to_json() << std::endl;
-               logger << "ARG : " << args->to_json() << std::endl;
+               log() << "OP  : " << op->to_json() << std::endl;
+               log() << "ARG : " << args->to_json() << std::endl;
 
                if( op->is_symbol( KW_QUOTE ) )
                {
@@ -356,9 +356,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                {
                   Expr * a = args->car();
                   expr = expand( a );
-                  logger << KW_QUASIQUOTE << std::endl;
-                  logger << expr->to_json() << std::endl;
-                  //return expr;
+                  log() << KW_QUASIQUOTE << expr->to_json() << std::endl;
                   continue;
                }
                else if( op->is_symbol( KW_DEFINE ) )
@@ -426,7 +424,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                else
                {
                   Expr * fn = eval( op, *context, io );
-                  logger << "FN: " << fn->to_json() << std::endl;
+                  log() << "FN: " << fn->to_json() << std::endl;
                   if( fn->is_macro() )
                   {
                      Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
@@ -435,18 +433,17 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      expr    = fn->atom.macro.body->car();
                      context = new_env;
 
-                     logger(LL_ERROR) << "before expansion: " << std::endl << expr->to_json() << std::endl;
+                     log() << "before expansion: "  << expr->to_json() << std::endl;
 
                      expr = eval( expr, *context, io );
 
-                     logger << "after expansion: " << std::endl;
-                     logger << expr->to_json() << std::endl;
+                     log() << "after expansion: " << expr->to_json() << std::endl;
                      continue;
                   }
                   else
                   {
                      args = eval_list( args, *context, io );
-                     logger << "ARGS: " << args->to_json() << std::endl;
+                     log() << "ARGS: " << args->to_json() << std::endl;
 
                      if( fn->is_native() )
                      {

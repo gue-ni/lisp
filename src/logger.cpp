@@ -24,30 +24,6 @@ std::string to_string( LogLevel level )
    }
 }
 
-Logger::Logger( LogLevel level )
-    : m_level( level )
-{
-}
-
-const Logger & Logger::instance()
-{
-   static Logger logger( LL_DEBUG );
-   return logger;
-}
-
-void Logger::log( LogLevel log_level, const std::string & message ) const
-{
-   if( m_level <= log_level )
-   {
-      std::cerr << to_string( log_level ) << " " << message << std::endl;
-   }
-}
-
-void Logger::log_debug( const std::string & message ) const
-{
-   log( LL_DEBUG, message );
-}
-
-Logger logger = Logger(LL_INFO);
+Logger log = Logger( LL_INFO );
 
 } // namespace lisp
