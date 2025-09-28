@@ -423,7 +423,7 @@ TEST_F( LispTest, test_stdlib_02 )
 TEST_F( LispTest, test_lambda_05 )
 {
    std::string src = R"(
-(define (make-adder a)
+(defun make-adder (a)
   (lambda (b) (+ a b)))
 
 (define add5 (make-adder 5))
@@ -458,7 +458,7 @@ TEST_F( LispTest, test_lambda_06 )
 TEST_F( LispTest, test_recursion_01 )
 {
    std::string src = R"(
-(define (factorial n)
+(defun factorial (n)
     (if (= n 0)
         1
         (* n (factorial (- n 1)))))
@@ -475,7 +475,7 @@ TEST_F( LispTest, test_recursion_01 )
 TEST_F( LispTest, test_recursion_02 )
 {
    std::string src = R"(
-(define (fib n)
+(defun fib (n)
     (if (< n 2)
         n
         (+ (fib (- n 1))
@@ -493,7 +493,7 @@ TEST_F( LispTest, test_recursion_02 )
 TEST_F( LispTest, test_define_02 )
 {
    std::string src = R"(
-    (define (add x y)
+    (defun add (x y)
       (+ x y))
 
     (add 5 4)
@@ -508,7 +508,7 @@ TEST_F( LispTest, test_define_02 )
 TEST_F( LispTest, test_map_01 )
 {
    std::string src = R"(
-(define (my-map fn lst)
+(defun my-map (fn lst)
   (if (null? lst)
     '()
     (cons
@@ -527,7 +527,7 @@ TEST_F( LispTest, test_map_01 )
 TEST_F( LispTest, test_filter_01 )
 {
    std::string src = R"(
-(define (my-filter pred lst)
+(defun my-filter (pred lst)
   (if (null? lst)
     '()
     (if (pred (car lst))
@@ -546,7 +546,7 @@ TEST_F( LispTest, test_filter_01 )
 TEST_F( LispTest, test_reduce_01 )
 {
    std::string src = R"(
-(define (my-reduce f init lst)
+(defun my-reduce (f init lst)
   (if (null? lst)
       init
       (my-reduce f (f init (car lst)) (cdr lst))))
@@ -563,7 +563,7 @@ TEST_F( LispTest, test_reduce_01 )
 TEST_F( LispTest, test_range_01 )
 {
    std::string src = R"(
-(define (my-range start end)
+(defun my-range (start end)
   (if (>= start end)
       '()
       (cons start (my-range (+ start 1) end))))
