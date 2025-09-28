@@ -601,32 +601,55 @@ void print_repl_header()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool prompt_windows(std::string& line, const char* prompt)
+{
+   std::cout << prompt;
+   if( !std::getline( std::cin, line ) )
+      return false;
+
+   return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef __linux__
+
+bool prompt_linux(std::string& line, const char* prompt)
+{
+   char* input;
+   if ((input = readline(prompt)) == NULL)
+      return false;
+
+   if (*input)
+      add_history(input);
+
+   line = std::string(input);
+   free(input);
+   return true;
+}
+
+#define read_input prompt_linux
+
+#else
+#define read_input prompt_windows
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
 int repl()
 {
    IO io( std::cout, std::cerr );
    Context ctx;
    int res                  = 0;
+   const char* prompt       = "> ";
 
    print_repl_header();
 
    do
    {
-#ifdef __linux__
-      char* input;
-      if ((input = readline("> ")) == NULL)
-         break;
-
-      if (*input)
-         add_history(input);
-
-      std::string line(input);
-      free(input);
-#else
-      std::cout << "> ";
       std::string line;
-      if( !std::getline( std::cin, line ) )
+      if (!read_input(line, prompt))
          break;
-#endif
 
       if( line.empty() )
          continue;
