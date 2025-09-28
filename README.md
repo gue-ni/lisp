@@ -1,12 +1,11 @@
-# Lisp
+# Lisp Interpreter
 
 Lisp is one of the oldest high-level programming languages, dating back to the
 late 1950s. It is characterized by it's use of parenthesis, prefix notation
 and S-expressions, which represent both code and data. While Lisp has fallen
 somewhat out of favour these days, it has inspired many languages
 
-This is a small, educational Lisp interpreter to explore the power and elegance
-of Lisp.
+This is a small Lisp interpreter written for educational purposes.
 
 ## Features
 
@@ -14,8 +13,6 @@ of Lisp.
 -   Arithmetic, conditionals and list manipulation
 -   Functions and lambdas
 -   Simple macros
-
-## Example
 
 ```lisp
 ; recursive functions
@@ -28,7 +25,7 @@ of Lisp.
 ```
 
 ```lisp
-; a clojure
+; clojures
 (defun make-adder (a)
   (lambda (b) (+ a b)))
 
@@ -72,9 +69,7 @@ These are some of the keywords and special forms of my Lisp:
 
 ### `quote`
 
-Prevent evaluation of an expression, returning it literally
-
-**Example**
+Prevent evaluation of an expression, returning it literally.
 
 ```lisp
 (quote (1 2 3)) ; => (1 2 3)
@@ -87,8 +82,6 @@ Prevent evaluation of an expression, returning it literally
 
 Create a list of elements.
 
-**Example:**
-
 ```lisp
 (list 1 2 3)
 ; =>  (1 2 3)
@@ -97,7 +90,6 @@ Create a list of elements.
 ### `let`
 
 Binds variables locally.
-**Example:**
 
 ```lisp
 (let ((x 2) (y 3))
@@ -108,8 +100,6 @@ Binds variables locally.
 ### `progn`
 
 Evaluates multiple expressions in order, return result of the last.
-
-**Example:**
 
 ```lisp
 (prog
@@ -123,8 +113,6 @@ Evaluates multiple expressions in order, return result of the last.
 
 Conditional evaluation.
 
-**Example:**
-
 ```lisp
 (if (= 2 3)
     "equal"
@@ -136,8 +124,6 @@ Conditional evaluation.
 
 Define a variable.
 
-**Example:**
-
 ```lisp
 (define my-var 42)
 (println my-var)
@@ -148,8 +134,6 @@ Define a variable.
 
 Create an anonymous function.
 
-**Example:**
-
 ```lisp
 (lambda (x) (* x x))
 ```
@@ -158,12 +142,12 @@ Create an anonymous function.
 
 Define a named function.
 
-**Example:**
-
 ```lisp
 (defun add (a b)
     (+ a b))
 ```
+
+### Builtin Functions
 
 | Keyword                       | Purpose               | Example                   |
 | ----------------------------- | --------------------- | ------------------------- |
@@ -173,12 +157,11 @@ Define a named function.
 | `car`                         |                       |                           |
 | `cdr`                         |                       |                           |
 | `cons`                        |                       |                           |
-| `cons`                        |                       |                           |
 | `append`                      |                       |                           |
 | `map`                         |                       |                           |
 | `filter`                      |                       |                           |
 | `length`                      |                       |                           |
 | `read`                        |                       |                           |
 | `eval`                        |                       |                           |
-| `null?`, `number?`, `string?` | Check for type        |                           |
+| `null?`, `number?`, `string?` | Check for type        | `(string? "hello")`       |
 | `load`                        | Import file           | `(load "my-module.lisp")` |
