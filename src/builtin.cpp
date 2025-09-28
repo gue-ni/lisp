@@ -496,6 +496,21 @@ Expr * f_map( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_load( Expr * arg, Context & context, const IO & io )
+{
+   Expr * r = f_read_file( arg, context, io );
+   if( r->is_error() )
+      return r;
+
+   r = f_read( make_list( r, make_nil() ), context, io );
+   if( r->is_error() )
+      return r;
+
+   return f_eval( make_list( r, make_nil() ), context, io );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 } // namespace builtin
 
 } // namespace lisp

@@ -191,6 +191,7 @@ void Context::load_runtime()
 
    define( "map", make_native( builtin::f_map ) );
    define( "filter", make_native( builtin::f_filter ) );
+   define( "load", make_native( builtin::f_load ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
