@@ -31,3 +31,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ./tests/tests --gtest_print_time
 
+    - name: Run Lisp scripts
+      run: |
+        for file in ${{ github.workspace }}/tests/examples/*.lisp; do
+          echo "Executing $file"
+          ${{ github.workspace }}/build/src/lisp $file
+        done
+
