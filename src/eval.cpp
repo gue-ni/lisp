@@ -562,7 +562,7 @@ void print_repl_header()
 {
    std::cout << "Welcome to my LISP Interpreter!" << std::endl;
    std::cout << "Compiled on " << __DATE__ << " at " << __TIME__ << "." << std::endl;
-   std::cout << "Copyright (C) 2025 Jakob Maier - All rights reserved." << std::endl;
+   std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
    std::cout << std::endl;
    std::cout << "Type (exit) to quit." << std::endl;
    std::cout << std::endl;
@@ -589,17 +589,23 @@ int repl()
          break;
       }
 
+      if( line.empty() )
+      {
+         continue;
+      }
+
       if( line == DBG_CMD )
       {
          Flags debug_flags = ( FLAG_DUMP_TOKENS | FLAG_DUMP_AST | FLAG_DUMP_ENV );
          flags ^= debug_flags;
          std::cout << "toggle-debug-mode" << std::endl;
+         continue;
       }
-      else
-      {
-         res = eval( line, ctx, io, flags );
-      }
+
+      res = eval( line, ctx, io, flags );
+
    } while( ( res == 0 ) && ( !ctx.exit ) );
+
    return ( ctx.exit_code == 0 ) ? res : ctx.exit_code;
 }
 
