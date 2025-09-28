@@ -1,6 +1,7 @@
 #include "eval.h"
 #include "lisp.h"
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
