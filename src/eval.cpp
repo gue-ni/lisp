@@ -13,6 +13,11 @@
 #include <string>
 #include <vector>
 
+#ifdef __linux__
+#include <readline/history.h>
+#include <readline/readline.h>
+#endif
+
 namespace lisp
 {
 
@@ -596,21 +601,51 @@ void print_repl_header()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool read_line( std::string & line, const char * prompt )
+{
+   std::cout << prompt;
+   if( !std::getline( std::cin, line ) )
+      return false;
+
+   return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef __linux__
+
+bool read_line_linux( std::string & line, const char * prompt )
+{
+   char * input;
+   if( ( input = readline( prompt ) ) == NULL )
+      return false;
+
+   if( *input )
+      add_history( input );
+
+   line = std::string( input );
+   free( input );
+   return true;
+}
+
+#define read_line read_line_linux
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
 int repl()
 {
    IO io( std::cout, std::cerr );
    Context ctx;
-   int res                  = 0;
-   const std::string prompt = "> ";
+   int res             = 0;
+   const char * prompt = "> ";
 
    print_repl_header();
 
    do
    {
-      std::cout << prompt;
-
       std::string line;
-      if( !std::getline( std::cin, line ) )
+      if( !read_line( line, prompt ) )
          break;
 
       if( line.empty() )

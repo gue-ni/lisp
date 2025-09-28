@@ -6,6 +6,12 @@ option(ENABLE_LISP_ASAN "Enable AddressSanitizer for lisp" OFF)
 
 add_library(lisp_lib STATIC ${SRC_FILES} ${INC_FILES})
 
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  message(STATUS "Building on Linux, linking with Readline")
+  target_link_libraries(lisp_lib PUBLIC readline tinfo)
+endif()
+
 target_include_directories(lisp_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
