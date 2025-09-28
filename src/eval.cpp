@@ -452,7 +452,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                      if( fn->is_native() )
                      {
-                        assert( args->is_cons() );
                         return fn->atom.native( args, *context, io );
                      }
                      else if( fn->is_lambda() && !args->is_nil() )
@@ -559,17 +558,32 @@ const std::string DBG_CMD = "dbg";
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void print_repl_header()
+{
+   std::cout << "Welcome to my LISP Interpreter!" << std::endl;
+   std::cout << "Compiled on " << __DATE__ << " at " << __TIME__ << "." << std::endl;
+   std::cout << "Copyright (C) 2025 Jakob Maier - All rights reserved." << std::endl;
+   std::cout << std::endl;
+   std::cout << "Type (exit) to quit." << std::endl;
+   std::cout << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 int repl()
 {
    IO io( std::cout, std::cerr );
    Context ctx;
    std::string line;
-   int res     = 0;
-   Flags flags = FLAG_NEWLINE;
+   int res                  = 0;
+   Flags flags              = FLAG_NEWLINE;
+   const std::string prompt = "> ";
+
+   print_repl_header();
 
    do
    {
-      std::cout << "> ";
+      std::cout << prompt;
       if( !std::getline( std::cin, line ) )
       {
          break;
@@ -585,7 +599,6 @@ int repl()
       {
          res = eval( line, ctx, io, flags );
       }
-
    } while( ( res == 0 ) && ( !ctx.exit ) );
    return ( ctx.exit_code == 0 ) ? res : ctx.exit_code;
 }
