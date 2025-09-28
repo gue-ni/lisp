@@ -65,9 +65,9 @@ arguments.
 For example, `(+ 2 3 (* 4 5))` is equal to `2 + 3 + 4 * 5` and `(fn 1 2)`
 is equal to something like `fn(1, 2)` in a language like python.
 
-These are some of the keywords and special forms of my Lisp:
+### Special Forms
 
-### `quote`
+#### `quote`
 
 Prevent evaluation of an expression, returning it literally.
 
@@ -78,7 +78,7 @@ Prevent evaluation of an expression, returning it literally.
 '(1 2 3) ; => (1 2 3)
 ```
 
-### `list`
+#### `list`
 
 Create a list of elements.
 
@@ -87,7 +87,7 @@ Create a list of elements.
 ; =>  (1 2 3)
 ```
 
-### `let`
+#### `let`
 
 Binds variables locally.
 
@@ -97,7 +97,7 @@ Binds variables locally.
 ; => 5
 ```
 
-### `progn`
+#### `progn`
 
 Evaluates multiple expressions in order, return result of the last.
 
@@ -109,7 +109,7 @@ Evaluates multiple expressions in order, return result of the last.
 ; => Hello World 5
 ```
 
-### `if`
+#### `if`
 
 Conditional evaluation.
 
@@ -120,7 +120,7 @@ Conditional evaluation.
 ; => "not equal"
 ```
 
-### `define`
+#### `define`
 
 Define a variable.
 
@@ -130,7 +130,7 @@ Define a variable.
 ; => 42
 ```
 
-### `lambda`
+#### `lambda`
 
 Create an anonymous function.
 
@@ -138,7 +138,7 @@ Create an anonymous function.
 (lambda (x) (* x x))
 ```
 
-### `defun`
+#### `defun`
 
 Define a named function.
 
