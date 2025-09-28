@@ -1,11 +1,10 @@
 
-set(SRC_FILES "eval.cpp" "builtin.cpp" "expr.cpp" "parser.cpp" "tokenizer.cpp" "gc.cpp" "logger.cpp")
-set(INC_FILES "eval.h" "builtin.h" "expr.h" "parser.h" "tokenizer.h" "lisp.h" "gc.h" "logger.h")
+set(SRC_FILES "eval.cpp" "builtin.cpp" "expr.cpp" "parser.cpp" "tokenizer.cpp" "gc.cpp" "logger.cpp" "ff.cpp")
+set(INC_FILES "eval.h" "builtin.h" "expr.h" "parser.h" "tokenizer.h" "lisp.h" "gc.h" "logger.h" "ff.h")
 
 option(ENABLE_LISP_ASAN "Enable AddressSanitizer for lisp" OFF)
 
 add_library(lisp_lib STATIC ${SRC_FILES} ${INC_FILES})
-
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(STATUS "Building on Linux, linking with Readline")
@@ -24,7 +23,7 @@ target_link_libraries(lisp lisp_lib)
 if (ENABLE_LISP_ASAN AND UNIX AND NOT APPLE)
   message(STATUS "Building lisp with AddressSanitizer")
 
-   target_compile_options(lisp_lib PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
+  target_compile_options(lisp_lib PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
   target_link_options(lisp_lib PRIVATE -fsanitize=address)
 
   target_compile_options(lisp PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
