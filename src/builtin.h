@@ -81,12 +81,6 @@ Expr * f_filter( Expr * arg, Context & context, const IO & io );
 
 Expr * f_map( Expr * arg, Context & context, const IO & io );
 
-Expr * f_reduce( Expr * arg, Context & context, const IO & io );
-
-Expr * f_every( Expr * arg, Context & context, const IO & io );
-
-Expr * f_some( Expr * arg, Context & context, const IO & io );
-
 Expr * f_load( Expr * arg, Context & context, const IO & io );
 
 } // namespace builtin
