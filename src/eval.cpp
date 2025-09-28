@@ -303,19 +303,22 @@ Expr * expand( Expr * ast )
          return make_list( sy, unquoted, rest );
       }
 
-      Expr * sy   = make_symbol( KW_CONS );
+      Expr * sy    = make_symbol( KW_CONS );
+      Expr * first = expand( car );
+      log() << "FIRST:" << first->to_json() << std::endl;
+
       Expr * rest = expand( cdr );
       log() << "REST: " << rest->to_json() << std::endl;
-      Expr * tmp = make_list( make_symbol( "quote" ), car );
-      log() << tmp->to_json() << std::endl;
-      return make_list( sy, tmp, rest );
+      return make_list( sy, first, rest );
    }
    else if( ast->is_nil() )
    {
+      // if ast is nil, return nil
       return make_nil();
    }
    else
    {
+      // if ast is atom, return quoted atom
       log() << ast->to_json() << std::endl;
       return make_list( make_symbol( KW_QUOTE ), ast );
    }
