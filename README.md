@@ -154,8 +154,7 @@ Define a named function.
 | `+`, `-`, `*`, `/`            | Arithemtic operations | `(* 2 3)`                 |
 | `=`, `<`, `>`, `<=`, `>=`     | Logic operations      |                           |
 | `print` , `println`           |                       |                           |
-| `car`                         |                       |                           |
-| `cdr`                         |                       |                           |
+| `car`, `cdr`                  |                       |                           |
 | `cons`                        |                       |                           |
 | `append`                      |                       |                           |
 | `map`                         |                       |                           |
@@ -165,3 +164,4 @@ Define a named function.
 | `eval`                        |                       |                           |
 | `null?`, `number?`, `string?` | Check for type        | `(string? "hello")`       |
 | `load`                        | Import file           | `(load "my-module.lisp")` |
+| `str`                         |                       |                           |
