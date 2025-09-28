@@ -561,7 +561,16 @@ const std::string DBG_CMD = "dbg";
 void print_repl_header()
 {
    std::cout << "Welcome to my LISP Interpreter!" << std::endl;
-   std::cout << "Compiled on " << __DATE__ << " at " << __TIME__ << "." << std::endl;
+   std::cout << "Compiled on " << __DATE__ << " at " << __TIME__ << " with ";
+#if defined( __GNUC__ )
+   std::cout << "GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__ << std::endl;
+#elif defined( __clang__ )
+   std::cout << "Clang" << std::endl;
+#elif defined( _MSC_VER )
+   std::cout << "MSVC " << _MSC_VER << std::endl;
+#else
+   std::cout << "(Unknown Compiler)" << std::endl;
+#endif
    std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
    std::cout << std::endl;
    std::cout << "Type (exit) to quit." << std::endl;
@@ -574,9 +583,7 @@ int repl()
 {
    IO io( std::cout, std::cerr );
    Context ctx;
-   std::string line;
    int res                  = 0;
-   Flags flags              = FLAG_NEWLINE;
    const std::string prompt = "> ";
 
    print_repl_header();
@@ -585,21 +592,14 @@ int repl()
    {
       std::cout << prompt;
 
+      std::string line;
       if( !std::getline( std::cin, line ) )
          break;
 
       if( line.empty() )
          continue;
 
-      if( line == DBG_CMD )
-      {
-         Flags debug_flags = ( FLAG_DUMP_TOKENS | FLAG_DUMP_AST | FLAG_DUMP_ENV );
-         flags ^= debug_flags;
-         std::cout << "toggle-debug-mode" << std::endl;
-         continue;
-      }
-
-      res = eval( line, ctx, io, flags );
+      res = eval( line, ctx, io, FLAG_NEWLINE );
 
    } while( ( res == 0 ) && ( !ctx.exit ) );
 
