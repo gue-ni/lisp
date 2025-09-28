@@ -584,15 +584,12 @@ int repl()
    do
    {
       std::cout << prompt;
+
       if( !std::getline( std::cin, line ) )
-      {
          break;
-      }
 
       if( line.empty() )
-      {
          continue;
-      }
 
       if( line == DBG_CMD )
       {
