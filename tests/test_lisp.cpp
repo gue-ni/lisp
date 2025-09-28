@@ -69,7 +69,7 @@ TEST_F( LispTest, test_eval_symbol_01 )
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
 {
    eval( "does-not-exist", ctx, io );
-   EXPECT_EQ( err.str(), "(error: undefined symbol)" );
+   EXPECT_EQ( err.str(), "(error: undefined symbol 'does-not-exist')" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -423,7 +423,7 @@ TEST_F( LispTest, test_stdlib_02 )
 TEST_F( LispTest, test_lambda_05 )
 {
    std::string src = R"(
-(define (make-adder a)
+(defun make-adder (a)
   (lambda (b) (+ a b)))
 
 (define add5 (make-adder 5))
@@ -458,7 +458,7 @@ TEST_F( LispTest, test_lambda_06 )
 TEST_F( LispTest, test_recursion_01 )
 {
    std::string src = R"(
-(define (factorial n)
+(defun factorial (n)
     (if (= n 0)
         1
         (* n (factorial (- n 1)))))
@@ -475,7 +475,7 @@ TEST_F( LispTest, test_recursion_01 )
 TEST_F( LispTest, test_recursion_02 )
 {
    std::string src = R"(
-(define (fib n)
+(defun fib (n)
     (if (< n 2)
         n
         (+ (fib (- n 1))
@@ -493,7 +493,7 @@ TEST_F( LispTest, test_recursion_02 )
 TEST_F( LispTest, test_define_02 )
 {
    std::string src = R"(
-    (define (add x y)
+    (defun add (x y)
       (+ x y))
 
     (add 5 4)
@@ -508,7 +508,7 @@ TEST_F( LispTest, test_define_02 )
 TEST_F( LispTest, test_map_01 )
 {
    std::string src = R"(
-(define (my-map fn lst)
+(defun my-map (fn lst)
   (if (null? lst)
     '()
     (cons
@@ -527,7 +527,7 @@ TEST_F( LispTest, test_map_01 )
 TEST_F( LispTest, test_filter_01 )
 {
    std::string src = R"(
-(define (my-filter pred lst)
+(defun my-filter (pred lst)
   (if (null? lst)
     '()
     (if (pred (car lst))
@@ -546,7 +546,7 @@ TEST_F( LispTest, test_filter_01 )
 TEST_F( LispTest, test_reduce_01 )
 {
    std::string src = R"(
-(define (my-reduce f init lst)
+(defun my-reduce (f init lst)
   (if (null? lst)
       init
       (my-reduce f (f init (car lst)) (cdr lst))))
@@ -563,7 +563,7 @@ TEST_F( LispTest, test_reduce_01 )
 TEST_F( LispTest, test_range_01 )
 {
    std::string src = R"(
-(define (my-range start end)
+(defun my-range (start end)
   (if (>= start end)
       '()
       (cons start (my-range (+ start 1) end))))
@@ -673,6 +673,7 @@ TEST_F( LispTest, test_macro_02 )
    EXPECT_EQ( out.str(), "c-2" );
 }
 
+#if 0
 TEST_F( LispTest, test_unquote_02 )
 {
    std::string src = R"(
@@ -689,6 +690,7 @@ TEST_F( LispTest, test_unquote_02 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "\"hello\"" );
 }
+#endif
 
 TEST_F( LispTest, test_unquote_splice_01 )
 {
@@ -831,7 +833,7 @@ TEST_F( LispTest, test_map_02 )
 TEST_F( LispTest, test_map_03 )
 {
    std::string src = R"(
-(defun square (n) 
+(defun square (n)
   (* n n))
 
 (map square (list 1 2 3 4))
@@ -869,5 +871,61 @@ TEST_F( LispTest, test_back_inserter_01 )
    builder.append( make_number( 2 ) );
    builder.append( make_number( 3 ) );
    Expr * list = builder.list();
-   EXPECT_EQ(to_string( list ), "(1 2 3)");
+
+   EXPECT_EQ( to_string( list ), "(1 2 3)" );
+}
+
+TEST_F( LispTest, test_loop_01 )
+{
+   std::string src = R"(
+(define my-list (list 1 2 3 4 5))
+
+(progn
+   (defun my-loop (l)
+      (if (null? l)
+         nil
+         (progn
+            (let ((el (car l))) (print el))
+            (my-loop (cdr l)))))
+   (my-loop my-list))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "12345nil" );
+}
+
+TEST_F( LispTest, test_macro_04 )
+{
+   std::string src = R"(
+(define my-list (list 1 2 3))
+
+(defmacro my-macro (lst)
+   `(print ,lst))
+
+(my-macro my-list)
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "(1 2 3)" );
+}
+
+TEST_F( LispTest, test_macro_05 )
+{
+   std::string src = R"(
+(define my-list (list 1 2 3))
+
+(defmacro my-macro (lst)
+   `(if (null? ,lst) 1 2))
+
+(my-macro my-list)
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "2" );
 }

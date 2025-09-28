@@ -21,8 +21,8 @@
 #define KW_QUASIQUOTE "quasiquote"
 #define KW_UNQUOTE "unquote"
 #define KW_UNQUOTE_SPLICE "unquote-splicing"
-#define KW_DEFINE_FUNCTION "defun"
-#define KW_DEFINE_MACRO "defmacro"
+#define KW_DEFUN "defun"
+#define KW_DEFMACRO "defmacro"
 
 namespace lisp
 {
@@ -37,8 +37,6 @@ enum TokenType
    UNQUOTE,
    UNQUOTE_SPLICING,
    NUMBER,
-   LAMBDA,
-   DEFINE,
    SYMBOL,
    STRING,
    TRUE,
@@ -67,6 +65,11 @@ struct Token
        : type( tt )
        , lexeme( lex )
    {
+   }
+
+   bool is_symbol( const std::string symbol ) const
+   {
+      return ( type == TokenType::SYMBOL ) && ( lexeme == symbol );
    }
 };
 

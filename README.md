@@ -30,7 +30,7 @@ data. The expression `(+ 2 3)` thus looks like this in the internal representati
 ## Example
 
 ```lisp
-(define (fib n)
+(defun fib (n)
     (if (< n 2)
         n
         (+ (fib (- n 1))
