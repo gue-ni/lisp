@@ -54,10 +54,28 @@ char Tokenizer::peek_next()
 
 void Tokenizer::skip_whitespace()
 {
-   // TODO: skip comments
-   while( !is_finished() && isspace( peek() ) )
+   while( !is_finished() )
    {
-      ( void ) next();
+      if( isspace( peek() ) )
+      {
+         ( void ) next();
+      }
+      else if( peek() == ';' )
+      {
+         auto end = std::find( m_current, m_source.cend(), '\n' );
+         if( end == m_source.cend() )
+         {
+            m_current = m_source.cend();
+         }
+         else
+         {
+            m_current = end + 1;
+         }
+      }
+      else
+      {
+         break;
+      }
    }
 }
 

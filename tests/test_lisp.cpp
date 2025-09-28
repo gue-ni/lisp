@@ -929,3 +929,25 @@ TEST_F( LispTest, test_macro_05 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "2" );
 }
+
+TEST_F( LispTest, test_comment_01 )
+{
+   std::string src = R"(
+    ; some comment
+    (+ 2 3)
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5" );
+}
+
+TEST_F( LispTest, test_comment_02 )
+{
+   std::string src = "(+ 2 3) ; inline comment";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5" );
+}
