@@ -296,7 +296,6 @@ bool Atom::is_truthy() const
          return boolean;
       case lisp::Atom::ATOM_NUMBER :
          return number != 0;
-
       case lisp::Atom::ATOM_ERROR :
          return false;
       case lisp::Atom::ATOM_SYMBOL :
@@ -327,7 +326,7 @@ std::string Atom::to_json() const
          return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
                 + " } }";
       case Atom::ATOM_MACRO :
-         return "{ \"macro\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
+         return "{ \"macro\": { \"params\": " + macro.params->to_json() + ", \"body\": " + macro.body->to_json()
                 + " } }";
       case Atom::ATOM_NATIVE :
          return "\"native()\"";
@@ -535,7 +534,7 @@ std::string to_string( Expr * expr )
             str += ")";
             return str;
          }
-      case Expr ::EXPR_VOID :
+      default :
          return "";
    }
 }
