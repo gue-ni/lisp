@@ -100,7 +100,7 @@ Expr * Parser::parse_expr()
       case TokenType ::SYMBOL :
          {
             advance();
-            if( tkn.lexeme == KW_DEFUN )
+            if( tkn.is_symbol( KW_DEFUN ) )
             {
                Expr * fn_name = parse_expr();
                if( fn_name->is_error() )
@@ -120,7 +120,7 @@ Expr * Parser::parse_expr()
                return make_list(
                    make_symbol( KW_DEFINE ), fn_name, make_list( make_symbol( KW_LAMBDA ), fn_params, fn_body ) );
             }
-            else if( tkn.lexeme == KW_DEFMACRO )
+            else if( tkn.is_symbol( KW_DEFMACRO ) )
             {
                Expr * macro_name = parse_expr();
                if( macro_name->is_error() )
@@ -141,6 +141,18 @@ Expr * Parser::parse_expr()
                    make_symbol( KW_DEFINE ), macro_name,
                    make_list( make_symbol( KW_MACRO ), macro_params, macro_body ) );
             }
+            else if( tkn.is_symbol( KW_DEFINE ) )
+            {
+               Expr * symbol = parse_expr();
+               if( symbol->is_error() )
+                  return symbol;
+
+               Expr * value = parse_expr();
+               if( value->is_error() )
+                  return value;
+
+               return make_list( make_symbol( KW_DEFINE ), symbol, value );
+            }
             else
             {
                return make_symbol( tkn.lexeme.c_str() );
@@ -160,42 +172,6 @@ Expr * Parser::parse_expr()
             return make_list( quote, quoted );
          }
 
-      case TokenType ::DEFINE :
-         {
-            advance();
-            Expr * keyword = make_symbol( KW_DEFINE );
-            if( peek().type == TokenType::LPAREN )
-            {
-               m_parenthesis_depth++;
-               advance();
-
-               Expr * tmp = parse_list();
-               if( tmp->is_error() )
-                  return tmp;
-
-               Expr * fn_name   = tmp->cons.car;
-               Expr * fn_params = tmp->cons.cdr;
-
-               Expr * fn_body = parse_expr();
-               if( fn_body->is_error() )
-                  return fn_body;
-
-               Expr * fn = make_list( make_symbol( KW_LAMBDA ), fn_params, fn_body );
-               return make_list( keyword, fn_name, fn );
-            }
-            else
-            {
-               Expr * symbol = parse_expr();
-               if( symbol->is_error() )
-                  return symbol;
-
-               Expr * value = parse_expr();
-               if( value->is_error() )
-                  return value;
-
-               return make_list( keyword, symbol, value );
-            }
-         }
       case TokenType ::LAMBDA :
          {
             advance();

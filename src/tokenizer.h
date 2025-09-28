@@ -38,7 +38,6 @@ enum TokenType
    UNQUOTE_SPLICING,
    NUMBER,
    LAMBDA,
-   DEFINE,
    SYMBOL,
    STRING,
    TRUE,
@@ -67,6 +66,11 @@ struct Token
        : type( tt )
        , lexeme( lex )
    {
+   }
+
+   bool is_symbol( const std::string symbol ) const
+   {
+      return ( type == TokenType::SYMBOL ) && ( lexeme == symbol );
    }
 };
 
