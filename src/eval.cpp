@@ -352,6 +352,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                }
                else if( op->is_symbol( KW_UNQUOTE ) )
                {
+                  assert( false && "eval unquote is unreachable" );
                   log( LL_WARNING ) << "is this correct? Or should this be replaced in the expansion?" << std::endl;
                   return args->car();
                }

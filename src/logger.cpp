@@ -24,6 +24,6 @@ std::string to_string( LogLevel level )
    }
 }
 
-Logger log = Logger( LL_DEBUG );
+Logger log = Logger( LL_INFO );
 
 } // namespace lisp

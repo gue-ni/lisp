@@ -69,7 +69,7 @@ TEST_F( LispTest, test_eval_symbol_01 )
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
 {
    eval( "does-not-exist", ctx, io );
-   EXPECT_EQ( err.str(), "(error: undefined symbol)" );
+   EXPECT_EQ( err.str(), "(error: undefined symbol 'does-not-exist')" );
    EXPECT_EQ( out.str(), "" );
 }
 
