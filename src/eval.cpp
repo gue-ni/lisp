@@ -425,6 +425,24 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   expr    = body;
                   continue;
                }
+               else if( op->is_symbol( KW_COND ) )
+               {
+                  Expr * body = nullptr;
+                  for( Expr * it = args; it->is_cons(); it = it->cdr() )
+                  {
+                     Expr * cond   = it->car()->car();
+                     Expr * result = eval( cond, *context, io );
+                     if( result->is_truthy() )
+                     {
+                        body = it->car()->cdr();
+                        break;
+                     }
+                  }
+
+                  assert( body != nullptr );
+                  expr = body;
+                  continue;
+               }
                else if( op->is_symbol( KW_MACRO ) )
                {
                   Expr * params = args->car();

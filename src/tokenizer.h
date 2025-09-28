@@ -17,6 +17,7 @@
 #define KW_IF "if"
 #define KW_PROGN "progn"
 #define KW_LET "let"
+#define KW_COND "cond"
 #define KW_QUOTE "quote"
 #define KW_QUASIQUOTE "quasiquote"
 #define KW_UNQUOTE "unquote"
