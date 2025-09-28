@@ -565,7 +565,7 @@ void print_repl_header()
 #if defined( __GNUC__ )
    std::cout << "GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__ << std::endl;
 #elif defined( __clang__ )
-   std::cout << "Clang" << std::endl;
+   std::cout << "Clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__ << std::endl;
 #elif defined( _MSC_VER )
    std::cout << "MSVC " << _MSC_VER << std::endl;
 #else

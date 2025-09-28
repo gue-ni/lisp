@@ -128,7 +128,7 @@ class ArgParser
    };
 };
 
-int disassemble( const std::string & program )
+int compile_and_print( const std::string & program )
 {
    lisp::Expr * p = lisp::parse( program );
    if( p == nullptr )
@@ -178,7 +178,7 @@ int main( int argc, char ** argv )
 
       if( dump_as_json )
       {
-         return disassemble( program );
+         return compile_and_print( program );
       }
 
       return lisp::eval( program );
