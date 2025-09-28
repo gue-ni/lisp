@@ -13,6 +13,11 @@
 #include <string>
 #include <vector>
 
+#ifdef __linux__
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
+
 namespace lisp
 {
 
@@ -601,17 +606,27 @@ int repl()
    IO io( std::cout, std::cerr );
    Context ctx;
    int res                  = 0;
-   const std::string prompt = "> ";
 
    print_repl_header();
 
    do
    {
-      std::cout << prompt;
+#ifdef __linux__
+      char* input;
+      if ((input = readline("> ")) == NULL)
+         break;
 
+      if (*input)
+         add_history(input);
+
+      std::string line(input);
+      free(input);
+#else
+      std::cout << "> ";
       std::string line;
       if( !std::getline( std::cin, line ) )
          break;
+#endif
 
       if( line.empty() )
          continue;
