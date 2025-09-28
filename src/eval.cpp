@@ -191,6 +191,7 @@ void Context::load_runtime()
 
    define( "map", make_native( builtin::f_map ) );
    define( "filter", make_native( builtin::f_filter ) );
+   define( "load", make_native( builtin::f_load ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -451,7 +452,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                      if( fn->is_native() )
                      {
-                        assert( args->is_cons() );
                         return fn->atom.native( args, *context, io );
                      }
                      else if( fn->is_lambda() && !args->is_nil() )
@@ -558,20 +558,40 @@ const std::string DBG_CMD = "dbg";
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void print_repl_header()
+{
+   std::cout << "Welcome to my LISP Interpreter!" << std::endl;
+   std::cout << "Compiled on " << __DATE__ << " at " << __TIME__ << "." << std::endl;
+   std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
+   std::cout << std::endl;
+   std::cout << "Type (exit) to quit." << std::endl;
+   std::cout << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 int repl()
 {
    IO io( std::cout, std::cerr );
    Context ctx;
    std::string line;
-   int res     = 0;
-   Flags flags = FLAG_NEWLINE;
+   int res                  = 0;
+   Flags flags              = FLAG_NEWLINE;
+   const std::string prompt = "> ";
+
+   print_repl_header();
 
    do
    {
-      std::cout << "> ";
+      std::cout << prompt;
       if( !std::getline( std::cin, line ) )
       {
          break;
+      }
+
+      if( line.empty() )
+      {
+         continue;
       }
 
       if( line == DBG_CMD )
@@ -579,13 +599,13 @@ int repl()
          Flags debug_flags = ( FLAG_DUMP_TOKENS | FLAG_DUMP_AST | FLAG_DUMP_ENV );
          flags ^= debug_flags;
          std::cout << "toggle-debug-mode" << std::endl;
-      }
-      else
-      {
-         res = eval( line, ctx, io, flags );
+         continue;
       }
 
+      res = eval( line, ctx, io, flags );
+
    } while( ( res == 0 ) && ( !ctx.exit ) );
+
    return ( ctx.exit_code == 0 ) ? res : ctx.exit_code;
 }
 
