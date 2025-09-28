@@ -2,6 +2,7 @@
 set(SRC_FILES "eval.cpp" "builtin.cpp" "expr.cpp" "parser.cpp" "tokenizer.cpp" "gc.cpp" "logger.cpp")
 set(INC_FILES "eval.h" "builtin.h" "expr.h" "parser.h" "tokenizer.h" "lisp.h" "gc.h" "logger.h")
 
+option(ENABLE_LISP_ASAN "Enable AddressSanitizer for lisp" OFF)
 
 add_library(lisp_lib STATIC ${SRC_FILES} ${INC_FILES})
 
@@ -14,7 +15,7 @@ endif()
 add_executable(lisp "main.cpp")
 target_link_libraries(lisp lisp_lib)
 
-if (ENABLE_ASAN AND UNIX AND NOT APPLE)
+if (ENABLE_LISP_ASAN AND UNIX AND NOT APPLE)
   message(STATUS "Building lisp with AddressSanitizer")
 
    target_compile_options(lisp_lib PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
