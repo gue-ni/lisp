@@ -58,6 +58,11 @@ class Logger
       return ( m_level <= level ) ? m_logstream : m_nullstream;
    }
 
+   void set_log_level( LogLevel level )
+   {
+      m_level = level;
+   }
+
  private:
    LogLevel m_level;
    std::ostream & m_logstream;

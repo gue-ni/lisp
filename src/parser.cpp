@@ -153,6 +153,10 @@ Expr * Parser::parse_expr()
 
                return make_list( make_symbol( KW_DEFINE ), symbol, value );
             }
+            else if( tkn.is_symbol( KW_LAMBDA ) )
+            {
+               return parse_lambda();
+            }
             else
             {
                return make_symbol( tkn.lexeme.c_str() );
@@ -170,12 +174,6 @@ Expr * Parser::parse_expr()
                return quoted;
 
             return make_list( quote, quoted );
-         }
-
-      case TokenType ::LAMBDA :
-         {
-            advance();
-            return parse_lambda();
          }
       case TokenType ::NIL :
          {

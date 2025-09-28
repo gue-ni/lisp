@@ -37,7 +37,6 @@ enum TokenType
    UNQUOTE,
    UNQUOTE_SPLICING,
    NUMBER,
-   LAMBDA,
    SYMBOL,
    STRING,
    TRUE,
