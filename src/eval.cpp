@@ -14,8 +14,8 @@
 #include <vector>
 
 #ifdef __linux__
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 #endif
 
 namespace lisp
@@ -601,7 +601,7 @@ void print_repl_header()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool prompt_windows(std::string& line, const char* prompt)
+bool read_line( std::string & line, const char * prompt )
 {
    std::cout << prompt;
    if( !std::getline( std::cin, line ) )
@@ -614,24 +614,21 @@ bool prompt_windows(std::string& line, const char* prompt)
 
 #ifdef __linux__
 
-bool prompt_linux(std::string& line, const char* prompt)
+bool read_line_linux( std::string & line, const char * prompt )
 {
-   char* input;
-   if ((input = readline(prompt)) == NULL)
+   char * input;
+   if( ( input = readline( prompt ) ) == NULL )
       return false;
 
-   if (*input)
-      add_history(input);
+   if( *input )
+      add_history( input );
 
-   line = std::string(input);
-   free(input);
+   line = std::string( input );
+   free( input );
    return true;
 }
 
-#define read_input prompt_linux
-
-#else
-#define read_input prompt_windows
+#define read_line read_line_linux
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -640,15 +637,15 @@ int repl()
 {
    IO io( std::cout, std::cerr );
    Context ctx;
-   int res                  = 0;
-   const char* prompt       = "> ";
+   int res             = 0;
+   const char * prompt = "> ";
 
    print_repl_header();
 
    do
    {
       std::string line;
-      if (!read_input(line, prompt))
+      if( !read_line( line, prompt ) )
          break;
 
       if( line.empty() )
