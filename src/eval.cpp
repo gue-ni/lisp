@@ -558,9 +558,8 @@ const std::string DBG_CMD = "dbg";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void print_repl_header()
+void print_compiler_info()
 {
-   std::cout << "Welcome to my LISP Interpreter!" << std::endl;
    std::cout << "Compiled on " << __DATE__ << " at " << __TIME__ << " with ";
 #if defined( __GNUC__ )
    std::cout << "GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
@@ -579,8 +578,16 @@ void print_repl_header()
 #elif defined( __APPLE__ )
    std::cout << "macOS" << std::endl;
 #else
-   std::cout << "Unknown" << std::endl;
+   std::cout << "(Unknown OS)" << std::endl;
 #endif
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void print_repl_header()
+{
+   std::cout << "Welcome to my LISP Interpreter!" << std::endl;
+   print_compiler_info();
    std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
    std::cout << std::endl;
    std::cout << "Type (exit) to quit." << std::endl;
