@@ -554,7 +554,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << "----env-env----" << std::endl;
    }
 
-   if( !res->is_void() )
+   if( ( flags & FLAG_INTERACTIVE ) && !res->is_void() )
    {
       res->print( io );
       if( flags & FLAG_NEWLINE )
@@ -572,7 +572,7 @@ int eval( const std::string & source )
 {
    IO io;
    Context ctx;
-   return eval( source, ctx, io, FLAG_NEWLINE );
+   return eval( source, ctx, io, FLAG_NEWLINE | FLAG_INTERACTIVE );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -619,7 +619,7 @@ void print_repl_header()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool read_line( std::string & line, const char * prompt )
+bool read_line( const char * prompt, std::string & line )
 {
    std::cout << prompt;
    if( !std::getline( std::cin, line ) )
@@ -632,7 +632,7 @@ bool read_line( std::string & line, const char * prompt )
 
 #ifdef __linux__
 
-bool read_line_linux( std::string & line, const char * prompt )
+bool read_line_linux( const char * prompt, std::string & line )
 {
    char * input;
    if( ( input = readline( prompt ) ) == NULL )
@@ -663,13 +663,13 @@ int repl()
    do
    {
       std::string line;
-      if( !read_line( line, prompt ) )
+      if( !read_line( prompt, line ) )
          break;
 
       if( line.empty() )
          continue;
 
-      res = eval( line, ctx, io, FLAG_NEWLINE );
+      res = eval( line, ctx, io, FLAG_NEWLINE | FLAG_INTERACTIVE );
 
    } while( ( res == 0 ) && ( !ctx.exit ) );
 
