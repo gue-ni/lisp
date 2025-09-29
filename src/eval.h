@@ -17,6 +17,7 @@ namespace lisp
 
 using Flags = uint8_t;
 
+constexpr Flags FLAG_NONE        = 0;
 constexpr Flags FLAG_NEWLINE     = 1 << 0;
 constexpr Flags FLAG_DUMP_TOKENS = 1 << 1;
 constexpr Flags FLAG_DUMP_AST    = 1 << 2;
@@ -61,7 +62,7 @@ Expr * eval( Expr * expr, Context & context, const IO & io );
 
 int eval( const std::string & source, Context & context, const IO & io, Flags flags = FLAG_INTERACTIVE );
 
-int eval( const std::string & source );
+int eval( const std::string & source, Flags flags = FLAG_NEWLINE | FLAG_INTERACTIVE );
 
 Expr * eval_program( Expr * program, Context & context, const IO & io );
 

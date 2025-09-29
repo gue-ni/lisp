@@ -568,11 +568,11 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int eval( const std::string & source )
+int eval( const std::string & source, Flags flags )
 {
    IO io;
    Context ctx;
-   return eval( source, ctx, io, FLAG_NEWLINE | FLAG_INTERACTIVE );
+   return eval( source, ctx, io, flags );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -621,19 +621,7 @@ void print_repl_header()
 
 bool read_line( const char * prompt, std::string & line )
 {
-   std::cout << prompt;
-   if( !std::getline( std::cin, line ) )
-      return false;
-
-   return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef __linux__
-
-bool read_line_linux( const char * prompt, std::string & line )
-{
+#if defined( __linux__ ) && 0
    char * input;
    if( ( input = readline( prompt ) ) == NULL )
       return false;
@@ -644,10 +632,14 @@ bool read_line_linux( const char * prompt, std::string & line )
    line = std::string( input );
    free( input );
    return true;
-}
+#else
+   std::cout << prompt;
+   if( !std::getline( std::cin, line ) )
+      return false;
 
-#define read_line read_line_linux
+   return true;
 #endif
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
