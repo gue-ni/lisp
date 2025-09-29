@@ -98,9 +98,7 @@ void Context::print( const IO & io ) const
 {
    for( auto it = m_env.begin(); it != m_env.end(); it++ )
    {
-      io.out << it->first << " : ";
-      it->second->print( io );
-      io.out << std::endl;
+      io.out << it->first << " : " << to_string_repr( it->second ) << std::endl;
    }
 }
 
@@ -558,13 +556,11 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << "----env-env----" << std::endl;
    }
 
-   if( ( ( flags & FLAG_INTERACTIVE ) && !res->is_void() ) || res->is_error() )
+   if( res->is_error() || ( ( flags & FLAG_INTERACTIVE ) && !res->is_void() ) )
    {
-      res->print( io );
+      io.out << to_string_repr( res );
       if( flags & FLAG_NEWLINE )
-      {
          io.out << std::endl;
-      }
    }
 
    return 0;
