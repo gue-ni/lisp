@@ -63,7 +63,7 @@ TEST_F( LispTest, test_eval_symbol_01 )
 {
    eval( "+", ctx, io );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "<native-fn>" );
+   EXPECT_EQ( out.str(), "(native-fn)" );
 }
 
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
@@ -188,7 +188,7 @@ TEST_F( LispTest, test_lambda_01 )
    int r              = eval( source, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "<lambda>" );
+   EXPECT_EQ( out.str(), "(lambda-fn)" );
 }
 
 TEST_F( LispTest, test_lambda_02 )

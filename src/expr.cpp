@@ -423,9 +423,10 @@ std::string to_string( Expr * expr )
                      ss << expr->atom.number;
                      return ss.str();
                   }
-               default :
-                  assert( false );
-                  return "#unprintable";
+               case Atom::ATOM_LAMBDA :
+                  return "(lambda-fn)";
+               case Atom::ATOM_NATIVE :
+                  return "(native-fn)";
             }
          }
       case Expr::EXPR_CONS :
@@ -453,21 +454,15 @@ std::string to_string_repr( Expr * expr )
          {
             switch( expr->atom.type )
             {
-               case Atom ::ATOM_NIL :
-               case Atom ::ATOM_NUMBER :
-               case Atom ::ATOM_BOOLEAN :
-               case Atom ::ATOM_SYMBOL :
-               case Atom ::ATOM_ERROR :
-                  return to_string( expr );
                case Atom ::ATOM_STRING :
                   return "\"" + std::string( expr->atom.string ) + "\"";
                default :
-                  return "(atom type=" + std::to_string( expr->atom.type ) + ")";
+                  return to_string( expr );
             }
          }
       case Expr ::EXPR_CONS :
          {
-            Expr * it = expr;
+            Expr * it       = expr;
             std::string str = "(";
             while( true )
             {
