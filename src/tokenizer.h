@@ -15,6 +15,8 @@
 #define KW_MACRO "macro"
 #define KW_LAMBDA "lambda"
 #define KW_IF "if"
+#define KW_OR "or"
+#define KW_AND "and"
 #define KW_PROGN "progn"
 #define KW_LET "let"
 #define KW_COND "cond"
