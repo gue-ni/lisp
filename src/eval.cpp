@@ -425,6 +425,28 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   expr    = body;
                   continue;
                }
+               else if( op->is_symbol( KW_COND ) )
+               {
+                  Expr * body = nullptr;
+                  for( Expr * it = args; it->is_cons(); it = it->cdr() )
+                  {
+                     Expr * cond   = it->car()->car();
+                     Expr * result = eval( cond, *context, io );
+                     if( result->is_truthy() )
+                     {
+                        body = it->car()->cdr();
+                        break;
+                     }
+                  }
+
+                  if( body == nullptr )
+                  {
+                     body = make_error( "cond expects at least one true condition" );
+                  }
+
+                  expr = body;
+                  continue;
+               }
                else if( op->is_symbol( KW_MACRO ) )
                {
                   Expr * params = args->car();
@@ -536,7 +558,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << "----env-env----" << std::endl;
    }
 
-   if( !res->is_void() )
+   if( ( ( flags & FLAG_INTERACTIVE ) && !res->is_void() ) || res->is_error() )
    {
       res->print( io );
       if( flags & FLAG_NEWLINE )
@@ -550,11 +572,11 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int eval( const std::string & source )
+int eval( const std::string & source, Flags flags )
 {
    IO io;
    Context ctx;
-   return eval( source, ctx, io, FLAG_NEWLINE );
+   return eval( source, ctx, io, flags );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -601,21 +623,9 @@ void print_repl_header()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool read_line( std::string & line, const char * prompt )
+bool read_line( const char * prompt, std::string & line )
 {
-   std::cout << prompt;
-   if( !std::getline( std::cin, line ) )
-      return false;
-
-   return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef __linux__
-
-bool read_line_linux( std::string & line, const char * prompt )
-{
+#if defined( __linux__ ) && 0
    char * input;
    if( ( input = readline( prompt ) ) == NULL )
       return false;
@@ -626,10 +636,14 @@ bool read_line_linux( std::string & line, const char * prompt )
    line = std::string( input );
    free( input );
    return true;
-}
+#else
+   std::cout << prompt;
+   if( !std::getline( std::cin, line ) )
+      return false;
 
-#define read_line read_line_linux
+   return true;
 #endif
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -645,13 +659,13 @@ int repl()
    do
    {
       std::string line;
-      if( !read_line( line, prompt ) )
+      if( !read_line( prompt, line ) )
          break;
 
       if( line.empty() )
          continue;
 
-      res = eval( line, ctx, io, FLAG_NEWLINE );
+      res = eval( line, ctx, io, FLAG_NEWLINE | FLAG_INTERACTIVE );
 
    } while( ( res == 0 ) && ( !ctx.exit ) );
 

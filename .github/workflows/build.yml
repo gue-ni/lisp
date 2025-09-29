@@ -35,6 +35,6 @@ jobs:
       run: |
         for file in ${{ github.workspace }}/tests/programs/*.lisp; do
           echo "Executing $file"
-          ${{ github.workspace }}/build/src/lisp $file
+          time ${{ github.workspace }}/build/src/lisp $file
         done
 

@@ -4,4 +4,4 @@
   (lambda (r)
     (* pi (* r r))))
 
-(circle-area 5)
+(println (circle-area 5))

@@ -3,4 +3,4 @@
     1
     (* n (factorial (- n 1)))))
 
-(factorial 5)
+(println (factorial 5))

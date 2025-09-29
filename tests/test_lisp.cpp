@@ -951,3 +951,54 @@ TEST_F( LispTest, test_comment_02 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "5" );
 }
+
+TEST_F( LispTest, test_cond_01 )
+{
+   std::string src = R"(
+(define x 5)
+
+(print (cond 
+  ((> x 3) "option 1")
+  ((= x 3) "option 2")
+  (true    "option 3")))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "option 1" );
+}
+
+TEST_F( LispTest, test_cond_02 )
+{
+   std::string src = R"(
+(define x 3)
+
+(print (cond 
+  ((> x 3) "option 1")
+  ((= x 3) "option 2")
+  (true    "option 3")))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "option 2" );
+}
+
+TEST_F( LispTest, test_cond_03 )
+{
+   std::string src = R"(
+(define x -1)
+
+(print (cond 
+  ((> x 3) "option 1")
+  ((= x 3) "option 2")
+  (true    "option 3")))
+   )";
+
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "option 3" );
+}

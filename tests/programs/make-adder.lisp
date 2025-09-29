@@ -4,4 +4,4 @@
 
 (define add-5 (make-adder 5))
 
-(add-5 3)
+(println (add-5 3))

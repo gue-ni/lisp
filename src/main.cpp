@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 
-
 class ArgParser
 {
  public:
@@ -182,7 +181,7 @@ int main( int argc, char ** argv )
          return compile_and_print( program );
       }
 
-      return lisp::eval( program );
+      return lisp::eval( program, lisp::FLAG_NONE );
    }
    else
    {
