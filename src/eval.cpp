@@ -554,7 +554,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << "----env-env----" << std::endl;
    }
 
-   if( ( flags & FLAG_INTERACTIVE ) && !res->is_void() )
+   if( ( ( flags & FLAG_INTERACTIVE ) && !res->is_void() ) || res->is_error() )
    {
       res->print( io );
       if( flags & FLAG_NEWLINE )
