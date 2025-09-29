@@ -43,28 +43,6 @@ Expr::Expr( Cons c )
 {
 }
 
-void Expr::print( const IO & io ) const
-{
-   switch( type )
-   {
-      case Expr::EXPR_ATOM :
-         {
-            atom.print( io );
-            break;
-         }
-      case Expr::EXPR_CONS :
-         {
-            io.out << "(";
-            cons.print( io );
-            io.out << ")";
-            break;
-         }
-      default :
-         // do nothing
-         break;
-   }
-}
-
 bool Expr::is_void() const
 {
    return type == Expr::EXPR_VOID;
@@ -338,57 +316,6 @@ std::string Atom::to_json() const
    }
 }
 
-void Atom::print( const IO & io ) const
-{
-   switch( type )
-   {
-      case Atom::ATOM_NIL :
-         {
-            io.out << "nil";
-            break;
-         }
-      case Atom ::ATOM_BOOLEAN :
-         {
-            io.out << ( boolean ? KW_TRUE : KW_FALSE );
-            break;
-         }
-      case Atom::ATOM_NUMBER :
-         {
-            io.out << number;
-            break;
-         }
-      case Atom::ATOM_SYMBOL :
-         {
-            io.out << symbol;
-            break;
-         }
-      case Atom::ATOM_STRING :
-         {
-            io.out << "\"" << string << "\"";
-            break;
-         }
-      case Atom::ATOM_LAMBDA :
-         {
-            io.out << "<lambda>";
-            break;
-         }
-      case Atom::ATOM_NATIVE :
-         {
-            io.out << "<native-fn>";
-            break;
-         }
-      case Atom ::ATOM_ERROR :
-         {
-            io.err << "(error: " << error << ")";
-            break;
-         }
-      default :
-         {
-            io.out << "<unprintable>";
-         }
-   }
-}
-
 bool Atom::operator==( const Atom & other ) const
 {
    if( type != other.type )
@@ -457,27 +384,6 @@ std::string Cons::to_json() const
    return "{ \"car\": " + car->to_json() + ", \"cdr\": " + cdr->to_json() + " }";
 }
 
-void Cons::print( const IO & io ) const
-{
-   car->print( io );
-
-   if( cdr->is_nil() )
-   {
-      // end of list
-      return;
-   }
-   else if( cdr->is_cons() )
-   {
-      io.out << " ";
-      cdr->cons.print( io );
-   }
-   else
-   {
-      io.out << " . ";
-      cdr->print( io );
-   }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 std::string Expr::to_json() const
@@ -503,23 +409,24 @@ std::string to_string( Expr * expr )
             {
                case Atom ::ATOM_NIL :
                   return "nil";
+               case Atom ::ATOM_BOOLEAN :
+                  return ( expr->atom.boolean ? KW_TRUE : KW_FALSE );
                case Atom ::ATOM_STRING :
                   return std::string( expr->atom.string );
                case Atom ::ATOM_SYMBOL :
                   return std::string( expr->atom.symbol );
                case Atom ::ATOM_ERROR :
-                  return std::string( expr->atom.error );
+                  return "(error: " + std::string( expr->atom.error ) + ")";
                case Atom ::ATOM_NUMBER :
                   {
                      std::stringstream ss;
                      ss << expr->atom.number;
                      return ss.str();
                   }
-               case Atom ::ATOM_BOOLEAN :
-                  return ( expr->atom.boolean ? KW_TRUE : KW_FALSE );
-               default :
-                  assert( false );
-                  return "#unprintable";
+               case Atom::ATOM_LAMBDA :
+                  return "(lambda-fn)";
+               case Atom::ATOM_NATIVE :
+                  return "(native-fn)";
             }
          }
       case Expr::EXPR_CONS :
@@ -532,6 +439,53 @@ std::string to_string( Expr * expr )
                str += to_string( it->car() );
             }
             str += ")";
+            return str;
+         }
+      default :
+         return "";
+   }
+}
+
+std::string to_string_repr( Expr * expr )
+{
+   switch( expr->type )
+   {
+      case Expr ::EXPR_ATOM :
+         {
+            switch( expr->atom.type )
+            {
+               case Atom ::ATOM_STRING :
+                  return "\"" + std::string( expr->atom.string ) + "\"";
+               default :
+                  return to_string( expr );
+            }
+         }
+      case Expr ::EXPR_CONS :
+         {
+            Expr * it       = expr;
+            std::string str = "(";
+            while( true )
+            {
+               if( it != expr )
+                  str += " ";
+
+               str += to_string_repr( it->car() );
+
+               if( it->cdr()->is_nil() )
+               {
+                  str += ")";
+                  break;
+               }
+               else if( it->cdr()->is_atom() )
+               {
+                  str += " . " + to_string_repr( it->cdr() ) + ")";
+                  break;
+               }
+               else
+               {
+                  it = it->cdr();
+               }
+            }
             return str;
          }
       default :
