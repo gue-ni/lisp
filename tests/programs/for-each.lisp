@@ -1,6 +1,9 @@
+
+(define my-list (list 1 2 3 4 5))
+;
 (defmacro for-each-1 (lst)
   (if (null? lst)
-    nil
+   nil
    `(progn
       (defun my-loop (l)
          (if (null? l)
@@ -10,4 +13,4 @@
                (my-loop (cdr l)))))
       (my-loop ,lst))))
 
-(for-each-1 (list 1 2 3 4 5))
+(for-each-1 my-list)
