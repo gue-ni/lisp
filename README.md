@@ -120,6 +120,19 @@ Conditional evaluation.
 ; => "not equal"
 ```
 
+#### `cond`
+
+Conditional evaluation, tests clauses in order and executes the first one that is true.
+
+```lisp
+(define x 5)
+(cond
+    ((> x 5) "greater")
+    ((= x 5) "equal")
+    (true "lower"))     ; fallback
+; => "equal"
+```
+
 #### `define`
 
 Define a variable.

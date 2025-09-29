@@ -439,7 +439,11 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      }
                   }
 
-                  assert( body != nullptr );
+                  if( body == nullptr )
+                  {
+                     body = make_error( "cond expects at least one true condition" );
+                  }
+
                   expr = body;
                   continue;
                }
