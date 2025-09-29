@@ -259,8 +259,6 @@ Atom::Atom( Atom && other ) noexcept
          error       = other.error;
          other.error = nullptr;
          break;
-      default :
-         assert( false );
    }
 }
 
@@ -274,14 +272,16 @@ bool Atom::is_truthy() const
          return boolean;
       case lisp::Atom::ATOM_NUMBER :
          return number != 0;
+      case lisp::Atom::ATOM_STRING :
+         return ( string != nullptr ) && ( string[0] != '\0' );
       case lisp::Atom::ATOM_ERROR :
          return false;
       case lisp::Atom::ATOM_SYMBOL :
-      case lisp::Atom::ATOM_STRING :
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
+      case lisp::Atom::ATOM_MACRO :
       default :
-         assert( false && "" );
+         assert( false && "Atom::is_truthy() unreachable" );
          return false;
    }
 }
@@ -427,7 +427,11 @@ std::string to_string( Expr * expr )
                   return "(lambda-fn)";
                case Atom::ATOM_NATIVE :
                   return "(native-fn)";
+               default :
+                  assert( false && "unreachable" );
+                  return "";
             }
+            break;
          }
       case Expr::EXPR_CONS :
          {
