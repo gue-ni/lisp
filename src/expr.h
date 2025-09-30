@@ -146,6 +146,7 @@ struct Expr : public gc::Garbage
 
    bool as_boolean() const;
    double as_number() const;
+   int as_integer() const;
    const char * as_string() const;
    const char * as_error() const;
    const char * as_symbol() const;

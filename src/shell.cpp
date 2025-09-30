@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "expr.h"
+#include "eval.h"
 #include <cstddef>
 #include <string>
 #include <sys/wait.h>
@@ -28,11 +29,20 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
 
   std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
 
+
+  Expr* local_stdin = context.lookup("*stdin-fd*");
+  Expr* local_stdout = context.lookup("*stdout-fd*");
+
+
   pid_t pid;
   int status = -1;
-  int stdin_fd = STDIN_FILENO;
-  int stdout_fd = STDOUT_FILENO;
+  int stdin_fd = (local_stdin->is_nil() == false) ? local_stdin->as_integer() : STDIN_FILENO;
+  int stdout_fd = (local_stdout->is_nil() == false) ? local_stdout->as_integer() : STDOUT_FILENO;
   int stderr_fd = STDERR_FILENO;
+
+  printf("%s stdin-fd=%d stdout-fd=%d\n", __PRETTY_FUNCTION__, stdin_fd, stdout_fd);
+
+  // first two arguments are file descriptors
 
   pid = fork();
 
@@ -79,6 +89,13 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
                    make_integer(stderr_fd));
 }
 
+
+Expr *f_exec_piped(Expr *arg, Context &context, const IO &io)
+{
+  std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
+
+  return make_nil();
+}
 
 Expr *f_make_pipe(Expr *arg, Context &context, const IO &io)
 {

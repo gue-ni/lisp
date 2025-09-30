@@ -199,6 +199,20 @@ const char * Expr::as_string() const
    }
 }
 
+int Expr::as_integer() const
+{
+   if ( is_integer() )
+   {
+      return atom.integer;
+   }
+   else
+   {
+      assert( false && "Expr::as_integer() unreachable" );
+      return -1;
+
+   }
+}
+
 Expr* cast_to_string(Expr* expr) {
    if (expr->is_string()) {
       return make_string(expr->atom.string);

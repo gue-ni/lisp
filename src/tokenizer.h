@@ -16,6 +16,7 @@
 #define KW_LAMBDA "lambda"
 #define KW_IF "if"
 #define KW_PROGN "progn"
+#define KW_PIPE "pipe"
 #define KW_LET "let"
 #define KW_COND "cond"
 #define KW_QUOTE "quote"
