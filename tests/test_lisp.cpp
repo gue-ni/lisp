@@ -1006,7 +1006,7 @@ TEST_F( LispTest, test_cond_03 )
 TEST_F( LispTest, test_logic_01 )
 {
    std::string src = "(and true false)";
-   int r = eval( src, ctx, io );
+   int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "false" );
@@ -1015,7 +1015,7 @@ TEST_F( LispTest, test_logic_01 )
 TEST_F( LispTest, test_logic_02 )
 {
    std::string src = "(or true false)";
-   int r = eval( src, ctx, io );
+   int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "true" );
@@ -1024,17 +1024,17 @@ TEST_F( LispTest, test_logic_02 )
 TEST_F( LispTest, test_logic_03 )
 {
    std::string src = "(and (or nil 1) (or \"hello world\" false))";
-   int r = eval( src, ctx, io );
+   int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "true" );
 }
 
 #ifdef __linux__
-TEST_F(LispTest, test_shell_exec_01)
+TEST_F( LispTest, test_shell_exec_01 )
 {
    std::string src = "(exec \"expr\" 2 \"+\" 3)";
-   int r = eval(src, ctx, io);
+   int r           = eval( src, ctx, io );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "5\n" );
 }

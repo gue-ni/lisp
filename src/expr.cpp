@@ -163,10 +163,9 @@ const char * Expr::as_symbol() const
    }
 }
 
-
 const char * Expr::as_string() const
 {
-   if ( is_string() )
+   if( is_string() )
    {
       return atom.string;
    }
@@ -179,7 +178,7 @@ const char * Expr::as_string() const
 
 int Expr::as_integer() const
 {
-   if ( is_integer() )
+   if( is_integer() )
    {
       return atom.integer;
    }
@@ -187,19 +186,21 @@ int Expr::as_integer() const
    {
       assert( false && "Expr::as_integer() unreachable" );
       return -1;
-
    }
 }
 
-Expr* cast_to_string(Expr* expr) {
-   if (expr->is_string()) {
-      return make_string(expr->atom.string);
-   } else {
-      std::string str = to_string(expr);
-      return make_string(str.c_str());
+Expr * cast_to_string( Expr * expr )
+{
+   if( expr->is_string() )
+   {
+      return make_string( expr->atom.string );
+   }
+   else
+   {
+      std::string str = to_string( expr );
+      return make_string( str.c_str() );
    }
 }
-
 
 bool Expr::is_nil() const
 {
@@ -411,7 +412,7 @@ bool Atom::operator>( const Atom & other ) const
    {
       case lisp::Atom::ATOM_NUMBER :
          return number > other.number;
-      case lisp::Atom::ATOM_INTEGER:
+      case lisp::Atom::ATOM_INTEGER :
          return integer > other.integer;
       case lisp::Atom::ATOM_NIL :
       case lisp::Atom::ATOM_BOOLEAN :
@@ -491,7 +492,7 @@ std::string to_string( Expr * expr )
                case Atom::ATOM_NATIVE :
                   return "(native-fn)";
                default :
-                  return "(atom type=" + std::to_string(expr->atom.type) + ")";
+                  return "(atom type=" + std::to_string( expr->atom.type ) + ")";
             }
             break;
          }

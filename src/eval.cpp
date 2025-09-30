@@ -480,30 +480,30 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   return make_macro( params, body, context );
                }
 #ifdef __linux__
-               else if (op->is_symbol(KW_PIPE))
+               else if( op->is_symbol( KW_PIPE ) )
                {
-                  Expr* exec1 = args->car();
-                  Expr* exec2 = args->cdr()->car();
+                  Expr * exec1 = args->car();
+                  Expr * exec2 = args->cdr()->car();
 
                   int fds[2];
-                  pipe(fds);
+                  pipe( fds );
                   Expr * r;
 
                   {
                      Context * local = gc::alloc<Context>( context );
-                     local->define("*stdin-fd*", make_integer(STDIN_FILENO));
-                     local->define("*stdout-fd*", make_integer(fds[1]));
-                     (void)eval(exec1, *local, io);
+                     local->define( "*stdin-fd*", make_integer( STDIN_FILENO ) );
+                     local->define( "*stdout-fd*", make_integer( fds[1] ) );
+                     ( void ) eval( exec1, *local, io );
                   }
                   {
                      Context * local = gc::alloc<Context>( context );
-                     local->define("*stdin-fd*", make_integer(fds[0]));
-                     local->define("*stdout-fd*", make_integer(STDOUT_FILENO));
-                     r = eval(exec2, *local, io);
+                     local->define( "*stdin-fd*", make_integer( fds[0] ) );
+                     local->define( "*stdout-fd*", make_integer( STDOUT_FILENO ) );
+                     r = eval( exec2, *local, io );
                   }
 
-                  close(fds[0]);
-                  close(fds[1]);
+                  close( fds[0] );
+                  close( fds[1] );
                   return r;
 #endif
                }
@@ -563,8 +563,7 @@ void print_debug( std::ostream & os, const Tokens & tokens )
 {
    for( const Token & tkn : tokens )
    {
-      os << "'" << tkn.lexeme << "'"
-         << ", ";
+      os << "'" << tkn.lexeme << "'" << ", ";
    }
    os << std::endl;
 }
@@ -681,7 +680,7 @@ void print_repl_header()
 
 bool read_line( const char * prompt, std::string & line )
 {
-#ifdef  __linux__
+#ifdef __linux__
    char * input;
    if( ( input = readline( prompt ) ) == NULL )
       return false;
