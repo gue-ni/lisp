@@ -1,24 +1,18 @@
-;
-;(println (exec "expr" 2 "+" 3))
 
+(println (exec "expr" 2 "+" 3))
 
-;(println (exec  "uptime"))
+(println (exec  "uptime"))
 
+(println "pipe 1:")
 
-(println "test my pipe:")
+(defun my-grep (n)
+  (exec "grep" n))
 
+(println (pipe (exec "find" ".") (exec "grep" ".cpp")))
 
-; implement pipe as a macro that splices in the file descriptors
-; TODO how can i get the file descriptor into
-(defmacro my-pipe (exec1 exec2)
-  `(let ((fd (make-pipe)))
-    (progn
-      (println "pipe: " fd)
-      (,(car exec1) ,@(cdr exec1) 10)
-      (,(car exec2) ,@(cdr exec2) 20))))
+(println "pipe 2:")
 
-
-(pipe
-  (exec  "find" ".")
-  (exec "grep" ".cpp"))
+; does not work -> i think there is a problem of how clojures are handled
+; right now, when the function is called it only has access to the variables from the closure
+; (println (pipe (exec "find" ".") (my-grep ".cpp")))
 

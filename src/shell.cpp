@@ -12,39 +12,27 @@ namespace lisp {
 
 namespace shell {
 
-struct Pipe {
-  int read_fd;
-  int write_fd;
-};
-
-struct Process {
-  pid_t pid;
-  int status = -1;
-  int stdin_fd = STDIN_FILENO;
-  int stdout_fd = STDOUT_FILENO;
-  int stderr_fd = STDERR_FILENO;
-};
-
 Expr *f_exec(Expr *arg, Context &context, const IO &io) {
 
-  std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
+  // std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
 
   Expr *local_stdin = context.lookup("*stdin-fd*");
   Expr *local_stdout = context.lookup("*stdout-fd*");
 
   pid_t pid;
   int status = -1;
-  int stdin_fd = (local_stdin->is_nil() == false) ? local_stdin->as_integer()
-                                                  : STDIN_FILENO;
-  int stdout_fd = (local_stdout->is_nil() == false) ? local_stdout->as_integer()
-                                                    : STDOUT_FILENO;
+  int stdin_fd =
+      (local_stdin->is_integer()) ? local_stdin->as_integer() : STDIN_FILENO;
+  int stdout_fd =
+      (local_stdout->is_integer()) ? local_stdout->as_integer() : STDOUT_FILENO;
   int stderr_fd = STDERR_FILENO;
 
-  printf("%s stdin-fd=%d stdout-fd=%d\n", __PRETTY_FUNCTION__, stdin_fd,
-         stdout_fd);
+  //printf("%s stdin-fd=%d stdout-fd=%d\n", __PRETTY_FUNCTION__, stdin_fd,
+  //       stdout_fd);
 
   // first two arguments are file descriptors
 
+  errno = 0;
   pid = fork();
 
   if (pid == 0) {
@@ -68,7 +56,6 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
         close(fd);
     }
 
-    errno = 0;
     execvp(argv[0], argv.data());
 
     if (errno != 0) {
@@ -76,16 +63,20 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
     }
 
   } else if (pid > 0) {
-    close(stdin_fd);
-    close(stdout_fd);
+    if (stdin_fd != STDIN_FILENO) {
+      close(stdin_fd);
+    }
+    if (stdout_fd != STDOUT_FILENO) {
+      close(stdout_fd);
+    }
     waitpid(pid, &status, 0);
   } else {
     perror("fork failed");
-    return make_error("fork failed");
+    return make_error(strerror(errno));
   }
 
-  printf("pid=%d %d %d %d status=%d\n", pid, stdin_fd, stdout_fd, stderr_fd,
-         status);
+  // printf("pid=%d %d %d %d status=%d\n", pid, stdin_fd, stdout_fd, stderr_fd,
+  //        status);
 
   return make_list(make_integer(status), make_integer(pid),
                    make_integer(stdin_fd), make_integer(stdout_fd),

@@ -2,9 +2,9 @@
 #include "builtin.h"
 #include "expr.h"
 #include "gc.h"
-#include <unistd.h>
 #ifdef __linux__
 #include "shell.h"
+#include <unistd.h>
 #endif
 #include "logger.h"
 #include "parser.h"
@@ -31,9 +31,9 @@ namespace lisp
 
 Context::Context( Context * parent )
     : gc::Garbage()
-    , m_parent( parent )
     , exit( false )
     , exit_code( false )
+    , m_parent( parent )
 {
    if( is_root() )
    {
@@ -461,42 +461,33 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   Expr * body   = args->cdr();
                   return make_macro( params, body, context );
                }
+#ifdef __linux__
                else if (op->is_symbol(KW_PIPE))
                {
                   Expr* exec1 = args->car();
                   Expr* exec2 = args->cdr()->car();
 
-                  // TODO: create pipe
-                  // TODO: create new environemnts, bind the corresponding ends of the pipe to stdout/stdin
-
                   int fds[2];
                   pipe(fds);
+                  Expr * r;
 
                   {
                      Context * local = gc::alloc<Context>( context );
                      local->define("*stdin-fd*", make_integer(STDIN_FILENO));
                      local->define("*stdout-fd*", make_integer(fds[1]));
-
-                     std::cout << "exec1: " << exec1->to_json() << std::endl;
                      (void)eval(exec1, *local, io);
                   }
-
-
                   {
                      Context * local = gc::alloc<Context>( context );
                      local->define("*stdin-fd*", make_integer(fds[0]));
                      local->define("*stdout-fd*", make_integer(STDOUT_FILENO));
-
-                     std::cout << "exec2: " << exec2->to_json() << std::endl;
-                     (void)eval(exec2, *local, io);
+                     r = eval(exec2, *local, io);
                   }
 
                   close(fds[0]);
                   close(fds[1]);
-
-
-                  return make_nil();
-
+                  return r;
+#endif
                }
                else
                {
