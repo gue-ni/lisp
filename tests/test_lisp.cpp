@@ -957,7 +957,7 @@ TEST_F( LispTest, test_cond_01 )
    std::string src = R"(
 (define x 5)
 
-(print (cond 
+(print (cond
   ((> x 3) "option 1")
   ((= x 3) "option 2")
   (true    "option 3")))
@@ -974,7 +974,7 @@ TEST_F( LispTest, test_cond_02 )
    std::string src = R"(
 (define x 3)
 
-(print (cond 
+(print (cond
   ((> x 3) "option 1")
   ((= x 3) "option 2")
   (true    "option 3")))
@@ -991,7 +991,7 @@ TEST_F( LispTest, test_cond_03 )
    std::string src = R"(
 (define x -1)
 
-(print (cond 
+(print (cond
   ((> x 3) "option 1")
   ((= x 3) "option 2")
   (true    "option 3")))
@@ -1002,3 +1002,13 @@ TEST_F( LispTest, test_cond_03 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "option 3" );
 }
+
+#ifdef __linux__
+TEST_F(LispTest, test_shell_exec_01)
+{
+   std::string src = "(exec \"expr\" 2 \"+\" 3)";
+   int r = eval(src, ctx, io);
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "5\n" );
+}
+#endif

@@ -185,6 +185,30 @@ const char * Expr::as_symbol() const
    }
 }
 
+
+const char * Expr::as_string() const
+{
+   if ( is_string() )
+   {
+      return atom.string;
+   }
+   else
+   {
+      assert( false && "Expr::as_string() unreachable" );
+      return nullptr;
+   }
+}
+
+Expr* cast_to_string(Expr* expr) {
+   if (expr->is_string()) {
+      return make_string(expr->atom.string);
+   } else {
+      std::string str = to_string(expr);
+      return make_string(str.c_str());
+   }
+}
+
+
 bool Expr::is_nil() const
 {
    return ( is_atom() ) && ( atom.type == Atom::ATOM_NIL );

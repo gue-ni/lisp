@@ -2,6 +2,9 @@
 #include "builtin.h"
 #include "expr.h"
 #include "gc.h"
+#ifdef __linux__
+#include "shell.h"
+#endif
 #include "logger.h"
 #include "parser.h"
 #include "tokenizer.h"
@@ -197,6 +200,11 @@ void Context::load_runtime()
    define( "map", make_native( builtin::f_map ) );
    define( "filter", make_native( builtin::f_filter ) );
    define( "load", make_native( builtin::f_load ) );
+
+#ifdef __linux__
+   define( "exec", make_native( shell::f_exec ) );
+   define( "pipe", make_native( shell::f_pipe ) );
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -625,7 +633,7 @@ void print_repl_header()
 
 bool read_line( const char * prompt, std::string & line )
 {
-#if defined( __linux__ ) && 0
+#ifdef  __linux__
    char * input;
    if( ( input = readline( prompt ) ) == NULL )
       return false;

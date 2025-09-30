@@ -148,6 +148,8 @@ struct Expr : public gc::Garbage
    const char * as_symbol() const;
 };
 
+Expr* cast_to_string(Expr*);
+
 std::string to_string( Expr * expr );
 
 std::string to_string_repr( Expr * expr );

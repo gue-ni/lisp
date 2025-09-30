@@ -1,6 +1,11 @@
 
-set(SRC_FILES "eval.cpp" "builtin.cpp" "expr.cpp" "parser.cpp" "tokenizer.cpp" "gc.cpp" "logger.cpp" "ff.cpp")
-set(INC_FILES "eval.h" "builtin.h" "expr.h" "parser.h" "tokenizer.h" "lisp.h" "gc.h" "logger.h" "ff.h")
+set(SRC_FILES "eval.cpp" "builtin.cpp" "expr.cpp" "parser.cpp" "tokenizer.cpp" "gc.cpp" "logger.cpp" )
+set(INC_FILES "eval.h" "builtin.h" "expr.h" "parser.h" "tokenizer.h" "lisp.h" "gc.h" "logger.h" )
+
+if(UNIX)
+  set(SRC_FILES ${SRC_FILES} "shell.cpp")
+  set(INC_FILES ${INC_FILES} "shell.h")
+endif()
 
 option(ENABLE_LISP_ASAN "Enable AddressSanitizer for lisp" OFF)
 
