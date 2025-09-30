@@ -5,12 +5,18 @@
 (println (exec "ls" "-la"))
 
 
+(println "test my pipe:")
+
+
 ; implement pipe as a macro to set the correct input and output file descriptors to allow piping
-(defmacro pipe (prog1 prog2)
-  `(progn
-    (,prog1)
-    (,prog2)))
+; TODO how can i get the file descriptor into
+(defmacro pipe (exec1 exec2)
+  `(let ((fd (make-pipe)))
+    (progn
+      (println "pipe: " fd)
+      (,exec1)
+      (,exec2))))
 
 
-(pipe (exec "ls") (exec "whoami"))
+(pipe (exec "ls" "-la") (exec "whoami"))
 

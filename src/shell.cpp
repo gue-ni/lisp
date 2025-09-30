@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
+#include <cstdio>
 
 namespace lisp {
 
@@ -25,7 +26,7 @@ struct Process {
 
 Expr *f_exec(Expr *arg, Context &context, const IO &io) {
 
-  std::cout << arg->to_json() << std::endl;
+  std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
 
   pid_t pid;
   int status = -1;
@@ -82,7 +83,12 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
 Expr *f_make_pipe(Expr *arg, Context &context, const IO &io)
 {
   std::cout << arg->to_json() << std::endl;
-  return make_nil();
+
+  int fds[2];
+  pipe(fds);
+
+  printf("%s %d %d\n", __PRETTY_FUNCTION__, fds[0], fds[1]);
+  return make_list(make_integer(fds[0]), make_integer(fds[1]));
 }
 
 Expr *f_pipe(Expr *arg, Context &context, const IO &io) {
