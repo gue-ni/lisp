@@ -1,12 +1,12 @@
 #include "shell.h"
-#include "expr.h"
 #include "eval.h"
+#include "expr.h"
 #include <cstddef>
+#include <cstdio>
 #include <string>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
-#include <cstdio>
 
 namespace lisp {
 
@@ -29,18 +29,19 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
 
   std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
 
-
-  Expr* local_stdin = context.lookup("*stdin-fd*");
-  Expr* local_stdout = context.lookup("*stdout-fd*");
-
+  Expr *local_stdin = context.lookup("*stdin-fd*");
+  Expr *local_stdout = context.lookup("*stdout-fd*");
 
   pid_t pid;
   int status = -1;
-  int stdin_fd = (local_stdin->is_nil() == false) ? local_stdin->as_integer() : STDIN_FILENO;
-  int stdout_fd = (local_stdout->is_nil() == false) ? local_stdout->as_integer() : STDOUT_FILENO;
+  int stdin_fd = (local_stdin->is_nil() == false) ? local_stdin->as_integer()
+                                                  : STDIN_FILENO;
+  int stdout_fd = (local_stdout->is_nil() == false) ? local_stdout->as_integer()
+                                                    : STDOUT_FILENO;
   int stderr_fd = STDERR_FILENO;
 
-  printf("%s stdin-fd=%d stdout-fd=%d\n", __PRETTY_FUNCTION__, stdin_fd, stdout_fd);
+  printf("%s stdin-fd=%d stdout-fd=%d\n", __PRETTY_FUNCTION__, stdin_fd,
+         stdout_fd);
 
   // first two arguments are file descriptors
 
@@ -75,6 +76,8 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
     }
 
   } else if (pid > 0) {
+    close(stdin_fd);
+    close(stdout_fd);
     waitpid(pid, &status, 0);
   } else {
     perror("fork failed");
@@ -87,30 +90,6 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
   return make_list(make_integer(status), make_integer(pid),
                    make_integer(stdin_fd), make_integer(stdout_fd),
                    make_integer(stderr_fd));
-}
-
-
-Expr *f_exec_piped(Expr *arg, Context &context, const IO &io)
-{
-  std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
-
-  return make_nil();
-}
-
-Expr *f_make_pipe(Expr *arg, Context &context, const IO &io)
-{
-  std::cout << arg->to_json() << std::endl;
-
-  int fds[2];
-  pipe(fds);
-
-  printf("%s %d %d\n", __PRETTY_FUNCTION__, fds[0], fds[1]);
-  return make_list(make_integer(fds[0]), make_integer(fds[1]));
-}
-
-Expr *f_pipe(Expr *arg, Context &context, const IO &io) {
-  std::cout << arg->to_json() << std::endl;
-  return make_nil();
 }
 
 } // namespace shell

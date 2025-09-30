@@ -204,7 +204,6 @@ void Context::load_runtime()
 
 #ifdef __linux__
    define( "exec", make_native( shell::f_exec ) );
-   define( "make-pipe", make_native( shell::f_make_pipe ) );
 #endif
 }
 
