@@ -480,11 +480,18 @@ std::string to_string( Expr * expr )
                      ss << expr->atom.number;
                      return ss.str();
                   }
-               case Atom ::ATOM_BOOLEAN :
-                  return ( expr->atom.boolean ? KW_TRUE : KW_FALSE );
+               case Atom ::ATOM_INTEGER :
+                  {
+                     std::stringstream ss;
+                     ss << expr->atom.integer;
+                     return ss.str();
+                  }
+               case Atom::ATOM_LAMBDA :
+                  return "(lambda-fn)";
+               case Atom::ATOM_NATIVE :
+                  return "(native-fn)";
                default :
-                  assert( false );
-                  return "#unprintable";
+                  return "(atom type=" + std::to_string(expr->atom.type) + ")";
             }
             break;
          }
