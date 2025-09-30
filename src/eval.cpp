@@ -102,9 +102,7 @@ void Context::print( const IO & io ) const
 {
    for( auto it = m_env.begin(); it != m_env.end(); it++ )
    {
-      io.out << it->first << " : ";
-      it->second->print( io );
-      io.out << std::endl;
+      io.out << it->first << " : " << to_string_repr( it->second ) << std::endl;
    }
 }
 
@@ -455,6 +453,26 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   expr = body;
                   continue;
                }
+               else if( op->is_symbol( KW_OR ) )
+               {
+                  for( Expr * it = args; it->is_cons(); it = it->cdr() )
+                  {
+                     Expr * res = eval( it->car(), *context, io );
+                     if( res->is_truthy() )
+                        return make_boolean( true );
+                  }
+                  return make_boolean( false );
+               }
+               else if( op->is_symbol( KW_AND ) )
+               {
+                  for( Expr * it = args; it->is_cons(); it = it->cdr() )
+                  {
+                     Expr * res = eval( it->car(), *context, io );
+                     if( !res->is_truthy() )
+                        return make_boolean( false );
+                  }
+                  return make_boolean( true );
+               }
                else if( op->is_symbol( KW_MACRO ) )
                {
                   Expr * params = args->car();
@@ -594,13 +612,15 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
       io.out << "----env-env----" << std::endl;
    }
 
-   if( ( ( flags & FLAG_INTERACTIVE ) && !res->is_void() ) || res->is_error() )
+   if( res->is_error() )
    {
-      res->print( io );
+      io.err << to_string_repr( res );
+   }
+   else if( ( flags & FLAG_INTERACTIVE ) && !res->is_void() )
+   {
+      io.out << to_string_repr( res );
       if( flags & FLAG_NEWLINE )
-      {
          io.out << std::endl;
-      }
    }
 
    return 0;

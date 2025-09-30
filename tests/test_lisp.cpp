@@ -63,7 +63,7 @@ TEST_F( LispTest, test_eval_symbol_01 )
 {
    eval( "+", ctx, io );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "<native-fn>" );
+   EXPECT_EQ( out.str(), "(native-fn)" );
 }
 
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
@@ -188,7 +188,7 @@ TEST_F( LispTest, test_lambda_01 )
    int r              = eval( source, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "<lambda>" );
+   EXPECT_EQ( out.str(), "(lambda-fn)" );
 }
 
 TEST_F( LispTest, test_lambda_02 )
@@ -1001,6 +1001,33 @@ TEST_F( LispTest, test_cond_03 )
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "option 3" );
+}
+
+TEST_F( LispTest, test_logic_01 )
+{
+   std::string src = "(and true false)";
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "false" );
+}
+
+TEST_F( LispTest, test_logic_02 )
+{
+   std::string src = "(or true false)";
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "true" );
+}
+
+TEST_F( LispTest, test_logic_03 )
+{
+   std::string src = "(and (or nil 1) (or \"hello world\" false))";
+   int r = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "true" );
 }
 
 #ifdef __linux__

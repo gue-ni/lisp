@@ -77,7 +77,6 @@ struct Atom
 
    bool is_truthy() const;
 
-   void print( const IO & io ) const;
    std::string to_json() const;
 
    bool operator==( const Atom & other ) const;
@@ -93,7 +92,6 @@ struct Cons
 
    Cons( Expr * _car, Expr * _cdr );
 
-   void print( const IO & io ) const;
    std::string to_json() const;
 };
 
@@ -120,7 +118,6 @@ struct Expr : public gc::Garbage
    Expr( Atom && a );
    Expr( Cons c );
 
-   void print( const IO & io ) const;
    std::string to_json() const;
 
    bool is_void() const;
