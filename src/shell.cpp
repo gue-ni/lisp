@@ -10,30 +10,54 @@ namespace lisp {
 
 namespace shell {
 
+struct Pipe {
+  int read_fd;
+  int write_fd;
+};
+
+struct Process {
+  pid_t pid;
+  int status = -1;
+  int stdin_fd = STDIN_FILENO;
+  int stdout_fd = STDOUT_FILENO;
+  int stderr_fd = STDERR_FILENO;
+};
+
 Expr *f_exec(Expr *arg, Context &context, const IO &io) {
 
   std::cout << arg->to_json() << std::endl;
 
+  pid_t pid;
   int status = -1;
+  int stdin_fd = STDIN_FILENO;
+  int stdout_fd = STDOUT_FILENO;
+  int stderr_fd = STDERR_FILENO;
 
-  pid_t pid = fork();
+  pid = fork();
 
   if (pid == 0) {
 
-    std::vector<char *> exec_args;
-
+    // prepare args
+    std::vector<char *> argv;
     for (Expr *it = arg; it->is_cons(); it = it->cdr()) {
       Expr *el = it->car();
       Expr *str = el->is_string() ? el : cast_to_string(el);
-      exec_args.push_back(const_cast<char *>(str->as_string()));
+      argv.push_back(const_cast<char *>(str->as_string()));
     }
-    exec_args.push_back(nullptr);
+    argv.push_back(nullptr);
 
-    char *args[] = {const_cast<char *>("ls"), const_cast<char *>("-l"),
-                    nullptr};
+    dup2(stdin_fd, STDIN_FILENO);
+    dup2(stdout_fd, STDOUT_FILENO);
+    dup2(stderr_fd, STDERR_FILENO);
+
+    // close extra fds
+    for (int fd : {stdin_fd, stdout_fd, stderr_fd}) {
+      if (fd > 2)
+        close(fd);
+    }
 
     errno = 0;
-    execvp(exec_args[0], exec_args.data());
+    execvp(argv[0], argv.data());
 
     if (errno != 0) {
       return make_error(strerror(errno));
@@ -46,7 +70,19 @@ Expr *f_exec(Expr *arg, Context &context, const IO &io) {
     return make_error("fork failed");
   }
 
-  return make_list(make_number((double)status));
+  printf("pid=%d %d %d %d status=%d\n", pid, stdin_fd, stdout_fd, stderr_fd,
+         status);
+
+  return make_list(make_integer(status), make_integer(pid),
+                   make_integer(stdin_fd), make_integer(stdout_fd),
+                   make_integer(stderr_fd));
+}
+
+
+Expr *f_make_pipe(Expr *arg, Context &context, const IO &io)
+{
+  std::cout << arg->to_json() << std::endl;
+  return make_nil();
 }
 
 Expr *f_pipe(Expr *arg, Context &context, const IO &io) {
