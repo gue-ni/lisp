@@ -224,6 +224,11 @@ bool Expr::is_number() const
    return is_atom() && ( atom.type == Atom::ATOM_NUMBER );
 }
 
+bool Expr::is_integer() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_INTEGER );
+}
+
 bool Expr::is_symbol() const
 {
    return is_atom() && ( atom.type == Atom::ATOM_SYMBOL );
@@ -242,6 +247,7 @@ Atom::~Atom()
    {
       case lisp::Atom::ATOM_NIL :
       case lisp::Atom::ATOM_NUMBER :
+      case lisp::Atom::ATOM_INTEGER :
       case lisp::Atom::ATOM_BOOLEAN :
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
@@ -283,6 +289,9 @@ Atom::Atom( Atom && other ) noexcept
       case lisp::Atom::ATOM_NUMBER :
          number = other.number;
          break;
+      case lisp::Atom::ATOM_INTEGER :
+         integer = other.integer;
+         break;
       case lisp::Atom::ATOM_SYMBOL :
          symbol       = other.symbol;
          other.symbol = nullptr;
@@ -320,6 +329,8 @@ bool Atom::is_truthy() const
          return boolean;
       case lisp::Atom::ATOM_NUMBER :
          return number != 0;
+      case lisp::Atom::ATOM_INTEGER :
+         return integer != 0;
       case lisp::Atom::ATOM_ERROR :
          return false;
       case lisp::Atom::ATOM_SYMBOL :
@@ -342,6 +353,8 @@ std::string Atom::to_json() const
          return ( boolean ? KW_TRUE : KW_FALSE );
       case Atom::ATOM_NUMBER :
          return std::to_string( number );
+      case Atom::ATOM_INTEGER :
+         return std::to_string( integer );
       case Atom::ATOM_SYMBOL :
          return "\"symbol(" + std::string( symbol ) + ")\"";
       case Atom::ATOM_STRING :
@@ -428,6 +441,9 @@ bool Atom::operator==( const Atom & other ) const
          return boolean == other.boolean;
       case lisp::Atom::ATOM_NUMBER :
          return number == other.number;
+      case lisp::Atom::ATOM_INTEGER :
+         return integer == other.integer;
+
       case lisp::Atom::ATOM_SYMBOL :
          return ( strcmp( symbol, other.symbol ) == 0 );
       case lisp::Atom::ATOM_STRING :
@@ -454,6 +470,8 @@ bool Atom::operator>( const Atom & other ) const
    {
       case lisp::Atom::ATOM_NUMBER :
          return number > other.number;
+      case lisp::Atom::ATOM_INTEGER:
+         return integer > other.integer;
       case lisp::Atom::ATOM_NIL :
       case lisp::Atom::ATOM_BOOLEAN :
       case lisp::Atom::ATOM_SYMBOL :
@@ -461,6 +479,7 @@ bool Atom::operator>( const Atom & other ) const
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
       case lisp::Atom::ATOM_ERROR :
+      case lisp::Atom::ATOM_MACRO :
          return false;
       default :
          assert( false );
@@ -539,10 +558,18 @@ std::string to_string( Expr * expr )
                      ss << expr->atom.number;
                      return ss.str();
                   }
+               case Atom ::ATOM_INTEGER :
+                  {
+                     std::stringstream ss;
+                     ss << expr->atom.integer;
+                     return ss.str();
+                  }
                case Atom ::ATOM_BOOLEAN :
                   return ( expr->atom.boolean ? KW_TRUE : KW_FALSE );
-               default :
-                  assert( false );
+               case Atom::ATOM_NATIVE:
+               case Atom::ATOM_LAMBDA:
+               case Atom::ATOM_MACRO:
+               assert( false );
                   return "#unprintable";
             }
          }

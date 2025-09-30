@@ -48,6 +48,7 @@ struct Atom
       ATOM_NIL,
       ATOM_BOOLEAN,
       ATOM_NUMBER,
+      ATOM_INTEGER,
       ATOM_SYMBOL,
       ATOM_STRING,
       ATOM_LAMBDA,
@@ -61,6 +62,7 @@ struct Atom
    {
       bool boolean;
       double number;
+      int integer;
       char * symbol;
       char * string;
       char * error;
@@ -128,6 +130,7 @@ struct Expr : public gc::Garbage
    bool is_nil() const;
    bool is_string() const;
    bool is_number() const;
+   bool is_integer() const;
    bool is_symbol() const;
    bool is_symbol( const char * symbol ) const;
    bool is_lambda() const;
@@ -195,6 +198,14 @@ inline Expr * make_number( double number )
    Atom atom;
    atom.type   = Atom::ATOM_NUMBER;
    atom.number = number;
+   return make_expr( std::move( atom ) );
+}
+
+inline Expr * make_integer( int integer )
+{
+   Atom atom;
+   atom.type    = Atom::ATOM_INTEGER;
+   atom.integer = integer;
    return make_expr( std::move( atom ) );
 }
 
