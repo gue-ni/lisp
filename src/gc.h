@@ -27,7 +27,8 @@ class Garbage
    bool m_marked;
 };
 
-template <typename T, typename... Args> T * alloc( Args &&... args )
+template <typename T, typename... Args>
+T * alloc( Args &&... args )
 {
    T * obj = new T( std::forward<Args>( args )... );
    Garbage::heap.push_back( obj );

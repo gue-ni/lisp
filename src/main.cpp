@@ -1,5 +1,6 @@
 #include "eval.h"
 #include "lisp.h"
+#include "version.h"
 
 #include <algorithm>
 #include <fstream>
@@ -102,7 +103,7 @@ class ArgParser
          }
          else
          {
-            if( pos_args < (int) m_positional.size() )
+            if( pos_args < ( int ) m_positional.size() )
             {
                m_positional[pos_args++].second = arg;
             }
@@ -151,6 +152,7 @@ int main( int argc, char ** argv )
    ArgParser args;
    args.add_argument( "filename" );
    args.add_argument( "json", true, false );
+   args.add_argument( "version", true, false );
    args.add_argument( "loglevel", false, false, "DEBUG" );
 
    args.parse_args( argc, argv );
@@ -160,6 +162,14 @@ int main( int argc, char ** argv )
 
    std::string loglevel;
    args.get_argument( "loglevel", loglevel );
+
+   bool print_version;
+   args.get_argument( "version", print_version );
+   if( print_version )
+   {
+      lisp::print_version_info();
+      return 0;
+   }
 
    if( 1 < argc )
    {

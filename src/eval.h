@@ -3,6 +3,7 @@
 #include "builtin.h"
 #include "expr.h"
 #include "util.h"
+#include "version.h"
 
 #include <cstdint>
 #include <iostream>
@@ -55,6 +56,8 @@ class Context : public gc::Garbage
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void print_version_info();
 
 Expr * expand( Expr * expr );
 

@@ -488,9 +488,9 @@ Expr * f_map( Expr * arg, Context & context, const IO & io )
 {
    Expr * fn = arg->car();
 
-   if (!(fn->is_lambda() || fn->is_native() || fn->is_macro()))
+   if( !( fn->is_lambda() || fn->is_native() || fn->is_macro() ) )
    {
-      return make_error("map expects a function as first argument");
+      return make_error( "map expects a function as first argument" );
    }
 
    Expr * list = arg->cdr()->car();
@@ -511,15 +511,14 @@ Expr * f_map( Expr * arg, Context & context, const IO & io )
 Expr * f_apply( Expr * arg, Context & context, const IO & io )
 {
    Expr * fn = arg->car();
-   if (!(fn->is_lambda() || fn->is_native() || fn->is_macro()))
+   if( !( fn->is_lambda() || fn->is_native() || fn->is_macro() ) )
    {
-      return make_error("apply expects a function as first argument");
+      return make_error( "apply expects a function as first argument" );
    }
 
    Expr * list = arg->cdr()->car();
-   Expr * tmp = make_cons(fn, list);
-   return eval(tmp, context, io);
-
+   Expr * tmp  = make_cons( fn, list );
+   return eval( tmp, context, io );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -541,12 +540,12 @@ Expr * f_load( Expr * arg, Context & context, const IO & io )
 
 Expr * f_symbol_name( Expr * arg, Context & context, const IO & io )
 {
-   Expr* arg1 = arg->car();
-   if (!arg1->is_symbol())
+   Expr * arg1 = arg->car();
+   if( !arg1->is_symbol() )
    {
-      return make_error("symbol-name expects a symbol");
+      return make_error( "symbol-name expects a symbol" );
    }
-   return make_string(arg1->atom.symbol);
+   return make_string( arg1->atom.symbol );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

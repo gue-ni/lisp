@@ -86,7 +86,7 @@ bool Tokenizer::is_finished() const
 
 void Tokenizer::handle_string()
 {
-   auto end   = std::find( m_current, m_source.cend(), '\"' );
+   auto end = std::find( m_current, m_source.cend(), '\"' );
 
    if( end == m_source.cend() )
    {

@@ -14,6 +14,22 @@ option(ENABLE_LISP_ASAN "Enable AddressSanitizer for lisp" OFF)
 
 add_library(lisp_lib STATIC ${SRC_FILES} ${INC_FILES})
 
+# Get the current git hash
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+set( GIT_HASH_HEADER "${CMAKE_BINARY_DIR}/version.h" )
+
+file(WRITE ${GIT_HASH_HEADER} "#pragma once\n")
+file(APPEND ${GIT_HASH_HEADER} "#define GIT_HASH \"${GIT_HASH}\"\n")
+
+target_include_directories(lisp_lib PUBLIC ${CMAKE_BINARY_DIR})
+
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(STATUS "Building on Linux, linking with Readline")
   target_link_libraries(lisp_lib PUBLIC readline tinfo)

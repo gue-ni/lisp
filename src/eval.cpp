@@ -2,6 +2,7 @@
 #include "builtin.h"
 #include "expr.h"
 #include "gc.h"
+#include "git_hash.h"
 #include "util.h"
 #ifdef __linux__
 #include "shell.h"
@@ -69,12 +70,12 @@ Context::~Context()
 
 Expr * Context::lookup( const char * symbol ) const
 {
-   //std::cout << __PRETTY_FUNCTION__ << " " << symbol << " ";
+   // std::cout << __PRETTY_FUNCTION__ << " " << symbol << " ";
    std::string key( symbol );
    auto it = m_env.find( key );
    if( it != m_env.end() )
    {
-      //std::cout << __PRETTY_FUNCTION__ << " " << symbol << " found " << it->second->to_json() << std::endl;
+      // std::cout << __PRETTY_FUNCTION__ << " " << symbol << " found " << it->second->to_json() << std::endl;
       return it->second;
    }
    else
@@ -85,7 +86,7 @@ Expr * Context::lookup( const char * symbol ) const
       }
       else
       {
-         //std::cout << " not found" << std::endl;
+         // std::cout << " not found" << std::endl;
          std::string msg = "undefined symbol '" + std::string( symbol ) + "'";
          return make_error( msg.c_str() );
       }
@@ -494,52 +495,53 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 #ifdef __linux__
                else if( op->is_symbol( KW_TO_STREAM ) )
                {
-                  Expr* r = eval(args, *context, io);
-                  std::string data = to_string(r);
+                  Expr * r         = eval( args, *context, io );
+                  std::string data = to_string( r );
 
                   ssize_t n;
                   ssize_t total = 0;
 
-                  while (total < (ssize_t)data.size())
+                  while( total < ( ssize_t ) data.size() )
                   {
-                     n = write(io.pipe_stdout, data.data() + total, data.size() - total);
-                     if (n < 0)
+                     n = write( io.pipe_stdout, data.data() + total, data.size() - total );
+                     if( n < 0 )
                      {
                         break;
                      }
                      total += n;
                   }
 
-                  if ( io.pipe_stdout != STDOUT_FILENO )
+                  if( io.pipe_stdout != STDOUT_FILENO )
                   {
                      close( io.pipe_stdout );
                   }
                }
-               else if( op->is_symbol( KW_FROM_STREAM ))
+               else if( op->is_symbol( KW_FROM_STREAM ) )
                {
                   int fds[2];
                   pipe( fds );
 
                   IO local_io;
-                  local_io.pipe_stdin = io.pipe_stdin;
+                  local_io.pipe_stdin  = io.pipe_stdin;
                   local_io.pipe_stdout = fds[1];
 
-                  Expr* r = eval(args, *context, local_io);
-                  if (r->is_error()) {
+                  Expr * r = eval( args, *context, local_io );
+                  if( r->is_error() )
+                  {
                      return r;
                   }
 
                   char buffer[1024];
-                  ssize_t n = read(fds[0], buffer,
-                                   sizeof(buffer) - 1);
-                  if (n > 0) {
-                    buffer[n] = '\0';
+                  ssize_t n = read( fds[0], buffer, sizeof( buffer ) - 1 );
+                  if( n > 0 )
+                  {
+                     buffer[n] = '\0';
                   }
 
-                  close(fds[0]);
-                  close(fds[1]);
+                  close( fds[0] );
+                  close( fds[1] );
 
-                  return make_string(buffer);
+                  return make_string( buffer );
                }
                else if( op->is_symbol( KW_PIPE ) )
                {
@@ -553,7 +555,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   {
                      Context * local = gc::alloc<Context>( context );
                      IO local_io;
-                     local_io.pipe_stdin = io.pipe_stdin;
+                     local_io.pipe_stdin  = io.pipe_stdin;
                      local_io.pipe_stdout = fds[1];
                      ( void ) eval( exec1, *local, local_io );
                   }
@@ -561,9 +563,9 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                      Context * local = gc::alloc<Context>( context );
                      IO local_io;
-                     local_io.pipe_stdin = fds[0];
+                     local_io.pipe_stdin  = fds[0];
                      local_io.pipe_stdout = io.pipe_stdout;
-                     r = eval( exec2, *local, local_io );
+                     r                    = eval( exec2, *local, local_io );
                   }
 
                   close( fds[0] );
@@ -577,18 +579,18 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   log() << "FN  : " << fn->to_json() << std::endl;
                   if( fn->is_macro() )
                   {
-                     //Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
+                     // Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
                      Context * new_env = gc::alloc<Context>( context );
                      bind_params( new_env, fn->atom.macro.params, args );
 
                      expr    = fn->atom.macro.body->car();
                      context = new_env;
 
-                     //std::cout << "before expansion: " << expr->to_json() << std::endl;
+                     // std::cout << "before expansion: " << expr->to_json() << std::endl;
 
                      expr = eval( expr, *context, io );
 
-                     //std::cout << "after expansion: " << expr->to_json() << std::endl;
+                     // std::cout << "after expansion: " << expr->to_json() << std::endl;
                      continue;
                   }
                   else
@@ -731,14 +733,28 @@ void print_compiler_info()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void print_copyright_info(){
+   std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void print_repl_header()
 {
    std::cout << "Welcome to my LISP Interpreter!" << std::endl;
+   print_copyright_info();
+   print_version_info();
    print_compiler_info();
-   std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
    std::cout << std::endl;
    std::cout << "Type (exit) to quit." << std::endl;
    std::cout << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void print_version_info()
+{
+   std::cout << "Git Hash: " << GIT_HASH << std::endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -19,8 +19,8 @@ struct IO
        : out( o )
        , err( e )
 #ifdef __linux__
-       , pipe_stdin(STDIN_FILENO)
-       , pipe_stdout(STDOUT_FILENO)
+       , pipe_stdin( STDIN_FILENO )
+       , pipe_stdout( STDOUT_FILENO )
 #endif
    {
    }
