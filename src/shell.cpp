@@ -19,17 +19,24 @@ Expr * f_exec( Expr * arg, Context & context, const IO & io )
 
    // std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
 
+
+   #if 0
    Expr * local_stdin  = context.lookup( "*stdin-fd*" );
    Expr * local_stdout = context.lookup( "*stdout-fd*" );
-
-   pid_t pid;
-   int status    = -1;
    int stdin_fd  = ( local_stdin->is_integer() ) ? local_stdin->as_integer() : STDIN_FILENO;
    int stdout_fd = ( local_stdout->is_integer() ) ? local_stdout->as_integer() : STDOUT_FILENO;
+   #else
+   int stdin_fd = io.pipe_stdin;
+   int stdout_fd = io.pipe_stdout;
+   #endif
    int stderr_fd = STDERR_FILENO;
 
    // printf("%s stdin-fd=%d stdout-fd=%d\n", __PRETTY_FUNCTION__, stdin_fd,
    //        stdout_fd);
+
+
+   pid_t pid;
+   int status    = -1;
 
    // first two arguments are file descriptors
 

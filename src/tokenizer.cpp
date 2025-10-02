@@ -86,7 +86,6 @@ bool Tokenizer::is_finished() const
 
 void Tokenizer::handle_string()
 {
-   auto start = m_current - 1;
    auto end   = std::find( m_current, m_source.cend(), '\"' );
 
    if( end == m_source.cend() )
@@ -223,7 +222,7 @@ void Tokenizer::run()
             }
          default :
             {
-               if( isdigit( c ) || ( c == '-' ) && isdigit( peek() ) )
+               if( isdigit( c ) || ( ( c == '-' ) && isdigit( peek() ) ) )
                {
                   handle_number();
                }

@@ -2,6 +2,7 @@
 #include "builtin.h"
 #include "expr.h"
 #include "gc.h"
+#include "util.h"
 #ifdef __linux__
 #include "shell.h"
 #include <unistd.h>
@@ -491,15 +492,22 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                   {
                      Context * local = gc::alloc<Context>( context );
-                     local->define( "*stdin-fd*", make_integer( STDIN_FILENO ) );
-                     local->define( "*stdout-fd*", make_integer( fds[1] ) );
-                     ( void ) eval( exec1, *local, io );
+                     //local->define( "*stdin-fd*", make_integer( STDIN_FILENO ) );
+                     //local->define( "*stdout-fd*", make_integer( fds[1] ) );
+                     IO local_io;
+                     local_io.pipe_stdin = STDIN_FILENO;
+                     local_io.pipe_stdout = fds[1];
+                     ( void ) eval( exec1, *local, local_io );
                   }
                   {
+
                      Context * local = gc::alloc<Context>( context );
-                     local->define( "*stdin-fd*", make_integer( fds[0] ) );
-                     local->define( "*stdout-fd*", make_integer( STDOUT_FILENO ) );
-                     r = eval( exec2, *local, io );
+                     //local->define( "*stdin-fd*", make_integer( fds[0] ) );
+                     //local->define( "*stdout-fd*", make_integer( STDOUT_FILENO ) );
+                     IO local_io;
+                     local_io.pipe_stdin = fds[0];
+                     local_io.pipe_stdout = STDOUT_FILENO;
+                     r = eval( exec2, *local, local_io );
                   }
 
                   close( fds[0] );

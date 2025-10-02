@@ -10,9 +10,7 @@
 
 (println (pipe (exec "find" ".") (exec "grep" ".cpp")))
 
+; exec is called in a sub-program
 (println "pipe 2:")
-
-; does not work -> i think there is a problem of how clojures are handled
-; right now, when the function is called it only has access to the variables from the closure
-; (println (pipe (exec "find" ".") (my-grep ".cpp")))
+(println (pipe (exec "find" ".") (my-grep ".cpp")))
 

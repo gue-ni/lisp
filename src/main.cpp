@@ -102,7 +102,7 @@ class ArgParser
          }
          else
          {
-            if( pos_args < m_positional.size() )
+            if( pos_args < (int) m_positional.size() )
             {
                m_positional[pos_args++].second = arg;
             }
