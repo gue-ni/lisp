@@ -18,7 +18,11 @@
 #define KW_OR "or"
 #define KW_AND "and"
 #define KW_PROGN "progn"
+#ifdef __linux__
 #define KW_PIPE "pipe"
+#define KW_CAPTURE "capture"
+#define KW_TO_STREAM "to-stream"
+#endif
 #define KW_LET "let"
 #define KW_COND "cond"
 #define KW_QUOTE "quote"

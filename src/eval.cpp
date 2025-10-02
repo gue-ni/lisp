@@ -481,6 +481,32 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   return make_macro( params, body, context );
                }
 #ifdef __linux__
+               else if( op->is_symbol( KW_CAPTURE ))
+               {
+                  int fds[2];
+                  pipe( fds );
+
+                  IO local_io;
+                  local_io.pipe_stdin = io.pipe_stdin;
+                  local_io.pipe_stdout = fds[1];
+
+                  Expr* r = eval(args, *context, local_io);
+                  if (r->is_error()) {
+                     return r;
+                  }
+
+                  char buffer[1024];
+                  ssize_t n = read(fds[0], buffer,
+                                   sizeof(buffer) - 1);
+                  if (n > 0) {
+                    buffer[n] = '\0';
+                  }
+
+                  close(fds[0]);
+                  close(fds[1]);
+
+                  return make_string(buffer);
+               }
                else if( op->is_symbol( KW_PIPE ) )
                {
                   Expr * exec1 = args->car();
@@ -492,8 +518,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
 
                   {
                      Context * local = gc::alloc<Context>( context );
-                     //local->define( "*stdin-fd*", make_integer( STDIN_FILENO ) );
-                     //local->define( "*stdout-fd*", make_integer( fds[1] ) );
                      IO local_io;
                      local_io.pipe_stdin = STDIN_FILENO;
                      local_io.pipe_stdout = fds[1];
@@ -502,8 +526,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   {
 
                      Context * local = gc::alloc<Context>( context );
-                     //local->define( "*stdin-fd*", make_integer( fds[0] ) );
-                     //local->define( "*stdout-fd*", make_integer( STDOUT_FILENO ) );
                      IO local_io;
                      local_io.pipe_stdin = fds[0];
                      local_io.pipe_stdout = STDOUT_FILENO;
@@ -513,8 +535,8 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   close( fds[0] );
                   close( fds[1] );
                   return r;
-#endif
                }
+#endif
                else
                {
                   Expr * fn = eval( op, *context, io );

@@ -22,3 +22,14 @@
 (println "pipe 2:")
 (println (pipe (exec "find" "src") (my-grep ".h")))
 
+(define ls-output (capture (exec "ls")))
+
+(println "capture 1:")
+(println ls-output)
+
+
+(println "capture 2:")
+(println (pipe (exec "find" "src") (capture (my-grep ".h"))))
+
+(println "capture 3:")
+(println (capture (pipe (exec "find" "src") (my-grep ".h"))))
