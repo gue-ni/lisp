@@ -203,6 +203,9 @@ void Context::load_runtime()
 
 #ifdef __linux__
    define( "exec", make_native( shell::f_exec ) );
+   define( KW_PIPE, make_symbol( KW_PIPE ) );
+   define( KW_FROM_STREAM, make_symbol( KW_FROM_STREAM ) );
+   define( KW_TO_STREAM, make_symbol( KW_TO_STREAM ) );
 #endif
 }
 
@@ -489,9 +492,11 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   ssize_t n;
                   ssize_t total = 0;
 
-                  while (total < (ssize_t)data.size()) {
+                  while (total < (ssize_t)data.size())
+                  {
                      n = write(io.pipe_stdout, data.data() + total, data.size() - total);
-                     if (n < 0) {
+                     if (n < 0)
+                     {
                         break;
                      }
                      total += n;
@@ -502,7 +507,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      close( io.pipe_stdout );
                   }
                }
-               else if( op->is_symbol( KW_CAPTURE ))
+               else if( op->is_symbol( KW_FROM_STREAM ))
                {
                   int fds[2];
                   pipe( fds );

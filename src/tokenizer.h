@@ -20,7 +20,7 @@
 #define KW_PROGN "progn"
 #ifdef __linux__
 #define KW_PIPE "pipe"
-#define KW_CAPTURE "capture"
+#define KW_FROM_STREAM "from-stream"
 #define KW_TO_STREAM "to-stream"
 #endif
 #define KW_LET "let"
