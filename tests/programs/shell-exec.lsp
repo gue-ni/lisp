@@ -1,3 +1,5 @@
+(define cap capture)
+(define sh exec)
 
 (println (exec "expr" 2 "+" 3))
 
@@ -33,3 +35,14 @@
 
 (println "capture 3:")
 (println (capture (pipe (exec "find" "src") (my-grep ".h"))))
+
+
+(println "to-pipe 1")
+(println (pipe (exec "echo" "hello world") (exec "rev")))
+
+(println "to-pipe 2")
+(println (capture (pipe (to-stream "hello world") (exec "rev"))))
+
+(println "to-pipe 3")
+(define my-rev-str (capture (pipe (to-stream "hello world") (sh "rev"))))
+(println my-rev-str)

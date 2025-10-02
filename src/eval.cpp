@@ -481,6 +481,27 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   return make_macro( params, body, context );
                }
 #ifdef __linux__
+               else if( op->is_symbol( KW_TO_STREAM ) )
+               {
+                  Expr* r = eval(args, *context, io);
+                  std::string data = to_string(r);
+
+                  ssize_t n;
+                  ssize_t total = 0;
+
+                  while (total < (ssize_t)data.size()) {
+                     n = write(io.pipe_stdout, data.data() + total, data.size() - total);
+                     if (n < 0) {
+                        break;
+                     }
+                     total += n;
+                  }
+
+                  if ( io.pipe_stdout != STDOUT_FILENO )
+                  {
+                     close( io.pipe_stdout );
+                  }
+               }
                else if( op->is_symbol( KW_CAPTURE ))
                {
                   int fds[2];
