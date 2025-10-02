@@ -17,8 +17,6 @@ namespace shell
 Expr * f_exec( Expr * arg, Context & context, const IO & io )
 {
 
-   std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
-
 
    #if 0
    Expr * local_stdin  = context.lookup( "*stdin-fd*" );
@@ -95,9 +93,11 @@ Expr * f_exec( Expr * arg, Context & context, const IO & io )
    // printf("pid=%d %d %d %d status=%d\n", pid, stdin_fd, stdout_fd, stderr_fd,
    //        status);
 
-   return make_list(
-       make_integer( status ), make_integer( pid ), make_integer( stdin_fd ), make_integer( stdout_fd ),
-       make_integer( stderr_fd ) );
+   //return make_list(
+   //    make_integer( status ), make_integer( pid ), make_integer( stdin_fd ), make_integer( stdout_fd ),
+   //    make_integer( stderr_fd ) );
+
+   return make_integer(status);
 }
 
 } // namespace shell

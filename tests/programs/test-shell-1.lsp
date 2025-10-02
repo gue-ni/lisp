@@ -54,33 +54,3 @@
 (println "to-pipe 3")
 (define my-rev-str (from-stream (pipe (to-stream "hello world") (exec "rev"))))
 (println "test: " my-rev-str)
-
-; checks if a symbol is defined
-(defmacro symbolp (s)
-  `(let ((e ,s)) (not (error? e))))
-
-;
-(defmacro sh-arg (x)
-  `(cond
-    ((symbolp ,x) (symbol-name ,x))
-    (true x)))
-
-
-
-(println "should be false: " (symbolp foo))
-
-(define bar 123)
-(println "should be true: " (symbolp bar))
-
-;(defmacro sh (& args)
-;  `(exec ,@(map 'sh-arg args)))
-
-(defmacro shell (&args)
-  `(exec (map sh-arg args)))
-
-(shell whoami)
-
-;(println "shell: " (from-stream (shell uname -a)))
-
-
-;(println "test: " (sh-arg 'uname))
