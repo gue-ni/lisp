@@ -29,7 +29,7 @@ This is a small Lisp interpreter written for educational purposes.
 (defun make-adder (a)
   (lambda (b) (+ a b)))
 
-(define add5 (make-adder 5))
+(defvar add5 (make-adder 5))
 
 (add5 3) ; => 8
 ```
@@ -125,7 +125,7 @@ Conditional evaluation.
 Conditional evaluation, tests clauses in order and executes the first one that is true.
 
 ```lisp
-(define x 5)
+(defvar x 5)
 (cond
     ((> x 5) "greater")
     ((= x 5) "equal")
@@ -133,12 +133,12 @@ Conditional evaluation, tests clauses in order and executes the first one that i
 ; => "equal"
 ```
 
-#### `define`
+#### `defvar`
 
-Define a variable.
+defvar a variable.
 
 ```lisp
-(define my-var 42)
+(defvar my-var 42)
 (println my-var)
 ; => 42
 ```
@@ -153,7 +153,7 @@ Create an anonymous function.
 
 #### `defun`
 
-Define a named function.
+defvar a named function.
 
 ```lisp
 (defun add (a b)
