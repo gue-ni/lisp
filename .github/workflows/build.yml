@@ -33,7 +33,7 @@ jobs:
 
     - name: Run Lisp scripts
       run: |
-        for file in ${{ github.workspace }}/tests/programs/*.lisp; do
+        for file in ${{ github.workspace }}/tests/programs/*.lsp; do
           echo "Executing $file"
           time ${{ github.workspace }}/build/src/lisp $file
         done
