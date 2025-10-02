@@ -523,6 +523,8 @@ std::string to_string_repr( Expr * expr )
             {
                case Atom ::ATOM_STRING :
                   return "\"" + std::string( expr->atom.string ) + "\"";
+               case Atom ::ATOM_ERROR :
+                  return "(error \"" + std::string( expr->atom.error ) + "\")";
                default :
                   return to_string( expr );
             }

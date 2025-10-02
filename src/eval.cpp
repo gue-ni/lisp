@@ -613,7 +613,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 
    if( res->is_error() )
    {
-      io.err << to_string_repr( res );
+      io.err << to_string_repr( res ) << std::endl;
    }
    else if( ( flags & FLAG_INTERACTIVE ) && !res->is_void() )
    {
