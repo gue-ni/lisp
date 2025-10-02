@@ -10,3 +10,17 @@
 (defun third (lst)
   (car (cdr (cdr lst))))
 
+(defun last (lst)
+  (if (null? (cdr lst))
+    (car lst)
+    (last (cdr lst))))
+
+; get nth element of list
+(defun nth (n lst)
+  (cond
+    ((null? lst)
+      nil)
+    ((= n 0)
+      (car lst))
+    (true
+      (nth (- n 1) (cdr lst)))))
