@@ -580,11 +580,11 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      expr    = fn->atom.macro.body->car();
                      context = new_env;
 
-                     log() << "before expansion: " << expr->to_json() << std::endl;
+                     //std::cout << "before expansion: " << expr->to_json() << std::endl;
 
                      expr = eval( expr, *context, io );
 
-                     log() << "after expansion: " << expr->to_json() << std::endl;
+                     //std::cout << "after expansion: " << expr->to_json() << std::endl;
                      continue;
                   }
                   else
