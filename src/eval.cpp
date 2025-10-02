@@ -2,7 +2,7 @@
 #include "builtin.h"
 #include "expr.h"
 #include "gc.h"
-#include "git_hash.h"
+#include "version.h"
 #include "util.h"
 #ifdef __linux__
 #include "shell.h"
