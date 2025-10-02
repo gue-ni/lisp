@@ -157,7 +157,7 @@ TEST_F( LispTest, test_eval_math_02 )
 
 TEST_F( LispTest, test_define_01 )
 {
-   std::string source = "(define x 42) (print x)";
+   std::string source = "(defvar x 42) (print x)";
    int r              = eval( source, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -193,7 +193,7 @@ TEST_F( LispTest, test_lambda_01 )
 
 TEST_F( LispTest, test_lambda_02 )
 {
-   std::string source = "(define fn (lambda (x) (* x 2))) (fn 8)";
+   std::string source = "(defvar fn (lambda (x) (* x 2))) (fn 8)";
    int r              = eval( source, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -211,7 +211,7 @@ TEST_F( LispTest, test_lambda_03 )
 
 TEST_F( LispTest, test_lambda_04 )
 {
-   std::string src = "(define add (lambda (x y) (+ x y))) (add 2 3)";
+   std::string src = "(defvar add (lambda (x y) (+ x y))) (add 2 3)";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -265,7 +265,7 @@ TEST_F( LispTest, test_car_03 )
 
 TEST_F( LispTest, test_car_04 )
 {
-   std::string src = "(define x '(1 2 3)) (car x)";
+   std::string src = "(defvar x '(1 2 3)) (car x)";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -301,7 +301,7 @@ TEST_F( LispTest, test_cdr_03 )
 
 TEST_F( LispTest, test_cdr_04 )
 {
-   std::string src = "(define x '(1 2 3)) (cdr x)";
+   std::string src = "(defvar x '(1 2 3)) (cdr x)";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -426,7 +426,7 @@ TEST_F( LispTest, test_lambda_05 )
 (defun make-adder (a)
   (lambda (b) (+ a b)))
 
-(define add5 (make-adder 5))
+(defvar add5 (make-adder 5))
 
 (add5 3)
   )";
@@ -440,9 +440,9 @@ TEST_F( LispTest, test_lambda_05 )
 TEST_F( LispTest, test_lambda_06 )
 {
    std::string src = R"(
-(define pi 3.14159265359)
+(defvar pi 3.14159265359)
 
-(define circle-area
+(defvar circle-area
   (lambda (r)
     (* pi (* r r))))
 
@@ -878,7 +878,7 @@ TEST_F( LispTest, test_back_inserter_01 )
 TEST_F( LispTest, test_loop_01 )
 {
    std::string src = R"(
-(define my-list (list 1 2 3 4 5))
+(defvar my-list (list 1 2 3 4 5))
 
 (progn
    (defun my-loop (l)
@@ -899,7 +899,7 @@ TEST_F( LispTest, test_loop_01 )
 TEST_F( LispTest, test_macro_04 )
 {
    std::string src = R"(
-(define my-list (list 1 2 3))
+(defvar my-list (list 1 2 3))
 
 (defmacro my-macro (lst)
    `(print ,lst))
@@ -916,7 +916,7 @@ TEST_F( LispTest, test_macro_04 )
 TEST_F( LispTest, test_macro_05 )
 {
    std::string src = R"(
-(define my-list (list 1 2 3))
+(defvar my-list (list 1 2 3))
 
 (defmacro my-macro (lst)
    `(if (null? ,lst) 1 2))
@@ -955,7 +955,7 @@ TEST_F( LispTest, test_comment_02 )
 TEST_F( LispTest, test_cond_01 )
 {
    std::string src = R"(
-(define x 5)
+(defvar x 5)
 
 (print (cond
   ((> x 3) "option 1")
@@ -972,7 +972,7 @@ TEST_F( LispTest, test_cond_01 )
 TEST_F( LispTest, test_cond_02 )
 {
    std::string src = R"(
-(define x 3)
+(defvar x 3)
 
 (print (cond
   ((> x 3) "option 1")
@@ -989,7 +989,7 @@ TEST_F( LispTest, test_cond_02 )
 TEST_F( LispTest, test_cond_03 )
 {
    std::string src = R"(
-(define x -1)
+(defvar x -1)
 
 (print (cond
   ((> x 3) "option 1")
@@ -1045,7 +1045,7 @@ TEST_F( LispTest, test_shell_01 )
    std::string src = R"(
 (load "stdlib/shell.lsp")
 
-(define result
+(defvar result
    (from-stream
       (pipe
          (sh find "src")
@@ -1063,7 +1063,7 @@ TEST_F( LispTest, test_shell_02 )
    std::string src = R"(
 (load "stdlib/shell.lsp")
 
-(define reversed
+(defvar reversed
    (from-stream
       (pipe
          (to-stream "hello world")

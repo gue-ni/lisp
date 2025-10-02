@@ -11,7 +11,7 @@
 #define KW_CDR "cdr"
 #define KW_CONS "cons"
 #define KW_APPEND "append"
-#define KW_DEFINE "define"
+#define KW_DEFINE "defvar"
 #define KW_MACRO "macro"
 #define KW_LAMBDA "lambda"
 #define KW_IF "if"

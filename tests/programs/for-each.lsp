@@ -1,5 +1,5 @@
 
-(define my-list (list 1 2 3 4 5))
+(defvar my-list (list 1 2 3 4 5))
 ;
 (defmacro for-each-1 (lst)
   (if (null? lst)

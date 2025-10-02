@@ -12,4 +12,3 @@
 ; (let ((my-file "my_file.txt")) (sh touch my-file))
 (defmacro sh (&args)
   `(apply exec (map sh-arg args)))
-

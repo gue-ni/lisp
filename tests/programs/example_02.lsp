@@ -1,6 +1,6 @@
-(define pi 3.14159265359)
+(defvar pi 3.14159265359)
 
-(define circle-area
+(defvar circle-area
   (lambda (r)
     (* pi (* r r))))
 

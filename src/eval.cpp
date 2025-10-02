@@ -95,7 +95,7 @@ Expr * Context::lookup( const char * symbol ) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Context::define( const char * symbol, Expr * expr )
+void Context::defvar( const char * symbol, Expr * expr )
 {
    std::string key( symbol );
    m_env[key] = expr;
@@ -156,63 +156,63 @@ bool Context::is_root() const
 
 void Context::load_runtime()
 {
-   define( "+", make_native( builtin::f_add ) );
-   define( "-", make_native( builtin::f_sub ) );
-   define( "*", make_native( builtin::f_mul ) );
-   define( "/", make_native( builtin::f_div ) );
+   defvar( "+", make_native( builtin::f_add ) );
+   defvar( "-", make_native( builtin::f_sub ) );
+   defvar( "*", make_native( builtin::f_mul ) );
+   defvar( "/", make_native( builtin::f_div ) );
 
-   define( "=", make_native( builtin::f_eq ) );
-   define( ">", make_native( builtin::f_gt ) );
-   define( ">=", make_native( builtin::f_ge ) );
-   define( "<", make_native( builtin::f_lt ) );
-   define( "<=", make_native( builtin::f_le ) );
-   define( "not", make_native( builtin::f_not ) );
+   defvar( "=", make_native( builtin::f_eq ) );
+   defvar( ">", make_native( builtin::f_gt ) );
+   defvar( ">=", make_native( builtin::f_ge ) );
+   defvar( "<", make_native( builtin::f_lt ) );
+   defvar( "<=", make_native( builtin::f_le ) );
+   defvar( "not", make_native( builtin::f_not ) );
 
-   define( KW_NIL, make_symbol( KW_NIL ) );
-   define( KW_IF, make_symbol( KW_IF ) );
-   define( KW_LAMBDA, make_symbol( KW_LAMBDA ) );
-   define( KW_DEFINE, make_symbol( KW_DEFINE ) );
-   define( KW_QUOTE, make_symbol( KW_QUOTE ) );
-   define( KW_PROGN, make_symbol( KW_PROGN ) );
-   define( KW_DEFUN, make_symbol( KW_DEFUN ) );
+   defvar( KW_NIL, make_symbol( KW_NIL ) );
+   defvar( KW_IF, make_symbol( KW_IF ) );
+   defvar( KW_LAMBDA, make_symbol( KW_LAMBDA ) );
+   defvar( KW_DEFINE, make_symbol( KW_DEFINE ) );
+   defvar( KW_QUOTE, make_symbol( KW_QUOTE ) );
+   defvar( KW_PROGN, make_symbol( KW_PROGN ) );
+   defvar( KW_DEFUN, make_symbol( KW_DEFUN ) );
 
-   define( "str", make_native( builtin::f_str ) );
-   define( "print", make_native( builtin::f_print ) );
-   define( "println", make_native( builtin::f_println ) );
-   define( "to-json", make_native( builtin::f_to_json ) );
+   defvar( "str", make_native( builtin::f_str ) );
+   defvar( "print", make_native( builtin::f_print ) );
+   defvar( "println", make_native( builtin::f_println ) );
+   defvar( "to-json", make_native( builtin::f_to_json ) );
 
-   define( KW_CAR, make_native( builtin::f_car ) );
-   define( KW_CDR, make_native( builtin::f_cdr ) );
-   define( KW_CONS, make_native( builtin::f_cons ) );
-   define( KW_APPEND, make_native( builtin::f_append ) );
-   define( "list", make_native( builtin::f_list ) );
-   define( "length", make_native( builtin::f_length ) );
+   defvar( KW_CAR, make_native( builtin::f_car ) );
+   defvar( KW_CDR, make_native( builtin::f_cdr ) );
+   defvar( KW_CONS, make_native( builtin::f_cons ) );
+   defvar( KW_APPEND, make_native( builtin::f_append ) );
+   defvar( "list", make_native( builtin::f_list ) );
+   defvar( "length", make_native( builtin::f_length ) );
 
-   define( "read", make_native( builtin::f_read ) );
-   define( "eval", make_native( builtin::f_eval ) );
+   defvar( "read", make_native( builtin::f_read ) );
+   defvar( "eval", make_native( builtin::f_eval ) );
 
-   define( "read-file", make_native( builtin::f_read_file ) );
+   defvar( "read-file", make_native( builtin::f_read_file ) );
 
-   define( "exit", make_native( builtin::f_exit ) );
-   define( "error", make_native( builtin::f_error ) );
+   defvar( "exit", make_native( builtin::f_exit ) );
+   defvar( "error", make_native( builtin::f_error ) );
 
-   define( "null?", make_native( builtin::f_is_null ) );
-   define( "number?", make_native( builtin::f_is_number ) );
-   define( "string?", make_native( builtin::f_is_string ) );
-   define( "error?", make_native( builtin::f_is_error ) );
-   define( "symbol?", make_native( builtin::f_is_symbol ) );
-   define( "symbol-name", make_native( builtin::f_symbol_name ) );
+   defvar( "null?", make_native( builtin::f_is_null ) );
+   defvar( "number?", make_native( builtin::f_is_number ) );
+   defvar( "string?", make_native( builtin::f_is_string ) );
+   defvar( "error?", make_native( builtin::f_is_error ) );
+   defvar( "symbol?", make_native( builtin::f_is_symbol ) );
+   defvar( "symbol-name", make_native( builtin::f_symbol_name ) );
 
-   define( "map", make_native( builtin::f_map ) );
-   define( "filter", make_native( builtin::f_filter ) );
-   define( "apply", make_native( builtin::f_apply ) );
-   define( "load", make_native( builtin::f_load ) );
+   defvar( "map", make_native( builtin::f_map ) );
+   defvar( "filter", make_native( builtin::f_filter ) );
+   defvar( "apply", make_native( builtin::f_apply ) );
+   defvar( "load", make_native( builtin::f_load ) );
 
 #ifdef __linux__
-   define( "exec", make_native( shell::f_exec ) );
-   define( KW_PIPE, make_symbol( KW_PIPE ) );
-   define( KW_FROM_STREAM, make_symbol( KW_FROM_STREAM ) );
-   define( KW_TO_STREAM, make_symbol( KW_TO_STREAM ) );
+   defvar( "exec", make_native( shell::f_exec ) );
+   defvar( KW_PIPE, make_symbol( KW_PIPE ) );
+   defvar( KW_FROM_STREAM, make_symbol( KW_FROM_STREAM ) );
+   defvar( KW_TO_STREAM, make_symbol( KW_TO_STREAM ) );
 #endif
 }
 
@@ -287,11 +287,11 @@ void bind_params( Context * local, Expr * params, Expr * args )
 
       if( symbol[0] == '&' )
       {
-         local->define( symbol + 1, arg );
+         local->defvar( symbol + 1, arg );
          break;
       }
 
-      local->define( symbol, arg->car() );
+      local->defvar( symbol, arg->car() );
    }
 }
 
@@ -392,7 +392,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                {
                   Expr * var   = args->car();
                   Expr * value = eval( args->cdr()->car(), *context, io );
-                  context->define( var->atom.symbol, value );
+                  context->defvar( var->atom.symbol, value );
                   return make_void();
                }
                else if( op->is_symbol( KW_LAMBDA ) )
@@ -437,7 +437,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      Expr * symbol  = binding->car();
                      Expr * value   = binding->cdr()->car();
                      value          = eval( value, *local, io );
-                     local->define( symbol->as_symbol(), value );
+                     local->defvar( symbol->as_symbol(), value );
                   }
 
                   context = local;

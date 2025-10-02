@@ -9,6 +9,6 @@
     nil
     (cons start (range (+ start 1) end))))
 
-(define numbers (range 0 15))
+(defvar numbers (range 0 15))
 
 (println (map fibonacci numbers))

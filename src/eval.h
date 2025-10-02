@@ -35,7 +35,7 @@ class Context : public gc::Garbage
    Context( Context * parent = nullptr );
    ~Context();
    Expr * lookup( const char * symbol ) const;
-   void define( const char * symbol, Expr * expr );
+   void defvar( const char * symbol, Expr * expr );
    void print( const IO & io ) const;
    const Env & env() const;
    void mark() override;

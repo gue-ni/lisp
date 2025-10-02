@@ -1,7 +1,7 @@
 (load "stdlib/shell.lsp")
 
 (println "show readme:")
-(define readme "README.md")
+(defvar readme "README.md")
 (sh cat readme)
 
 (println "show gitignore:")
