@@ -196,9 +196,12 @@ void Context::load_runtime()
    define( "number?", make_native( builtin::f_is_number ) );
    define( "string?", make_native( builtin::f_is_string ) );
    define( "error?", make_native( builtin::f_is_error ) );
+   define( "symbol?", make_native( builtin::f_is_symbol ) );
+   define( "symbol-name", make_native( builtin::f_symbol_name ) );
 
    define( "map", make_native( builtin::f_map ) );
    define( "filter", make_native( builtin::f_filter ) );
+   define( "apply", make_native( builtin::f_apply ) );
    define( "load", make_native( builtin::f_load ) );
 
 #ifdef __linux__
@@ -223,11 +226,13 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 
       case Atom::ATOM_ERROR :
       case Atom::ATOM_LAMBDA :
+      case Atom::ATOM_MACRO :
       case Atom::ATOM_NATIVE :
          return expr;
       case Atom::ATOM_SYMBOL :
          return context.lookup( expr->atom.symbol );
       default :
+
          assert( false && "unreachable" );
          return make_nil();
    }

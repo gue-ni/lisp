@@ -1030,6 +1030,15 @@ TEST_F( LispTest, test_logic_03 )
    EXPECT_EQ( out.str(), "true" );
 }
 
+TEST_F( LispTest, test_apply_1 )
+{
+   std::string src = "(apply + (list 1 2 3))";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "6" );
+}
+
 #ifdef __linux__
 TEST_F( LispTest, test_shell_exec_01 )
 {
@@ -1039,3 +1048,5 @@ TEST_F( LispTest, test_shell_exec_01 )
    EXPECT_EQ( out.str(), "5\n" );
 }
 #endif
+
+

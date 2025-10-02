@@ -322,6 +322,14 @@ Expr * f_is_error( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_is_symbol( Expr * arg, Context & context, const IO & io )
+{
+   assert( arg->is_cons() );
+   return make_boolean( arg->car()->is_symbol() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_eval( Expr * arg, Context & context, const IO & io )
 {
    if( !arg->is_cons() )
@@ -478,20 +486,49 @@ Expr * f_filter( Expr * arg, Context & context, const IO & io )
 
 Expr * f_map( Expr * arg, Context & context, const IO & io )
 {
+   std::cout << __PRETTY_FUNCTION__ << std::endl;
    Expr * fn = arg->car();
-   assert( fn->is_lambda() || fn->is_native() );
+   std::cout << fn->atom.type << std::endl;
 
-   ListBuilder builder;
+   if (!(fn->is_lambda() || fn->is_native() || fn->is_macro()))
+   {
+      printf("%s %d\n", __PRETTY_FUNCTION__, fn->atom.type);
+      return make_error("map expects a function as first argument");
+   }
+
+
 
    Expr * list = arg->cdr()->car();
+   std::cout << list->to_json() << std::endl;
+
+   ListBuilder builder;
    for( Expr * it = list; it->is_cons(); it = it->cdr() )
    {
       Expr * el     = it->car();
+      std::cout << "arg: " << el->to_json() << std::endl;
       Expr * result = eval( make_list( fn, el ), context, io );
+      std::cout << "result: " << result->to_json() << std::endl;
       builder.append( result );
    }
 
+   std::cout << "end " << __PRETTY_FUNCTION__ << std::endl;
    return builder.list();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_apply( Expr * arg, Context & context, const IO & io )
+{
+   Expr * fn = arg->car();
+   if (!(fn->is_lambda() || fn->is_native() || fn->is_macro()))
+   {
+      return make_error("apply expects a function as first argument");
+   }
+
+   Expr * list = arg->cdr()->car();
+   Expr * tmp = make_cons(fn, list);
+   return eval(tmp, context, io);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -507,6 +544,18 @@ Expr * f_load( Expr * arg, Context & context, const IO & io )
       return r;
 
    return f_eval( make_list( r, make_nil() ), context, io );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_symbol_name( Expr * arg, Context & context, const IO & io )
+{
+   std::cout << arg->to_json()  << std::endl;
+   Expr* arg1 = arg->car();
+   if (!arg1->is_symbol()) {
+      return make_error("symbol-name expects a symbol");
+   }
+   return make_string(arg1->atom.symbol);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

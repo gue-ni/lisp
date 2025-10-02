@@ -17,7 +17,7 @@ namespace shell
 Expr * f_exec( Expr * arg, Context & context, const IO & io )
 {
 
-   // std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
+   std::cout << __PRETTY_FUNCTION__ << " " << arg->to_json() << std::endl;
 
 
    #if 0
