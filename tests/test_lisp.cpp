@@ -32,7 +32,7 @@ TEST_F( LispTest, test_parse_01 )
 {
    std::string src = "(+ 1 2";
    eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "(error: missing-parenthesis)" );
+   EXPECT_EQ( err.str(),  "(error \"missing-parenthesis\")\n");
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -40,7 +40,7 @@ TEST_F( LispTest, test_parse_02 )
 {
    std::string src = "(+ 1 2 (* 3 4 )";
    eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "(error: missing-parenthesis)" );
+   EXPECT_EQ( err.str(),  "(error \"missing-parenthesis\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -48,7 +48,7 @@ TEST_F( LispTest, test_parse_03 )
 {
    std::string src = "(+ 1 2))";
    eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "(error: unexpected-parenthesis)" );
+   EXPECT_EQ( err.str(), "(error \"unexpected-parenthesis\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -69,7 +69,7 @@ TEST_F( LispTest, test_eval_symbol_01 )
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
 {
    eval( "does-not-exist", ctx, io );
-   EXPECT_EQ( err.str(), "(error: undefined symbol 'does-not-exist')" );
+   EXPECT_EQ( err.str(), "(error \"undefined symbol 'does-not-exist'\")\n");
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -111,7 +111,7 @@ TEST_F( LispTest, test_div_01 )
 TEST_F( LispTest, test_div_02 )
 {
    eval( "(/ 5 0)", ctx, io );
-   EXPECT_EQ( err.str(), "(error: division by zero)" );
+   EXPECT_EQ( err.str(), "(error \"division by zero\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -1040,13 +1040,32 @@ TEST_F( LispTest, test_apply_1 )
 }
 
 #ifdef __linux__
-TEST_F( LispTest, test_shell_exec_01 )
+TEST_F( LispTest, test_shell_01 )
 {
-   std::string src = "(exec \"expr\" 2 \"+\" 3)";
+   std::string src = R"(
+(load "stdlib/shell.lsp")
+
+(define result (pipe (sh find "src") (from-stream (sh grep "lisp.h"))))
+
+(print result)
+   )";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "5\n" );
+   EXPECT_EQ( out.str(), "src/lisp.h\n" );
 }
+
+TEST_F( LispTest, test_shell_02 )
+{
+   std::string src = R"(
+(load "stdlib/shell.lsp")
+(define reversed (from-stream (pipe (to-stream "hello world") (sh rev))))
+(print reversed)
+   )";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "dlrow olleh" );
+}
+
 #endif
 
 

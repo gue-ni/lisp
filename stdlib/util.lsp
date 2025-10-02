@@ -2,6 +2,10 @@
 (defun first (lst)
   (car lst))
 
+; get rest of a list
+(defun rest (lst)
+  (cdr lst))
+
 ; second element of a list
 (defun second (lst)
   (car (cdr lst)))
