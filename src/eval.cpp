@@ -519,7 +519,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   {
                      Context * local = gc::alloc<Context>( context );
                      IO local_io;
-                     local_io.pipe_stdin = STDIN_FILENO;
+                     local_io.pipe_stdin = io.pipe_stdin;
                      local_io.pipe_stdout = fds[1];
                      ( void ) eval( exec1, *local, local_io );
                   }
@@ -528,7 +528,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      Context * local = gc::alloc<Context>( context );
                      IO local_io;
                      local_io.pipe_stdin = fds[0];
-                     local_io.pipe_stdout = STDOUT_FILENO;
+                     local_io.pipe_stdout = io.pipe_stdout;
                      r = eval( exec2, *local, local_io );
                   }
 
