@@ -19,9 +19,9 @@
 (load "stdlib/shell-lib.lsp")
 
 
-(define bar 123)
-(println "should be false: " (symbolp foo))
-(println "should be true: " (symbolp bar))
+; (define bar 123)
+; (println "should be false: " (symbolp foo))
+; (println "should be true: " (symbolp bar))
 
 
 ;(define readme "README.md")
@@ -34,13 +34,14 @@
 
 ;(shell cat readme)
 
-(define md "README.md")
-(shell cat md)
+(define readme "README.md")
+(shell cat readme)
 
 
 
 ; for some reason this does NOT work
+; symbolp inside a let statement is FALSE
 (println
   (let
-    ((md-local "README.md"))
-    (shell cat md-local)))
+    ((gitignore ".gitignore"))
+    (shell cat gitignore)))

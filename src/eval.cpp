@@ -69,10 +69,12 @@ Context::~Context()
 
 Expr * Context::lookup( const char * symbol ) const
 {
+   //std::cout << __PRETTY_FUNCTION__ << " " << symbol << " ";
    std::string key( symbol );
    auto it = m_env.find( key );
    if( it != m_env.end() )
    {
+      //std::cout << __PRETTY_FUNCTION__ << " " << symbol << " found " << it->second->to_json() << std::endl;
       return it->second;
    }
    else
@@ -83,6 +85,7 @@ Expr * Context::lookup( const char * symbol ) const
       }
       else
       {
+         //std::cout << " not found" << std::endl;
          std::string msg = "undefined symbol '" + std::string( symbol ) + "'";
          return make_error( msg.c_str() );
       }
@@ -574,7 +577,8 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   log() << "FN  : " << fn->to_json() << std::endl;
                   if( fn->is_macro() )
                   {
-                     Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
+                     //Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
+                     Context * new_env = gc::alloc<Context>( context );
                      bind_params( new_env, fn->atom.macro.params, args );
 
                      expr    = fn->atom.macro.body->car();
