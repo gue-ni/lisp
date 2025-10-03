@@ -32,7 +32,7 @@ TEST_F( LispTest, test_parse_01 )
 {
    std::string src = "(+ 1 2";
    eval( src, ctx, io );
-   EXPECT_EQ( err.str(),  "(error \"missing-parenthesis\")\n");
+   EXPECT_EQ( err.str(), "(error \"missing-parenthesis\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -40,7 +40,7 @@ TEST_F( LispTest, test_parse_02 )
 {
    std::string src = "(+ 1 2 (* 3 4 )";
    eval( src, ctx, io );
-   EXPECT_EQ( err.str(),  "(error \"missing-parenthesis\")\n" );
+   EXPECT_EQ( err.str(), "(error \"missing-parenthesis\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -69,7 +69,7 @@ TEST_F( LispTest, test_eval_symbol_01 )
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
 {
    eval( "does-not-exist", ctx, io );
-   EXPECT_EQ( err.str(), "(error \"undefined symbol 'does-not-exist'\")\n");
+   EXPECT_EQ( err.str(), "(error \"undefined symbol 'does-not-exist'\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -1089,5 +1089,3 @@ TEST_F( LispTest, test_shell_03 )
 }
 
 #endif
-
-

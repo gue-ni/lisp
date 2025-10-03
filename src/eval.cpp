@@ -70,12 +70,10 @@ Context::~Context()
 
 Expr * Context::lookup( const char * symbol ) const
 {
-   // std::cout << __PRETTY_FUNCTION__ << " " << symbol << " ";
    std::string key( symbol );
    auto it = m_env.find( key );
    if( it != m_env.end() )
    {
-      // std::cout << __PRETTY_FUNCTION__ << " " << symbol << " found " << it->second->to_json() << std::endl;
       return it->second;
    }
    else
@@ -86,7 +84,6 @@ Expr * Context::lookup( const char * symbol ) const
       }
       else
       {
-         // std::cout << " not found" << std::endl;
          std::string msg = "undefined symbol '" + std::string( symbol ) + "'";
          return make_error( msg.c_str() );
       }
@@ -733,7 +730,8 @@ void print_compiler_info()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void print_copyright_info(){
+void print_copyright_info()
+{
    std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
 }
 
