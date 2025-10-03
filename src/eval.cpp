@@ -2,8 +2,8 @@
 #include "builtin.h"
 #include "expr.h"
 #include "gc.h"
-#include "git_hash.h"
 #include "util.h"
+#include "version.h"
 #ifdef __linux__
 #include "shell.h"
 #include <unistd.h>

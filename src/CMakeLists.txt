@@ -25,7 +25,9 @@ execute_process(
 set( GIT_HASH_HEADER "${CMAKE_BINARY_DIR}/version.h" )
 
 file(WRITE ${GIT_HASH_HEADER} "#pragma once\n")
+file(APPEND ${GIT_HASH_HEADER} "#ifndef GIT_HASH\n")
 file(APPEND ${GIT_HASH_HEADER} "#define GIT_HASH \"${GIT_HASH}\"\n")
+file(APPEND ${GIT_HASH_HEADER} "#endif\n")
 
 target_include_directories(lisp_lib PUBLIC ${CMAKE_BINARY_DIR})
 

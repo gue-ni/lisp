@@ -107,6 +107,10 @@ Define a named function.
     (+ a b))
 ```
 
+### `defmacro`
+
+Define a macro.
+
 ## Builtin Functions
 
 | Keyword                       | Purpose               | Example                   |
@@ -124,5 +128,5 @@ Define a named function.
 | `read`                        |                       |                           |
 | `eval`                        |                       |                           |
 | `null?`, `number?`, `string?` | Check for type        | `(string? "hello")`       |
-| `load`                        | Import file           | `(load "my-module.lisp")` |
+| `load`                        | Import file           | `(load "my-module.lsp")` |
 | `str`                         |                       |                           |

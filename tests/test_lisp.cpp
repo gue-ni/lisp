@@ -1,32 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "lisp.h"
-#include "parser.h"
-#include "tokenizer.h"
+#include "util.h"
 
 using namespace lisp;
-
-class LispTest : public ::testing::Test
-{
- public:
-   LispTest()
-       : io( out, err )
-   {
-   }
-
-   void SetUp() override
-   {
-   }
-
-   void TearDown() override
-   {
-   }
-
- protected:
-   Context ctx;
-   std::ostringstream out, err;
-   IO io;
-};
 
 TEST_F( LispTest, test_parse_01 )
 {
@@ -1038,54 +1014,3 @@ TEST_F( LispTest, test_apply_1 )
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "6" );
 }
-
-#ifdef __linux__
-TEST_F( LispTest, test_shell_01 )
-{
-   std::string src = R"(
-(load "stdlib/shell.lsp")
-
-(defvar result
-   (from-stream
-      (pipe
-         (sh find "src")
-         (sh grep "lisp.h"))))
-
-(print result)
-   )";
-   int r           = eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "src/lisp.h\n" );
-}
-
-TEST_F( LispTest, test_shell_02 )
-{
-   std::string src = R"(
-(load "stdlib/shell.lsp")
-
-(defvar reversed
-   (from-stream
-      (pipe
-         (to-stream "hello world")
-         (sh rev))))
-
-(print reversed)
-   )";
-   int r           = eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "dlrow olleh" );
-}
-
-TEST_F( LispTest, test_shell_03 )
-{
-   std::string src = R"(
-(load "stdlib/shell.lsp")
-
-(print (from-stream (sh uname -o)))
-   )";
-   int r           = eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "GNU/Linux\n" );
-}
-
-#endif
