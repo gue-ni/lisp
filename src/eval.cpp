@@ -730,11 +730,17 @@ void print_copyright_info()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+std::string get_version_info()
+{
+   return "Version: " + std::string( GIT_HASH );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void print_repl_header()
 {
-   std::cout << "Welcome to my LISP Interpreter!" << std::endl;
+   std::cout << "Welcome to my LISP Interpreter! (" << get_version_info() << ")" << std::endl;
    print_copyright_info();
-   print_version_info();
    print_compiler_info();
    std::cout << std::endl;
    std::cout << "Type (exit) to quit." << std::endl;
@@ -745,7 +751,7 @@ void print_repl_header()
 
 void print_version_info()
 {
-   std::cout << "Git Hash: " << GIT_HASH << std::endl;
+   std::cout << get_version_info() << std::endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

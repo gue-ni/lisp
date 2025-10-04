@@ -11,6 +11,7 @@ This is a small Lisp interpreter written for educational purposes.
 
 -   Interactive REPL
 -   Arithmetic, conditionals and list manipulation
+-   Garbage Collection
 -   Functions and lambdas
 -   Simple macros
 
