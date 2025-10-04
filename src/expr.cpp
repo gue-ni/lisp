@@ -349,9 +349,17 @@ std::string Atom::to_json() const
       case Atom::ATOM_INTEGER :
          return std::to_string( integer );
       case Atom::ATOM_SYMBOL :
-         return "\"symbol(" + std::string( symbol ) + ")\"";
+         {
+            std::ostringstream os;
+            os << "\"symbol(" << symbol << ")\"";
+            return os.str();
+         }
       case Atom::ATOM_STRING :
-         return "\"" + std::string( string ) + "\"";
+         {
+            std::ostringstream os;
+            os << "\"" << string << "\"";
+            return os.str();
+         }
       case Atom::ATOM_LAMBDA :
          return "{ \"lambda\": { \"params\": " + lambda.params->to_json() + ", \"body\": " + lambda.body->to_json()
                 + " } }";
@@ -527,9 +535,17 @@ std::string to_string_repr( Expr * expr )
             switch( expr->atom.type )
             {
                case Atom ::ATOM_STRING :
-                  return "\"" + std::string( expr->atom.string ) + "\"";
+                  {
+                     std::ostringstream os;
+                     os << "\"" << expr->atom.string << "\"";
+                     return os.str();
+                  }
                case Atom ::ATOM_ERROR :
-                  return "(error \"" + std::string( expr->atom.error ) + "\")";
+                  {
+                     std::ostringstream os;
+                     os << "(error \"" << expr->atom.error << "\")";
+                     return os.str();
+                  }
                default :
                   return to_string( expr );
             }

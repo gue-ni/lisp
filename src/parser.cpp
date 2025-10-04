@@ -212,8 +212,7 @@ Expr * Parser::parse_list()
 Expr * Parser::parse_lambda()
 {
    Expr * keyword = make_symbol( KW_LAMBDA );
-   Expr * params;
-
+   Expr * params  = make_nil();
    if( match( TokenType::LPAREN ) )
    {
       m_parenthesis_depth++;

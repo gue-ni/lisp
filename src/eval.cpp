@@ -126,24 +126,6 @@ void Context::mark()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Context::load_stdlib()
-{
-   IO io;
-   const char * stdlib = R"(
-(define euler 2.7)
-
-(define pi 3.14159265359)
-
-(define import
-  (lambda (filename)
-    (eval
-      (read
-        (read-file filename)))))
-   )";
-   int r               = eval( stdlib, *this, io );
-   assert( r == 0 );
-}
-
 bool Context::is_root() const
 {
    return m_parent == nullptr;

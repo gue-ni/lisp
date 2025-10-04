@@ -52,7 +52,6 @@ class Context : public gc::Garbage
    Context * m_parent;
    Env m_env;
    void load_runtime();
-   void load_stdlib();
    bool is_root() const;
 };
 

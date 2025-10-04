@@ -1,4 +1,4 @@
-# Lisp Interpreter
+# A Lisp Interpreter for Shell Scripting
 
 Lisp is one of the oldest high-level programming languages, dating back to the
 late 1950s. It is characterized by it's use of parenthesis, prefix notation
@@ -9,11 +9,12 @@ This is a small Lisp interpreter written for educational purposes.
 
 ## Features
 
--   Interactive REPL
--   Arithmetic, conditionals and list manipulation
--   Garbage Collection
--   Functions and lambdas
--   Simple macros
+- [x] Interactive REPL
+- [x] Arithmetic, conditionals and list manipulation
+- [x] Garbage Collection
+- [x] Functions and lambdas
+- [x] Macros
+- [x] Shell Scripting
 
 ```lisp
 ; recursive functions
@@ -26,7 +27,7 @@ This is a small Lisp interpreter written for educational purposes.
 ```
 
 ```lisp
-; clojures
+; closures
 (defun make-adder (a)
   (lambda (b) (+ a b)))
 
