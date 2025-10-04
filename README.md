@@ -1,11 +1,16 @@
 # A Lisp Interpreter for Shell Scripting
 
-Lisp is one of the oldest high-level programming languages, dating back to the
-late 1950s. It is characterized by it's use of parenthesis, prefix notation
-and S-expressions, which represent both code and data. While Lisp has fallen
-somewhat out of favour these days, it has inspired many languages
+This project is a lightweight Lisp interpreter written in C++ with a focus on
+shell scripting. It lets you combine the expressive power of Lisp with the
+practicality of the Unix shell: you can run commands, capture output, pipe
+between processes, and still use Lisp syntax for logic and structure. Think of
+it as writing your shell scripts in Lisp instead of Bash.
 
-This is a small Lisp interpreter written for educational purposes.
+## How to install
+
+```bash
+bash <(curl -s https://www.jakobmaier.at/files/lisp/release/install-lisp.sh)
+```
 
 ## Features
 
@@ -15,6 +20,8 @@ This is a small Lisp interpreter written for educational purposes.
 - [x] Functions and lambdas
 - [x] Macros
 - [x] Shell Scripting
+
+## Examples
 
 ```lisp
 ; recursive functions
@@ -35,10 +42,6 @@ This is a small Lisp interpreter written for educational purposes.
 
 (add5 3) ; => 8
 ```
-
-I have written a simple function for dumping the internal datastructure as json, which is very useful for debugging.
-
-The expression `(+ 2 3)` would look like this:
 
 ## Documentation
 
