@@ -1,3 +1,5 @@
+(load "stdlib/shell.lsp")
+
 (pipe
-  (exec "ls")
-  (exec "grep" ".txt"))
+  (sh ls)
+  (sh grep ".txt"))

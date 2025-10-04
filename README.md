@@ -53,7 +53,5 @@ The expression `(+ 2 3)` would look like this:
 
 ## Documentation
 
-You can find documentation [here](./doc/basics)
-
-- [Lisp - The Basics](doc/basics.md)
-- [Shell Scripting](doc/shell.md)
+- [Gettings Started](doc/getting-started.md)
+- [Shell Scripting](doc/shell-scripting.md)

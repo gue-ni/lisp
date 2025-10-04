@@ -1,4 +1,12 @@
-# Lisp - The Basics
+# Getting Started
+
+## Content
+
+-   [Basics](#basics)
+-   [Special Forms](#special-forms)
+-   [Builtin Function](#builtin-functions)
+
+## Basics
 
 Lisp programs are built from S-expressions, which are either _atoms_ (numbers,
 symbols or strings) or _lists_ enclosed in parantheses. Functions and operations
@@ -123,7 +131,7 @@ Define a macro.
 | Keyword                       | Purpose               | Example                               |
 | ----------------------------- | --------------------- | ------------------------------------- |
 | `+`, `-`, `*`, `/`            | Arithemtic operations | `(* 2 3)`                             |
-| `=`, `<`, `>`, `<=`, `>=`     | Logic operations      | `(= 2 3)`, `(< 2 3)`                                      |
+| `=`, `<`, `>`, `<=`, `>=`     | Logic operations      | `(= 2 3)`, `(< 2 3)`                  |
 | `and` , `or`                  | Boolean operators     |                                       |
 | `print` , `println`           |                       |                                       |
 | `car`, `cdr`                  |                       |                                       |
