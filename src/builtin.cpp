@@ -1,6 +1,7 @@
 #include <exception>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #include "builtin.h"
 #include "eval.h"
@@ -363,9 +364,10 @@ Expr * f_read_file( Expr * arg, Context & context, const IO & io )
 
    const char * filename = arg->car()->atom.string;
    std::ifstream file( filename );
-   if( !file )
+   if( !file.is_open() )
    {
-      return make_error( "could not open file" );
+      std::string msg = "Could not open file '" + std::string( filename ) + "': " + std::string( strerror( errno ) );
+      return make_error( msg.c_str() );
    }
    else
    {

@@ -75,7 +75,7 @@ int main( int argc, char ** argv )
          return compile_and_print( program );
       }
 
-      return lisp::eval( program, lisp::FLAG_NONE );
+      return lisp::eval( program, lisp::FLAG_INIT );
    }
    else
    {

@@ -24,6 +24,7 @@ constexpr Flags FLAG_DUMP_TOKENS = 1 << 1;
 constexpr Flags FLAG_DUMP_AST    = 1 << 2;
 constexpr Flags FLAG_DUMP_ENV    = 1 << 3;
 constexpr Flags FLAG_INTERACTIVE = 1 << 4;
+constexpr Flags FLAG_INIT        = 1 << 5;
 
 ///////////////////////////////////////////////////////////////////////////////
 

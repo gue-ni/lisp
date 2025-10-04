@@ -215,6 +215,18 @@ void Context::load_runtime()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+std::string init_script()
+{
+   const char * home = getenv( "HOME" );
+   assert( home != nullptr );
+
+   std::string profile = ".profile.lsp";
+
+   return "(load \"" + std::string( home ) + "/" + profile + "\")";
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 {
    assert( expr->is_atom() );
@@ -247,9 +259,7 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    for( ; program->is_cons(); program = program->cdr() )
    {
       Expr * expr = program->car();
-      log() << "in: " << expr->to_json() << std::endl;
-      result = eval( expr, context, io );
-      log() << "out: " << result->to_json() << std::endl;
+      result      = eval( expr, context, io );
    }
    return result;
 }
@@ -301,17 +311,11 @@ Expr * expand( Expr * ast )
       Expr * car = ast->car();
       Expr * cdr = ast->cdr();
 
-      log() << __FUNCTION__ << std::endl;
-      log() << "CAR: " << car->to_json() << std::endl;
-      log() << "CDR: " << cdr->to_json() << std::endl;
-
       if( car->is_cons() && car->car()->is_symbol( KW_UNQUOTE ) )
       {
          Expr * sy       = make_symbol( KW_CONS );
          Expr * unquoted = car->cdr()->car();
-         log() << "UNQUOTED: " << unquoted->to_json() << std::endl;
-         Expr * rest = expand( cdr );
-         log() << "REST: " << rest->to_json() << std::endl;
+         Expr * rest     = expand( cdr );
          return make_list( sy, unquoted, rest );
       }
 
@@ -319,18 +323,13 @@ Expr * expand( Expr * ast )
       {
          Expr * sy       = make_symbol( KW_APPEND );
          Expr * unquoted = car->cdr()->car();
-         log() << "UNQUOTED: " << unquoted->to_json() << std::endl;
-         Expr * rest = expand( cdr );
-         log() << "REST: " << rest->to_json() << std::endl;
+         Expr * rest     = expand( cdr );
          return make_list( sy, unquoted, rest );
       }
 
       Expr * sy    = make_symbol( KW_CONS );
       Expr * first = expand( car );
-      log() << "FIRST:" << first->to_json() << std::endl;
-
-      Expr * rest = expand( cdr );
-      log() << "REST: " << rest->to_json() << std::endl;
+      Expr * rest  = expand( cdr );
       return make_list( sy, first, rest );
    }
    else if( ast->is_nil() )
@@ -341,7 +340,6 @@ Expr * expand( Expr * ast )
    else
    {
       // if ast is atom, return quoted atom
-      log() << ast->to_json() << std::endl;
       return make_list( make_symbol( KW_QUOTE ), ast );
    }
 }
@@ -357,16 +355,12 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
       {
          case Expr::EXPR_ATOM :
             {
-               log() << "ATOM: " << expr->to_json() << std::endl;
                return eval_atom( expr, *context, io );
             }
          case Expr::EXPR_CONS :
             {
                Expr * op   = expr->car();
                Expr * args = expr->cdr();
-
-               log() << "OP  : " << op->to_json() << std::endl;
-               log() << "ARG : " << args->to_json() << std::endl;
 
                if( op->is_symbol( KW_QUOTE ) )
                {
@@ -375,14 +369,12 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                else if( op->is_symbol( KW_UNQUOTE ) )
                {
                   assert( false && "eval unquote is unreachable" );
-                  log( LL_WARNING ) << "is this correct? Or should this be replaced in the expansion?" << std::endl;
                   return args->car();
                }
                else if( op->is_symbol( KW_QUASIQUOTE ) )
                {
                   Expr * a = args->car();
                   expr     = expand( a );
-                  log() << "QUASIQUOTE : " << expr->to_json() << std::endl;
                   continue;
                }
                else if( op->is_symbol( KW_DEFINE ) )
@@ -573,7 +565,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                else
                {
                   Expr * fn = eval( op, *context, io );
-                  log() << "FN  : " << fn->to_json() << std::endl;
                   if( fn->is_macro() )
                   {
                      // Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
@@ -583,17 +574,12 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      expr    = fn->atom.macro.body->car();
                      context = new_env;
 
-                     // std::cout << "before expansion: " << expr->to_json() << std::endl;
-
                      expr = eval( expr, *context, io );
-
-                     // std::cout << "after expansion: " << expr->to_json() << std::endl;
                      continue;
                   }
                   else
                   {
                      args = eval_list( args, *context, io );
-                     log() << "ARGS: " << args->to_json() << std::endl;
 
                      if( fn->is_native() )
                      {
@@ -695,6 +681,12 @@ int eval( const std::string & source, Flags flags )
 {
    IO io;
    Context ctx;
+
+   if( flags & FLAG_INIT )
+   {
+      ( void ) eval( init_script(), ctx, io );
+   }
+
    return eval( source, ctx, io, flags );
 }
 
@@ -789,6 +781,8 @@ int repl()
    const char * prompt = "> ";
 
    print_repl_header();
+
+   ( void ) eval( init_script(), ctx, io );
 
    do
    {
