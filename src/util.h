@@ -6,6 +6,8 @@
 #include <unistd.h>
 #endif
 
+#define UNREACHABLE assert( false && "unreachable" );
+
 namespace lisp
 {
 

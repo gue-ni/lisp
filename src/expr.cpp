@@ -1,6 +1,7 @@
 #include "expr.h"
 #include "eval.h"
 #include "tokenizer.h"
+#include "util.h"
 #include <sstream>
 #include <string>
 
@@ -17,7 +18,7 @@ Expr::~Expr()
          atom.~Atom();
          break;
       case EXPR_CONS :
-      default :
+      case EXPR_VOID :
          // do nothing
          break;
    }
@@ -264,8 +265,6 @@ Atom::~Atom()
             free( error );
          }
          break;
-      default :
-         assert( false && "unreachable" );
    }
 }
 
@@ -330,10 +329,11 @@ bool Atom::is_truthy() const
       case lisp::Atom::ATOM_LAMBDA :
       case lisp::Atom::ATOM_NATIVE :
       case lisp::Atom::ATOM_MACRO :
-      default :
-         assert( false && "Atom::is_truthy() unreachable" );
          return false;
    }
+
+   UNREACHABLE
+   return false;
 }
 
 std::string Atom::to_json() const
@@ -362,10 +362,10 @@ std::string Atom::to_json() const
          return "\"native()\"";
       case Atom ::ATOM_ERROR :
          return "\"error(" + std::string( error ) + ")\"";
-      default :
-         assert( false && "Atom::to_json() unreachable" );
-         return "undefined";
    }
+
+   UNREACHABLE
+   return "";
 }
 
 bool Atom::operator==( const Atom & other ) const
@@ -385,21 +385,21 @@ bool Atom::operator==( const Atom & other ) const
          return number == other.number;
       case lisp::Atom::ATOM_INTEGER :
          return integer == other.integer;
-
       case lisp::Atom::ATOM_SYMBOL :
          return ( strcmp( symbol, other.symbol ) == 0 );
       case lisp::Atom::ATOM_STRING :
          return ( strcmp( string, other.string ) == 0 );
+      case lisp::Atom::ATOM_MACRO :
       case lisp::Atom::ATOM_LAMBDA :
          return false;
       case lisp::Atom::ATOM_NATIVE :
          return native == other.native;
       case lisp::Atom::ATOM_ERROR :
          return ( strcmp( error, other.error ) == 0 );
-      default :
-         assert( false );
-         return false;
    }
+
+   UNREACHABLE
+   return false;
 }
 
 bool Atom::operator>( const Atom & other ) const
@@ -423,10 +423,10 @@ bool Atom::operator>( const Atom & other ) const
       case lisp::Atom::ATOM_ERROR :
       case lisp::Atom::ATOM_MACRO :
          return false;
-      default :
-         assert( false );
-         return false;
    }
+
+   UNREACHABLE
+   return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -452,9 +452,12 @@ std::string Expr::to_json() const
          return atom.to_json();
       case Expr::EXPR_CONS :
          return cons.to_json();
-      default :
+      case Expr::EXPR_VOID :
          return "{}";
    }
+
+   UNREACHABLE
+   return "";
 }
 
 std::string to_string( Expr * expr )
@@ -491,10 +494,12 @@ std::string to_string( Expr * expr )
                   return "(lambda-fn)";
                case Atom::ATOM_NATIVE :
                   return "(native-fn)";
-               default :
-                  return "(atom type=" + std::to_string( expr->atom.type ) + ")";
+               case Atom::ATOM_MACRO :
+                  return "(macro-fn)";
             }
-            break;
+
+            UNREACHABLE;
+            return "";
          }
       case Expr::EXPR_CONS :
          {

@@ -235,8 +235,8 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
       case Atom::ATOM_NIL :
       case Atom::ATOM_BOOLEAN :
       case Atom::ATOM_NUMBER :
+      case Atom::ATOM_INTEGER :
       case Atom::ATOM_STRING :
-
       case Atom::ATOM_ERROR :
       case Atom::ATOM_LAMBDA :
       case Atom::ATOM_MACRO :
@@ -244,11 +244,9 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
          return expr;
       case Atom::ATOM_SYMBOL :
          return context.lookup( expr->atom.symbol );
-      default :
-
-         assert( false && "unreachable" );
-         return make_nil();
    }
+   UNREACHABLE
+   return make_nil();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -368,7 +366,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                }
                else if( op->is_symbol( KW_UNQUOTE ) )
                {
-                  assert( false && "eval unquote is unreachable" );
+                  UNREACHABLE
                   return args->car();
                }
                else if( op->is_symbol( KW_QUASIQUOTE ) )
