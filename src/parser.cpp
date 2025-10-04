@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "expr.h"
 
 namespace lisp
 {
@@ -89,8 +90,16 @@ Expr * Parser::parse_expr()
       case TokenType ::NUMBER :
          {
             advance();
-            double num = std::strtod( tkn.lexeme.c_str(), nullptr );
-            return make_real( num );
+            if( tkn.lexeme.find( '.' ) != std::string::npos )
+            {
+               double num = std::strtod( tkn.lexeme.c_str(), nullptr );
+               return make_real( num );
+            }
+            else
+            {
+               int num = std::stoi( tkn.lexeme.c_str() );
+               return make_integer( num );
+            }
          }
       case TokenType ::STRING :
          {

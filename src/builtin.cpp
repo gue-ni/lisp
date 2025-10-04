@@ -172,115 +172,161 @@ Expr * f_to_json( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * f_add( Expr * arg, Context & context, const IO & io )
+Expr * f_add( Expr * args, Context & context, const IO & io )
 {
-   assert( arg->is_cons() );
+   ASSERT_MIN_ARG_COUNT( args, 2 );
 
-   if( !arg->car()->is_real() )
+   Expr * arg_1 = args->car();
+   if( !arg_1->is_number() )
    {
-      return make_error( "expected a real" );
+      return make_error( "expected a number" );
    }
 
-   double result = arg->car()->atom.real;
-   arg           = arg->cdr();
-
-   while( ( arg->is_cons() ) )
+   Expr * result = make_copy( arg_1 );
+   for( Expr * it = args->cdr(); it->is_cons(); it = it->cdr() )
    {
-      if( !arg->car()->is_real() )
+      Expr * arg_n = it->car();
+
+      if( !arg_n->is_number() )
       {
-         return make_error( "expected a real" );
+         return make_error( "expected a number" );
       }
-      result += arg->car()->atom.real;
-      arg = arg->cdr();
+
+      if( result->is_integer() && arg_n->is_integer() )
+      {
+         result->atom.integer += arg_n->as_integer();
+      }
+      else
+      {
+         if( result->is_integer() )
+         {
+            result = make_real( result->as_number() );
+         }
+         result->atom.real += arg_n->as_number();
+      }
    }
 
-   return make_real( result );
+   return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * f_sub( Expr * arg, Context & context, const IO & io )
+Expr * f_sub( Expr * args, Context & context, const IO & io )
 {
-   assert( arg->is_cons() );
+   ASSERT_MIN_ARG_COUNT( args, 2 );
 
-   if( !arg->car()->is_real() )
+   Expr * arg_1 = args->car();
+   if( !arg_1->is_number() )
    {
-      return make_error( "expected a real" );
+      return make_error( "expected a number" );
    }
 
-   double result = arg->car()->atom.real;
-   arg           = arg->cdr();
-
-   while( ( arg->is_cons() ) )
+   Expr * result = make_copy( arg_1 );
+   for( Expr * it = args->cdr(); it->is_cons(); it = it->cdr() )
    {
-      if( !arg->car()->is_real() )
+      Expr * arg_n = it->car();
+
+      if( !arg_n->is_number() )
       {
-         return make_error( "expected a real" );
+         return make_error( "expected a number" );
       }
-      result -= arg->car()->atom.real;
-      arg = arg->cdr();
-   }
 
-   return make_real( result );
+      if( result->is_integer() && arg_n->is_integer() )
+      {
+         result->atom.integer -= arg_n->as_integer();
+      }
+      else
+      {
+         if( result->is_integer() )
+         {
+            result = make_real( result->as_number() );
+         }
+         result->atom.real -= arg_n->as_number();
+      }
+   }
+   return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * f_mul( Expr * arg, Context & context, const IO & io )
+Expr * f_mul( Expr * args, Context & context, const IO & io )
 {
-   assert( arg->is_cons() );
+   ASSERT_MIN_ARG_COUNT( args, 2 );
 
-   if( !arg->car()->is_real() )
+   Expr * arg_1 = args->car();
+   if( !arg_1->is_number() )
    {
-      return make_error( "expected a real" );
+      return make_error( "expected a number" );
    }
 
-   double result = arg->car()->atom.real;
-   arg           = arg->cdr();
-
-   while( ( arg->is_cons() ) )
+   Expr * result = make_copy( arg_1 );
+   for( Expr * it = args->cdr(); it->is_cons(); it = it->cdr() )
    {
-      if( !arg->car()->is_real() )
+      Expr * arg_n = it->car();
+
+      if( !arg_n->is_number() )
       {
-         return make_error( "expected a real" );
+         return make_error( "expected a number" );
       }
-      result *= arg->car()->atom.real;
-      arg = arg->cdr();
+
+      if( result->is_integer() && arg_n->is_integer() )
+      {
+         result->atom.integer *= arg_n->as_integer();
+      }
+      else
+      {
+         if( result->is_integer() )
+         {
+            result = make_real( result->as_number() );
+         }
+         result->atom.real *= arg_n->as_number();
+      }
    }
 
-   return make_real( result );
+   return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Expr * f_div( Expr * arg, Context & context, const IO & io )
+Expr * f_div( Expr * args, Context & context, const IO & io )
 {
-   assert( arg->is_cons() );
+   ASSERT_MIN_ARG_COUNT( args, 2 );
 
-   if( !arg->car()->is_real() )
+   Expr * arg_1 = args->car();
+   if( !arg_1->is_number() )
    {
-      return make_error( "expected a real" );
+      return make_error( "expected a number" );
    }
 
-   double result = arg->car()->atom.real;
-   arg           = arg->cdr();
-
-   while( ( arg->is_cons() ) )
+   Expr * result = make_copy( arg_1 );
+   for( Expr * it = args->cdr(); it->is_cons(); it = it->cdr() )
    {
-      if( !arg->car()->is_real() )
+      Expr * arg_n = it->car();
+
+      if( !arg_n->is_number() )
       {
-         return make_error( "expected a real" );
+         return make_error( "expected a number" );
       }
 
-      if( arg->car()->atom.real == 0 )
+      if( arg_n->as_number() == 0.0 )
       {
          return make_error( "division by zero" );
       }
-      result /= arg->car()->atom.real;
-      arg = arg->cdr();
-   }
 
-   return make_real( result );
+      if( result->is_integer() && arg_n->is_integer() )
+      {
+         result->atom.integer /= arg_n->as_integer();
+      }
+      else
+      {
+         if( result->is_integer() )
+         {
+            result = make_real( result->as_number() );
+         }
+         result->atom.real /= arg_n->as_number();
+      }
+   }
+   return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -318,70 +364,66 @@ Expr * f_cons( Expr * arg, Context & context, const IO & io )
 
 Expr * f_gt( Expr * arg, Context & context, const IO & io )
 {
-   Expr * a = arg->car();
-   Expr * b = arg->cdr()->car();
+   ASSERT_ARG_COUNT( arg, 2 );
 
-   bool is_gt = false;
-   if( ( a->type == b->type ) && a->is_atom() )
+   Expr * arg_1 = arg->car();
+   Expr * arg_2 = arg->cdr()->car();
+
+   if( !( arg_1->is_number() && arg_2->is_number() ) )
    {
-      is_gt = ( a->atom ) > ( b->atom );
-   }
-   else
-   {
-      is_gt = false;
+      return make_error( "expected numbers" );
    }
 
-   return make_boolean( is_gt );
+   return make_boolean( arg_1->as_number() > arg_2->as_number() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_ge( Expr * arg, Context & context, const IO & io )
 {
-   Expr * a = arg->car();
-   Expr * b = arg->cdr()->car();
+   ASSERT_ARG_COUNT( arg, 2 );
 
-   if( ( a->type != b->type ) && a->is_atom() )
+   Expr * arg_1 = arg->car();
+   Expr * arg_2 = arg->cdr()->car();
+
+   if( !( arg_1->is_number() && arg_2->is_number() ) )
    {
-      return make_error( "atom expected" );
+      return make_error( "expected numbers" );
    }
 
-   return make_boolean( ( a->atom == b->atom ) || ( a->atom > b->atom ) );
+   return make_boolean( arg_1->as_number() >= arg_2->as_number() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_lt( Expr * arg, Context & context, const IO & io )
 {
-   Expr * a = arg->car();
-   Expr * b = arg->cdr()->car();
+   ASSERT_ARG_COUNT( arg, 2 );
 
-   bool is_lt = false;
-   if( ( a->type == b->type ) && a->is_atom() )
+   Expr * arg_1 = arg->car();
+   Expr * arg_2 = arg->cdr()->car();
+
+   if( !( arg_1->is_number() && arg_2->is_number() ) )
    {
-      is_lt = ( b->atom ) > ( a->atom );
-   }
-   else
-   {
-      is_lt = false;
+      return make_error( "expecting numeric type" );
    }
 
-   return make_boolean( is_lt );
+   return make_boolean( arg_1->as_number() < arg_2->as_number() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 Expr * f_le( Expr * arg, Context & context, const IO & io )
 {
-   Expr * a = arg->car();
-   Expr * b = arg->cdr()->car();
+   Expr * arg_1 = arg->car();
+   Expr * arg_2 = arg->cdr()->car();
 
-   if( ( a->type != b->type ) && a->is_atom() )
+   if( !( arg_1->is_number() && arg_2->is_number() ) )
    {
       return make_error( "atom expected" );
    }
 
-   return make_boolean( ( a->atom == b->atom ) || ( b->atom > a->atom ) );
+   return make_boolean( arg_1->as_number() >= arg_2->as_number() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -422,6 +464,22 @@ Expr * f_is_real( Expr * arg, Context & context, const IO & io )
 {
    assert( arg->is_cons() );
    return make_boolean( arg->car()->is_real() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_is_integer( Expr * arg, Context & context, const IO & io )
+{
+   assert( arg->is_cons() );
+   return make_boolean( arg->car()->is_integer() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_is_number( Expr * arg, Context & context, const IO & io )
+{
+   assert( arg->is_cons() );
+   return make_boolean( arg->car()->is_number() );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -79,7 +79,7 @@ TEST_F( LispTest, test_mult_01 )
 
 TEST_F( LispTest, test_div_01 )
 {
-   eval( "(/ 5 2)", ctx, io );
+   eval( "(/ 5.0 2)", ctx, io );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "2.5" );
 }

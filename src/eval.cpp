@@ -180,10 +180,12 @@ void Context::load_runtime()
    defvar( "error", make_native( builtin::f_error ) );
 
    defvar( "null?", make_native( builtin::f_is_null ) );
-   defvar( "number?", make_native( builtin::f_is_real ) );
    defvar( "string?", make_native( builtin::f_is_string ) );
    defvar( "error?", make_native( builtin::f_is_error ) );
    defvar( "symbol?", make_native( builtin::f_is_symbol ) );
+   defvar( "real?", make_native( builtin::f_is_real ) );
+   defvar( "int?", make_native( builtin::f_is_integer ) );
+   defvar( "number?", make_native( builtin::f_is_number ) );
    defvar( "symbol-name", make_native( builtin::f_symbol_name ) );
 
    defvar( "map", make_native( builtin::f_map ) );

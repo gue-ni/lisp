@@ -195,7 +195,37 @@ int Expr::as_integer() const
    }
    else
    {
-      assert( false && "Expr::as_integer() unreachable" );
+      UNREACHABLE
+      return -1;
+   }
+}
+
+double Expr::as_real() const
+{
+   if( is_real() )
+   {
+      return atom.real;
+   }
+   else
+   {
+      UNREACHABLE
+      return -1;
+   }
+}
+
+double Expr::as_number() const
+{
+   if( is_integer() )
+   {
+      return ( double ) atom.integer;
+   }
+   else if( is_real() )
+   {
+      return atom.real;
+   }
+   else
+   {
+      UNREACHABLE;
       return -1;
    }
 }
@@ -231,6 +261,11 @@ bool Expr::is_real() const
 bool Expr::is_integer() const
 {
    return is_atom() && ( atom.type == Atom::ATOM_INTEGER );
+}
+
+bool Expr::is_number() const
+{
+   return is_real() || is_integer();
 }
 
 bool Expr::is_symbol() const
@@ -319,6 +354,27 @@ Atom::Atom( Atom && other ) noexcept
    }
 }
 
+bool Atom::is_numeric() const
+{
+   return type == Atom::ATOM_INTEGER || type == Atom::ATOM_REAL;
+}
+double Atom::as_numeric() const
+{
+   if( type == Atom::ATOM_INTEGER )
+   {
+      return ( double ) integer;
+   }
+   else if( type == Atom::ATOM_REAL )
+   {
+      return real;
+   }
+   else
+   {
+      UNREACHABLE;
+      return 0;
+   }
+}
+
 bool Atom::is_truthy() const
 {
    switch( type )
@@ -388,7 +444,11 @@ std::string Atom::to_json() const
 
 bool Atom::operator==( const Atom & other ) const
 {
-   if( type != other.type )
+   if( is_numeric() && other.is_numeric() )
+   {
+      return as_numeric() == other.as_numeric();
+   }
+   else if( type != other.type )
    {
       return false;
    }
@@ -422,10 +482,15 @@ bool Atom::operator==( const Atom & other ) const
 
 bool Atom::operator>( const Atom & other ) const
 {
-   if( type != other.type )
+   if( is_numeric() && other.is_numeric() )
+   {
+      return as_numeric() > other.as_numeric();
+   }
+   else if( type != other.type )
    {
       return false;
    }
+
    switch( type )
    {
       case lisp::Atom::ATOM_REAL :

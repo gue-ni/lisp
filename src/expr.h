@@ -2,6 +2,7 @@
 
 #include "builtin.h"
 #include "gc.h"
+#include "util.h"
 
 #include <cassert>
 #include <cstring>
@@ -76,6 +77,8 @@ struct Atom
    Atom( Atom && other ) noexcept;
 
    bool is_truthy() const;
+   bool is_numeric() const;
+   double as_numeric() const;
 
    std::string to_json() const;
 
@@ -128,6 +131,7 @@ struct Expr : public gc::Garbage
    bool is_string() const;
    bool is_real() const;
    bool is_integer() const;
+   bool is_number() const;
    bool is_symbol() const;
    bool is_symbol( const char * symbol ) const;
    bool is_lambda() const;
@@ -145,6 +149,7 @@ struct Expr : public gc::Garbage
    bool as_boolean() const;
    double as_real() const;
    int as_integer() const;
+   double as_number() const;
    const char * as_string() const;
    const char * as_error() const;
    const char * as_symbol() const;
@@ -254,6 +259,30 @@ inline Expr * make_macro( Expr * params, Expr * body, Context * env )
    atom.type  = Atom::ATOM_MACRO;
    atom.macro = Macro{ params, body, env };
    return make_expr( std::move( atom ) );
+}
+
+inline Expr * make_copy( Expr * e )
+{
+   switch( e->type )
+   {
+      case Expr::EXPR_ATOM :
+         {
+            switch( e->atom.type )
+            {
+               case Atom::ATOM_REAL :
+                  return make_real( e->atom.real );
+               case Atom::ATOM_INTEGER :
+                  return make_integer( e->atom.integer );
+               default :
+                  break;
+            }
+            break;
+         }
+      default :
+         break;
+   }
+   UNREACHABLE;
+   return make_nil();
 }
 
 inline Expr * make_list()
