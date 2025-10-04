@@ -105,6 +105,13 @@ Define a named function.
 ```lisp
 (defun add (a b)
     (+ a b))
+
+; defun also supports '&rest' to capture a list of arguments
+(defun my-fn (a b &rest c)
+  (list a b c))
+
+(my-fn 1 2 3 4 5)
+; => (1 2 (3 4 5))
 ```
 
 ### `defmacro`
@@ -113,20 +120,21 @@ Define a macro.
 
 ## Builtin Functions
 
-| Keyword                       | Purpose               | Example                   |
-| ----------------------------- | --------------------- | ------------------------- |
-| `+`, `-`, `*`, `/`            | Arithemtic operations | `(* 2 3)`                 |
-| `=`, `<`, `>`, `<=`, `>=`     | Logic operations      |                           |
-| `print` , `println`           |                       |                           |
-| `car`, `cdr`                  |                       |                           |
-| `cons`                        |                       |                           |
-| `append`                      |                       |                           |
-| `map`                         |                       |                           |
-| `apply`                       |                       |                           |
-| `filter`                      |                       |                           |
-| `length`                      |                       |                           |
-| `read`                        |                       |                           |
-| `eval`                        |                       |                           |
-| `null?`, `number?`, `string?` | Check for type        | `(string? "hello")`       |
-| `load`                        | Import file           | `(load "my-module.lsp")` |
-| `str`                         |                       |                           |
+| Keyword                       | Purpose               | Example                               |
+| ----------------------------- | --------------------- | ------------------------------------- |
+| `+`, `-`, `*`, `/`            | Arithemtic operations | `(* 2 3)`                             |
+| `=`, `<`, `>`, `<=`, `>=`     | Logic operations      | `(= 2 3)`, `(< 2 3)`                                      |
+| `and` , `or`                  | Boolean operators     |                                       |
+| `print` , `println`           |                       |                                       |
+| `car`, `cdr`                  |                       |                                       |
+| `cons`                        |                       |                                       |
+| `append`                      |                       |                                       |
+| `map`                         |                       |                                       |
+| `apply`                       |                       | `(apply + (list 1 2 3))`              |
+| `filter`                      |                       | `((lambda (x) (> x 1)) (list 1 2 3))` |
+| `length`                      |                       |                                       |
+| `read`                        |                       |                                       |
+| `eval`                        |                       |                                       |
+| `null?`, `number?`, `string?` | Check for type        | `(string? "hello")`                   |
+| `load`                        | Import file           | `(load "my-module.lsp")`              |
+| `str`                         |                       |                                       |
