@@ -55,7 +55,7 @@ Expr * f_not( Expr * arg, Context & context, const IO & io );
 
 Expr * f_is_null( Expr * arg, Context & context, const IO & io );
 
-Expr * f_is_number( Expr * arg, Context & context, const IO & io );
+Expr * f_is_real( Expr * arg, Context & context, const IO & io );
 
 Expr * f_is_string( Expr * arg, Context & context, const IO & io );
 

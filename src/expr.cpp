@@ -213,9 +213,9 @@ bool Expr::is_string() const
    return is_atom() && ( atom.type == Atom::ATOM_STRING );
 }
 
-bool Expr::is_number() const
+bool Expr::is_real() const
 {
-   return is_atom() && ( atom.type == Atom::ATOM_NUMBER );
+   return is_atom() && ( atom.type == Atom::ATOM_REAL );
 }
 
 bool Expr::is_integer() const
@@ -240,7 +240,7 @@ Atom::~Atom()
    switch( type )
    {
       case lisp::Atom::ATOM_NIL :
-      case lisp::Atom::ATOM_NUMBER :
+      case lisp::Atom::ATOM_REAL :
       case lisp::Atom::ATOM_INTEGER :
       case lisp::Atom::ATOM_BOOLEAN :
       case lisp::Atom::ATOM_LAMBDA :
@@ -278,8 +278,8 @@ Atom::Atom( Atom && other ) noexcept
       case lisp ::Atom ::ATOM_BOOLEAN :
          boolean = other.boolean;
          break;
-      case lisp::Atom::ATOM_NUMBER :
-         number = other.number;
+      case lisp::Atom::ATOM_REAL :
+         real = other.real;
          break;
       case lisp::Atom::ATOM_INTEGER :
          integer = other.integer;
@@ -317,8 +317,8 @@ bool Atom::is_truthy() const
          return false;
       case lisp::Atom::ATOM_BOOLEAN :
          return boolean;
-      case lisp::Atom::ATOM_NUMBER :
-         return number != 0;
+      case lisp::Atom::ATOM_REAL :
+         return real != 0;
       case lisp::Atom::ATOM_INTEGER :
          return integer != 0;
       case lisp::Atom::ATOM_STRING :
@@ -344,8 +344,8 @@ std::string Atom::to_json() const
          return "null";
       case Atom ::ATOM_BOOLEAN :
          return ( boolean ? KW_TRUE : KW_FALSE );
-      case Atom::ATOM_NUMBER :
-         return std::to_string( number );
+      case Atom::ATOM_REAL :
+         return std::to_string( real );
       case Atom::ATOM_INTEGER :
          return std::to_string( integer );
       case Atom::ATOM_SYMBOL :
@@ -381,8 +381,8 @@ bool Atom::operator==( const Atom & other ) const
          return true;
       case lisp::Atom::ATOM_BOOLEAN :
          return boolean == other.boolean;
-      case lisp::Atom::ATOM_NUMBER :
-         return number == other.number;
+      case lisp::Atom::ATOM_REAL :
+         return real == other.real;
       case lisp::Atom::ATOM_INTEGER :
          return integer == other.integer;
       case lisp::Atom::ATOM_SYMBOL :
@@ -410,8 +410,8 @@ bool Atom::operator>( const Atom & other ) const
    }
    switch( type )
    {
-      case lisp::Atom::ATOM_NUMBER :
-         return number > other.number;
+      case lisp::Atom::ATOM_REAL :
+         return real > other.real;
       case lisp::Atom::ATOM_INTEGER :
          return integer > other.integer;
       case lisp::Atom::ATOM_NIL :
@@ -478,10 +478,10 @@ std::string to_string( Expr * expr )
                   return std::string( expr->atom.symbol );
                case Atom ::ATOM_ERROR :
                   return "(error: " + std::string( expr->atom.error ) + ")";
-               case Atom ::ATOM_NUMBER :
+               case Atom ::ATOM_REAL :
                   {
                      std::stringstream ss;
-                     ss << expr->atom.number;
+                     ss << expr->atom.real;
                      return ss.str();
                   }
                case Atom ::ATOM_INTEGER :

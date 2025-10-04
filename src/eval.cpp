@@ -194,7 +194,7 @@ void Context::load_runtime()
    defvar( "error", make_native( builtin::f_error ) );
 
    defvar( "null?", make_native( builtin::f_is_null ) );
-   defvar( "number?", make_native( builtin::f_is_number ) );
+   defvar( "number?", make_native( builtin::f_is_real ) );
    defvar( "string?", make_native( builtin::f_is_string ) );
    defvar( "error?", make_native( builtin::f_is_error ) );
    defvar( "symbol?", make_native( builtin::f_is_symbol ) );
@@ -234,7 +234,7 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
    {
       case Atom::ATOM_NIL :
       case Atom::ATOM_BOOLEAN :
-      case Atom::ATOM_NUMBER :
+      case Atom::ATOM_REAL :
       case Atom::ATOM_INTEGER :
       case Atom::ATOM_STRING :
       case Atom::ATOM_ERROR :

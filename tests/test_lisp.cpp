@@ -843,9 +843,9 @@ TEST_F( LispTest, test_filter_03 )
 TEST_F( LispTest, test_back_inserter_01 )
 {
    ListBuilder builder;
-   builder.append( make_number( 1 ) );
-   builder.append( make_number( 2 ) );
-   builder.append( make_number( 3 ) );
+   builder.append( make_integer( 1 ) );
+   builder.append( make_integer( 2 ) );
+   builder.append( make_integer( 3 ) );
    Expr * list = builder.list();
 
    EXPECT_EQ( to_string( list ), "(1 2 3)" );

@@ -47,7 +47,7 @@ struct Atom
    {
       ATOM_NIL,
       ATOM_BOOLEAN,
-      ATOM_NUMBER,
+      ATOM_REAL,
       ATOM_INTEGER,
       ATOM_SYMBOL,
       ATOM_STRING,
@@ -61,7 +61,7 @@ struct Atom
    union
    {
       bool boolean;
-      double number;
+      double real;
       int integer;
       char * symbol;
       char * string;
@@ -126,7 +126,7 @@ struct Expr : public gc::Garbage
 
    bool is_nil() const;
    bool is_string() const;
-   bool is_number() const;
+   bool is_real() const;
    bool is_integer() const;
    bool is_symbol() const;
    bool is_symbol( const char * symbol ) const;
@@ -142,7 +142,7 @@ struct Expr : public gc::Garbage
    Expr * cdr();
 
    bool as_boolean() const;
-   double as_number() const;
+   double as_real() const;
    int as_integer() const;
    const char * as_string() const;
    const char * as_error() const;
@@ -191,11 +191,11 @@ inline Expr * make_boolean( bool boolean )
    return make_expr( std::move( atom ) );
 }
 
-inline Expr * make_number( double number )
+inline Expr * make_real( double real )
 {
    Atom atom;
-   atom.type   = Atom::ATOM_NUMBER;
-   atom.number = number;
+   atom.type   = Atom::ATOM_REAL;
+   atom.real = real;
    return make_expr( std::move( atom ) );
 }
 
