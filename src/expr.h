@@ -194,7 +194,7 @@ inline Expr * make_boolean( bool boolean )
 inline Expr * make_real( double real )
 {
    Atom atom;
-   atom.type   = Atom::ATOM_REAL;
+   atom.type = Atom::ATOM_REAL;
    atom.real = real;
    return make_expr( std::move( atom ) );
 }

@@ -289,12 +289,12 @@ void bind_params( Context * local, Expr * params, Expr * args )
    for( arg = args, param = params; param->is_cons() && arg->is_cons(); arg = arg->cdr(), param = param->cdr() )
    {
       const char * symbol = param->car()->as_symbol();
-      assert(symbol != nullptr);
+      assert( symbol != nullptr );
 
-      if( strncmp(symbol, "&rest", 5)  == 0)
+      if( strncmp( symbol, "&rest", 5 ) == 0 )
       {
          const char * next_symbol = param->cdr()->car()->as_symbol();
-         assert(next_symbol != nullptr);
+         assert( next_symbol != nullptr );
          local->defvar( next_symbol, arg );
          break;
       }
