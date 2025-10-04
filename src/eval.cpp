@@ -215,6 +215,28 @@ std::string init_script()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void eval_profile( Context & context, const IO & io )
+{
+  const char * home = getenv( "HOME" );
+  assert( home != nullptr );
+
+  std::string path = std::string( home ) + "/.profile.lsp";
+
+  std::ifstream file( path );
+  if( !file.is_open() )
+  {
+    return;
+  }
+
+  std::ostringstream ss;
+  ss << file.rdbuf();
+  std::string program = ss.str();
+
+  ( void ) eval( program, context, io );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * eval_atom( Expr * expr, Context & context, const IO & io )
 {
   assert( expr->is_atom() );
@@ -673,7 +695,7 @@ int eval( const std::string & source, Flags flags )
 
   if( flags & FLAG_INIT )
   {
-    ( void ) eval( init_script(), ctx, io );
+    eval_profile( ctx, io );
   }
 
   return eval( source, ctx, io, flags );
@@ -777,7 +799,7 @@ int repl()
 
   print_repl_header();
 
-  ( void ) eval( init_script(), ctx, io );
+  eval_profile( ctx, io );
 
   do
   {
