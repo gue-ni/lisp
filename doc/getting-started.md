@@ -2,15 +2,28 @@
 
 ## Content
 
--   [Basics](#basics)
--   [Special Forms](#special-forms)
--   [Builtin Function](#builtin-functions)
+- [Getting Started](#getting-started)
+  - [Content](#content)
+  - [Basics](#basics)
+  - [Special Forms](#special-forms)
+    - [`quote`](#quote)
+    - [`list`](#list)
+    - [`let`](#let)
+    - [`progn`](#progn)
+    - [`if`](#if)
+    - [`cond`](#cond)
+    - [`defvar`](#defvar)
+    - [`lambda`](#lambda)
+    - [`defun`](#defun)
+    - [`defmacro`](#defmacro)
+  - [Builtin Functions](#builtin-functions)
+
 
 ## Basics
 
 Lisp programs are built from S-expressions, which are either _atoms_ (numbers,
 symbols or strings) or _lists_ enclosed in parantheses. Functions and operations
-are written in prefix notation, where the operator comes first, followed by its
+are written in prefix notation, where the operator comes first, followed by the
 arguments.
 
 ```lisp
@@ -77,7 +90,8 @@ Conditional evaluation.
 
 ### `cond`
 
-Conditional evaluation, tests clauses in order and executes the first one that is true.
+Conditional evaluation, tests clauses in order and executes the first one that
+is true.
 
 ```lisp
 (defvar x 5)
@@ -124,25 +138,33 @@ Define a named function.
 
 ### `defmacro`
 
-Define a macro.
+Define a macro, unlike a function, the arguments are not evaluated before
+passing them to the macro.
+
+```lisp
+; macro to test if a symbol is defined.
+(defmacro symbolp (s)
+  `(let ((e ,s)) (not (error? e))))
+```
 
 ## Builtin Functions
 
-| Keyword                       | Purpose               | Example                               |
-| ----------------------------- | --------------------- | ------------------------------------- |
-| `+`, `-`, `*`, `/`            | Arithemtic operations | `(* 2 3)`                             |
-| `=`, `<`, `>`, `<=`, `>=`     | Logic operations      | `(= 2 3)`, `(< 2 3)`                  |
-| `and` , `or`                  | Boolean operators     |                                       |
-| `print` , `println`           |                       |                                       |
-| `car`, `cdr`                  |                       |                                       |
-| `cons`                        |                       |                                       |
-| `append`                      |                       |                                       |
-| `map`                         |                       |                                       |
-| `apply`                       |                       | `(apply + (list 1 2 3))`              |
-| `filter`                      |                       | `((lambda (x) (> x 1)) (list 1 2 3))` |
-| `length`                      |                       |                                       |
-| `read`                        |                       |                                       |
-| `eval`                        |                       |                                       |
-| `null?`, `number?`, `string?` | Check for type        | `(string? "hello")`                   |
-| `load`                        | Import file           | `(load "my-module.lsp")`              |
-| `str`                         |                       |                                       |
+| Keyword                                 | Purpose               | Example                               |
+| --------------------------------------- | --------------------- | ------------------------------------- |
+| `+`, `-`, `*`, `/`                      | Arithemtic operations | `(* 2 3)`                             |
+| `=`, `<`, `>`, `<=`, `>=`               | Logic operations      | `(= 2 3)`, `(< 2 3)`                  |
+| `and` , `or`, `not`                     | Boolean operators     |                                       |
+| `print` , `println`                     |                       |                                       |
+| `car`                                   |                       |                                       |
+| `cdr`                                   |                       |                                       |
+| `cons`                                  |                       |                                       |
+| `append`                                |                       |                                       |
+| `map`                                   |                       |                                       |
+| `apply`                                 |                       | `(apply + (list 1 2 3))`              |
+| `filter`                                |                       | `((lambda (x) (> x 1)) (list 1 2 3))` |
+| `length`                                |                       |                                       |
+| `read`                                  |                       |                                       |
+| `eval`                                  |                       |                                       |
+| `null?`, `number?`, `string?`, `error?` | Check for type        | `(string? "hello")`                   |
+| `load`                                  | Import file           | `(load "my-module.lsp")`              |
+| `str`                                   |                       |                                       |

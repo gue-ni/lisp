@@ -11,6 +11,7 @@
     - [`$` - Capture _stdout_](#---capture-stdout)
     - [`<<<` - Feed expression to _stdout_](#---feed-expression-to-stdout)
     - [`exec` - Execute a list of commands](#exec---execute-a-list-of-commands)
+    - [`and`/`or`](#andor)
 
 _Lisp_ includes common linux shell scripting implements, including piping, redirecting
 and capturing output of programs.
@@ -37,9 +38,7 @@ Pipe output from one command into the input of another.
 
 ```lisp
 ; pipe output of 'ls' to 'grep'
-(pipe
-  (sh ls -la )
-  (sh grep "*.txt"))
+(pipe (sh ls -la ) (sh grep "*.txt"))
 ```
 
 ### `$` - Capture _stdout_
@@ -57,15 +56,22 @@ Send the string version of an expression to _stdout_.
 
 ```lisp
 ; pipe 'hello world' into the 'rev' command
-(pipe
-  (<<< "hello world")
-  (sh rev))
+(pipe (<<< "hello world") (sh rev))
 ```
 
 ### `exec` - Execute a list of commands
 
-
 Execute a list of strings as a shell command. This function is a wrapper around
 the `execvp` function in linux. It is used internally by `sh`.
+
+### `and`/`or`
+
+Shell commands can be combined using `and` and `or` to get conditional
+execution.
+
+```lisp
+; sudo apt update && sudo apt upgrade
+(and (sh sudo apt update) (sh sudo apt upgrade))
+```
 
 

@@ -39,19 +39,6 @@ I have written a simple function for dumping the internal datastructure as json,
 
 The expression `(+ 2 3)` would look like this:
 
-```json
-{
-	"car": "symbol(+)",
-	"cdr": {
-		"car": 2,
-		"cdr": {
-			"car": 3,
-			"cdr": null
-		}
-	}
-}
-```
-
 ## Documentation
 
 - [Gettings Started](doc/getting-started.md)
