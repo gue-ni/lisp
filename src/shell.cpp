@@ -16,33 +16,18 @@ namespace shell
 
 Expr * f_exec( Expr * arg, Context & context, const IO & io )
 {
-
-#if 0
-   Expr * local_stdin  = context.lookup( "*stdin-fd*" );
-   Expr * local_stdout = context.lookup( "*stdout-fd*" );
-   int stdin_fd  = ( local_stdin->is_integer() ) ? local_stdin->as_integer() : STDIN_FILENO;
-   int stdout_fd = ( local_stdout->is_integer() ) ? local_stdout->as_integer() : STDOUT_FILENO;
-#else
-   int stdin_fd  = io.pipe_stdin;
-   int stdout_fd = io.pipe_stdout;
-#endif
-   int stderr_fd = STDERR_FILENO;
-
-   // printf("%s stdin-fd=%d stdout-fd=%d\n", __PRETTY_FUNCTION__, stdin_fd,
-   //        stdout_fd);
-
    pid_t pid;
    int status = -1;
 
-   // first two arguments are file descriptors
+   int stdin_fd  = io.pipe_stdin;
+   int stdout_fd = io.pipe_stdout;
+   int stderr_fd = STDERR_FILENO;
 
    errno = 0;
    pid   = fork();
 
    if( pid == 0 )
    {
-
-      // prepare args
       std::vector<char *> argv;
       for( Expr * it = arg; it->is_cons(); it = it->cdr() )
       {
@@ -56,7 +41,6 @@ Expr * f_exec( Expr * arg, Context & context, const IO & io )
       dup2( stdout_fd, STDOUT_FILENO );
       dup2( stderr_fd, STDERR_FILENO );
 
-      // close extra fds
       for( int fd : { stdin_fd, stdout_fd, stderr_fd } )
       {
          if( fd > 2 )
@@ -88,14 +72,7 @@ Expr * f_exec( Expr * arg, Context & context, const IO & io )
       return make_error( strerror( errno ) );
    }
 
-   // printf("pid=%d %d %d %d status=%d\n", pid, stdin_fd, stdout_fd, stderr_fd,
-   //        status);
-
-   // return make_list(
-   //     make_integer( status ), make_integer( pid ), make_integer( stdin_fd ), make_integer( stdout_fd ),
-   //     make_integer( stderr_fd ) );
-
-   return make_integer( status );
+   return make_boolean( status == 0 );
 }
 
 } // namespace shell
