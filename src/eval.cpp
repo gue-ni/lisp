@@ -156,6 +156,10 @@ void Context::load_runtime()
    defvar( KW_DEFUN, make_symbol( KW_DEFUN ) );
 
    defvar( "str", make_native( builtin::f_str ) );
+   defvar( "strtok", make_native( builtin::f_strtok ) );
+   defvar( "strlen", make_native( builtin::f_strlen ) );
+   defvar( "strcmp", make_native( builtin::f_strcmp ) );
+
    defvar( "print", make_native( builtin::f_print ) );
    defvar( "println", make_native( builtin::f_println ) );
    defvar( "to-json", make_native( builtin::f_to_json ) );

@@ -123,7 +123,7 @@ struct Expr : public gc::Garbage
    bool is_void() const;
    bool is_cons() const;
    bool is_atom() const;
-
+   bool is_atom( Atom::Type atype ) const;
    bool is_nil() const;
    bool is_string() const;
    bool is_real() const;
@@ -132,6 +132,7 @@ struct Expr : public gc::Garbage
    bool is_symbol( const char * symbol ) const;
    bool is_lambda() const;
    bool is_native() const;
+   bool is_procedure() const;
    bool is_error() const;
    bool is_macro() const;
    bool is_truthy() const;

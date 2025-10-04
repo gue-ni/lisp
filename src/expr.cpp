@@ -59,14 +59,14 @@ bool Expr::is_atom() const
    return type == Expr::EXPR_ATOM;
 }
 
+bool Expr::is_atom( Atom::Type atype ) const
+{
+   return is_atom() && ( atom.type == atype );
+}
+
 bool Expr::is_symbol( const char * symbol ) const
 {
    return is_atom() && ( atom.type == Atom::ATOM_SYMBOL ) && ( strcmp( atom.symbol, symbol ) == 0 );
-}
-
-bool Expr::is_lambda() const
-{
-   return is_atom() && ( atom.type == Atom::ATOM_LAMBDA );
 }
 
 bool Expr::is_native() const
@@ -74,14 +74,24 @@ bool Expr::is_native() const
    return is_atom() && ( atom.type == Atom::ATOM_NATIVE );
 }
 
-bool Expr::is_error() const
+bool Expr::is_lambda() const
 {
-   return is_atom() && ( atom.type == Atom::ATOM_ERROR );
+   return is_atom() && ( atom.type == Atom::ATOM_LAMBDA );
 }
 
 bool Expr::is_macro() const
 {
    return is_atom() && ( atom.type == Atom::ATOM_MACRO );
+}
+
+bool Expr::is_procedure() const
+{
+   return is_native() || is_lambda() || is_macro();
+}
+
+bool Expr::is_error() const
+{
+   return is_atom() && ( atom.type == Atom::ATOM_ERROR );
 }
 
 bool Expr::is_truthy() const

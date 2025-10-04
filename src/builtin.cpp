@@ -1,3 +1,4 @@
+#include <cstring>
 #include <exception>
 #include <fstream>
 #include <sstream>
@@ -12,6 +13,60 @@
 namespace lisp
 {
 
+///////////////////////////////////////////////////////////////////////////////
+
+int list_length( Expr * lst )
+{
+   int len = 0;
+   for( Expr * it = lst; it->is_cons(); it = it->cdr() )
+      len++;
+   return len;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#define ASSERT_ARG_COUNT( arg_list, n )                                           \
+   do                                                                             \
+   {                                                                              \
+      int len = list_length( arg_list );                                          \
+      if( len != n )                                                              \
+      {                                                                           \
+         std::ostringstream os;                                                   \
+         os << __FUNCTION__ << " expected " << n << " args but received " << len; \
+         return make_error( os.str().c_str() );                                   \
+      }                                                                           \
+   } while( 0 )
+
+///////////////////////////////////////////////////////////////////////////////
+
+#define ASSERT_MIN_ARG_COUNT( arg_list, n )                                                \
+   do                                                                                      \
+   {                                                                                       \
+      int len = list_length( arg_list );                                                   \
+      if( len < n )                                                                        \
+      {                                                                                    \
+         std::ostringstream os;                                                            \
+         os << __FUNCTION__ << " expected at least " << n << " args but received " << len; \
+         return make_error( os.str().c_str() );                                            \
+      }                                                                                    \
+   } while( 0 )
+
+///////////////////////////////////////////////////////////////////////////////
+
+#define ASSERT_ARG_TYPE( a, atom_type )                                                            \
+   do                                                                                              \
+   {                                                                                               \
+      if( !( a )->is_atom( atom_type ) )                                                           \
+      {                                                                                            \
+         std::ostringstream os;                                                                    \
+         os << __FUNCTION__ << " expected " << #a << " to be of type " << atom_type << ", but is " \
+            << ( a )->atom.type;                                                                   \
+         return make_error( os.str().c_str() );                                                    \
+      }                                                                                            \
+   } while( 0 )
+
+///////////////////////////////////////////////////////////////////////////////
+
 namespace builtin
 {
 
@@ -25,6 +80,69 @@ Expr * f_str( Expr * arg, Context & context, const IO & io )
       str += to_string( it->car() );
    }
    return make_string( str.c_str() );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_strtok( Expr * args, Context & context, const IO & io )
+{
+   ASSERT_ARG_COUNT( args, 2 );
+
+   Expr * arg_1 = args->car();
+   ASSERT_ARG_TYPE( arg_1, Atom::ATOM_STRING );
+
+   Expr * arg_2 = args->cdr()->car();
+   ASSERT_ARG_TYPE( arg_2, Atom::ATOM_STRING );
+
+   const char * delim = arg_1->as_string();
+   char * str         = STRDUP( arg_2->as_string() );
+
+   ListBuilder lb;
+   for( char * token = strtok( str, delim ); token != NULL; token = strtok( NULL, delim ) )
+   {
+      lb.append( make_string( token ) );
+   }
+
+   free( str );
+   return lb.list();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_strlen( Expr * args, Context & context, const IO & io )
+{
+   ASSERT_ARG_COUNT( args, 1 );
+
+   Expr * arg1 = args->car();
+   ASSERT_ARG_TYPE( arg1, Atom::ATOM_STRING );
+
+   return make_integer( strlen( arg1->as_string() ) );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_strcmp( Expr * args, Context & context, const IO & io )
+{
+   ASSERT_MIN_ARG_COUNT( args, 2 );
+
+   Expr * arg_1 = args->car();
+   ASSERT_ARG_TYPE( arg_1, Atom::ATOM_STRING );
+
+   const char * str1 = arg_1->as_string();
+
+   for( Expr * it = args->cdr(); it->is_cons(); it = it->cdr() )
+   {
+      Expr * arg_n = it->car();
+      ASSERT_ARG_TYPE( arg_n, Atom::ATOM_STRING );
+
+      const char * str2 = arg_n->as_string();
+      if( strcmp( str1, str2 ) != 0 )
+      {
+         return make_boolean( false );
+      }
+   }
+
+   return make_boolean( true );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -400,7 +518,7 @@ Expr * f_exit( Expr * arg, Context & context, const IO & io )
 
 Expr * f_error( Expr * arg, Context & context, const IO & io )
 {
-   const char * message = arg->car()->atom.string;
+   const char * message = arg->car()->as_string();
    return make_error( message );
 }
 
@@ -424,7 +542,6 @@ Expr * f_append( Expr * args, Context & context, const IO & io )
    }
 
    Expr * it = nullptr;
-
    for( it = arg1; it->cdr()->is_cons(); it = it->cdr() )
    {
    }
@@ -442,7 +559,7 @@ Expr * f_length( Expr * args, Context & context, const IO & io )
 
    if( arg1->is_nil() )
    {
-      return make_real( 0 );
+      return make_integer( 0 );
    }
 
    if( !arg1->is_cons() )
@@ -450,14 +567,8 @@ Expr * f_length( Expr * args, Context & context, const IO & io )
       return make_error( "length exprected a list" );
    }
 
-   int length = 0;
-
-   for( Expr * it = arg1; it->is_cons(); it = it->cdr() )
-   {
-      length++;
-   }
-
-   return make_real( length );
+   int length = list_length( arg1 );
+   return make_integer( length );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -465,7 +576,10 @@ Expr * f_length( Expr * args, Context & context, const IO & io )
 Expr * f_filter( Expr * arg, Context & context, const IO & io )
 {
    Expr * fn = arg->car();
-   assert( fn->is_lambda() || fn->is_native() );
+   if( !fn->is_procedure() )
+   {
+      return make_error( "filter expects a function as first argument" );
+   }
 
    ListBuilder builder;
 
@@ -490,7 +604,7 @@ Expr * f_map( Expr * arg, Context & context, const IO & io )
 {
    Expr * fn = arg->car();
 
-   if( !( fn->is_lambda() || fn->is_native() || fn->is_macro() ) )
+   if( !fn->is_procedure() )
    {
       return make_error( "map expects a function as first argument" );
    }

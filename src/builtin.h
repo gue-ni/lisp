@@ -21,6 +21,12 @@ namespace builtin
 
 Expr * f_str( Expr * arg, Context & context, const IO & io );
 
+Expr * f_strtok( Expr * arg, Context & context, const IO & io );
+
+Expr * f_strlen( Expr * arg, Context & context, const IO & io );
+
+Expr * f_strcmp( Expr * arg, Context & context, const IO & io );
+
 Expr * f_print( Expr * arg, Context & context, const IO & io );
 
 Expr * f_println( Expr * arg, Context & context, const IO & io );

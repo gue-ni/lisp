@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 # Detect OS and architecture
 OS="$(uname | tr '[:upper:]' '[:lower:]')"
@@ -12,8 +11,6 @@ if [ "$ARCH" = "x86_64" ]; then
 elif [ "$ARCH" = "aarch64" ]; then
     ARCH="arm64"
 fi
-
-echo "Install lisp for ${OS} ${ARCH}"
 
 RELEASE="lisp-${OS}-${ARCH}.tar.gz"
 
@@ -31,8 +28,7 @@ tar -xzf "${TMPDIR}/lisp.tar.gz" -C "${TMPDIR}"
 BINDIR=/usr/local/bin/
 
 # Install binary (requires sudo)
-echo "Installing Lisp interpreter to ${BINDIR} …"
-sudo cp -v $TMPDIR/lisp $BINDIR
+sudo cp $TMPDIR/lisp $BINDIR
 sudo chmod +x $BINDIR/lisp
 
 # Cleanup
@@ -43,7 +39,6 @@ if ! ldconfig -p | grep -q readline; then
   echo "Warning: readline library not found."
   echo "On Debian/Ubuntu: sudo apt install libreadline-dev"
   echo "On Fedora: sudo dnf install readline-devel"
-else
-  echo "Found readline."
 fi
 
+echo "Successfully installed lisp to ${BINDIR}"
