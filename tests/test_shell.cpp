@@ -11,7 +11,7 @@ TEST_F( LispTest, test_shell_01 )
 (load "stdlib/shell.lsp")
 
 (defvar result
-   (from-stream
+   ($
       (pipe
          (sh find "src")
          (sh grep "lisp.h"))))
@@ -29,9 +29,9 @@ TEST_F( LispTest, test_shell_02 )
 (load "stdlib/shell.lsp")
 
 (defvar reversed
-   (from-stream
+   ($
       (pipe
-         (to-stream "hello world")
+         (<<< "hello world")
          (sh rev))))
 
 (print reversed)
@@ -46,7 +46,7 @@ TEST_F( LispTest, test_shell_03 )
    std::string src = R"(
 (load "stdlib/shell.lsp")
 
-(print (from-stream (sh uname -o)))
+(print ($ (sh uname -o)))
    )";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( err.str(), "" );

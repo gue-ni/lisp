@@ -14,13 +14,19 @@ and capturing output of programs.
 
 ### `sh`
 
+Execute unix commands.
+
 ```lisp
 ; execute the 'uname -a' command
 (sh uname -a)
+
+; ls -la
+(sh ls -la)
 ```
 
-
 ### `pipe`
+
+Pipe output from one command into the input of another.
 
 ```lisp
 (pipe
@@ -28,13 +34,23 @@ and capturing output of programs.
   (sh grep "*.txt"))
 ```
 
-### `to-stream`
+### `<<<`
+
+Send the string version of an expression to _stdout_.
 
 ```lisp
+; pipe 'hello world' into the 'rev' command
+(pipe
+  (<<< "hello world")
+  (sh rev))
 ```
 
-### `from-stream`
+### `$`
+
+Capture _stdin_ as string.
 
 ```lisp
+; capture the output of the 'cat' command
+(defvar content ($ (sh cat "my-file.txt")))
 ```
 

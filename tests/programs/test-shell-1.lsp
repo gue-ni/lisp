@@ -23,18 +23,18 @@
 (println "pipe 2:")
 (println (pipe (exec "find" "src") (my-grep ".h")))
 
-(defvar ls-output (from-stream (exec "ls")))
+(defvar ls-output ($ (exec "ls")))
 
 (println "capture 1:")
 (println ls-output)
 
 
 (println "capture 2:")
-(println (pipe (exec "find" "src") (from-stream (my-grep ".h"))))
+(println (pipe (exec "find" "src") ($ (my-grep ".h"))))
 
 (println "capture 3:")
 (defvar output
-  (from-stream
+  ($
     (pipe
       (pipe
         (exec "find" "src")
@@ -48,9 +48,9 @@
 (println (pipe (exec "echo" "hello world") (exec "rev")))
 
 (println "to-pipe 2")
-(defvar my-str (from-stream (pipe (to-stream "hello world") (exec "rev"))))
+(defvar my-str ($ (pipe (<<< "hello world") (exec "rev"))))
 (println "test: " my-str)
 
 (println "to-pipe 3")
-(defvar my-rev-str (from-stream (pipe (to-stream "hello world") (exec "rev"))))
+(defvar my-rev-str ($ (pipe (<<< "hello world") (sh rev))))
 (println "test: " my-rev-str)
