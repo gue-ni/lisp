@@ -10,5 +10,5 @@
 ; usage:
 ; (sh ls -la)
 ; (let ((my-file "my_file.txt")) (sh touch my-file))
-(defmacro sh (&args)
+(defmacro sh (&rest args)
   `(apply exec (map sh-arg args)))

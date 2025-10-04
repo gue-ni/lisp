@@ -679,20 +679,20 @@ TEST_F( LispTest, test_unquote_splice_01 )
    EXPECT_EQ( out.str(), "(1 2 3 4)" );
 }
 
-TEST_F( LispTest, test_rest_argument_01 )
+TEST_F( LispTest, test_rest_01 )
 {
    std::string src = R"(
-(defun my-fn (a b & rest)
-  rest)
+(defun my-fn (a b &rest c)
+  (list a b c))
 
-(my-fn 1 2 3 4)
+(my-fn 1 2 3 4 5)
    )";
 
    int r = eval( src, ctx, io );
 
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "(3 4)" );
+   EXPECT_EQ( out.str(), "(1 2 (3 4 5))" );
 }
 
 TEST_F( LispTest, test_negative_number_01 )
