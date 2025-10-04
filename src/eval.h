@@ -32,28 +32,27 @@ using Env = std::map<std::string, Expr *>;
 
 class Context : public gc::Garbage
 {
- public:
-   Context( Context * parent = nullptr );
-   ~Context();
-   Expr * lookup( const char * symbol ) const;
-   void defvar( const char * symbol, Expr * expr );
-   void print( const IO & io ) const;
-   const Env & env() const;
-   void mark() override;
-   Context * parent()
-   {
-      return m_parent;
-   }
+public:
+  Context( Context * parent = nullptr );
+  ~Context();
+  Expr * lookup( const char * symbol ) const;
+  void defvar( const char * symbol, Expr * expr );
+  void print( const IO & io ) const;
+  const Env & env() const;
+  void mark() override;
+  Context * parent()
+  {
+    return m_parent;
+  }
 
-   bool exit;
-   int exit_code;
+  bool exit;
+  int exit_code;
 
- private:
-   Context * m_parent;
-   Env m_env;
-   void load_runtime();
-   void load_stdlib();
-   bool is_root() const;
+private:
+  Context * m_parent;
+  Env m_env;
+  void load_runtime();
+  bool is_root() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

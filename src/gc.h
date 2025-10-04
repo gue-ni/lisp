@@ -12,27 +12,27 @@ namespace gc
 
 class Garbage
 {
- public:
-   Garbage();
-   virtual ~Garbage()
-   {
-   }
-   virtual void mark() = 0;
-   bool is_marked() const;
-   void set_marked( bool );
+public:
+  Garbage();
+  virtual ~Garbage()
+  {
+  }
+  virtual void mark() = 0;
+  bool is_marked() const;
+  void set_marked( bool );
 
-   static std::list<Garbage *> heap;
+  static std::list<Garbage *> heap;
 
- protected:
-   bool m_marked;
+protected:
+  bool m_marked;
 };
 
 template <typename T, typename... Args>
 T * alloc( Args &&... args )
 {
-   T * obj = new T( std::forward<Args>( args )... );
-   Garbage::heap.push_back( obj );
-   return obj;
+  T * obj = new T( std::forward<Args>( args )... );
+  Garbage::heap.push_back( obj );
+  return obj;
 }
 
 void mark( Garbage * );

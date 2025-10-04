@@ -1,5 +1,5 @@
 # Jakob Maier
-IndentWidth: 3
+IndentWidth: 2
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: Consecutive
 AlignEscapedNewlines: Left

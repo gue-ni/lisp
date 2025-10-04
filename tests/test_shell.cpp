@@ -7,7 +7,7 @@ using namespace lisp;
 #ifdef __linux__
 TEST_F( LispTest, test_shell_01 )
 {
-   std::string src = R"(
+  std::string src = R"(
 (load "stdlib/shell.lsp")
 
 (defvar result
@@ -18,14 +18,14 @@ TEST_F( LispTest, test_shell_01 )
 
 (print result)
    )";
-   int r           = eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "src/lisp.h\n" );
+  int r           = eval( src, ctx, io );
+  EXPECT_EQ( err.str(), "" );
+  EXPECT_EQ( out.str(), "src/lisp.h\n" );
 }
 
 TEST_F( LispTest, test_shell_02 )
 {
-   std::string src = R"(
+  std::string src = R"(
 (load "stdlib/shell.lsp")
 
 (defvar reversed
@@ -36,21 +36,21 @@ TEST_F( LispTest, test_shell_02 )
 
 (print reversed)
    )";
-   int r           = eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "dlrow olleh" );
+  int r           = eval( src, ctx, io );
+  EXPECT_EQ( err.str(), "" );
+  EXPECT_EQ( out.str(), "dlrow olleh" );
 }
 
 TEST_F( LispTest, test_shell_03 )
 {
-   std::string src = R"(
+  std::string src = R"(
 (load "stdlib/shell.lsp")
 
 (print ($ (sh uname -o)))
    )";
-   int r           = eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "GNU/Linux\n" );
+  int r           = eval( src, ctx, io );
+  EXPECT_EQ( err.str(), "" );
+  EXPECT_EQ( out.str(), "GNU/Linux\n" );
 }
 
 #endif
