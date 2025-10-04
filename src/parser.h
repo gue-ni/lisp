@@ -8,23 +8,23 @@ namespace lisp
 
 class Parser
 {
- public:
-   Parser( const Tokens & tokens );
-   Expr * parse_program();
+public:
+  Parser( const Tokens & tokens );
+  Expr * parse_program();
 
- private:
-   const Tokens m_tokens;
-   Tokens::const_iterator m_current;
-   int m_parenthesis_depth;
+private:
+  const Tokens m_tokens;
+  Tokens::const_iterator m_current;
+  int m_parenthesis_depth;
 
-   void advance();
-   bool match( TokenType );
-   bool expect( TokenType );
-   Token peek();
+  void advance();
+  bool match( TokenType );
+  bool expect( TokenType );
+  Token peek();
 
-   Expr * parse_expr();
-   Expr * parse_list();
-   Expr * parse_lambda();
+  Expr * parse_expr();
+  Expr * parse_list();
+  Expr * parse_lambda();
 };
 
 Expr * parse( const std::string & source );

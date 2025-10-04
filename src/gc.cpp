@@ -18,12 +18,12 @@ Garbage::Garbage()
 
 bool Garbage::is_marked() const
 {
-   return m_marked;
+  return m_marked;
 }
 
 void Garbage::set_marked( bool b )
 {
-   m_marked = b;
+  m_marked = b;
 }
 
 void mark( Garbage * expr )
@@ -51,30 +51,30 @@ void mark( Garbage * expr )
 
 void sweep()
 {
-   auto it = Garbage::heap.begin();
-   while( it != Garbage::heap.end() )
-   {
-      Garbage * g = *it;
-      if( !g->is_marked() )
-      {
-         delete g;
-         it = Garbage::heap.erase( it );
-      }
-      else
-      {
-         g->set_marked( false );
-         ++it;
-      }
-   }
+  auto it = Garbage::heap.begin();
+  while( it != Garbage::heap.end() )
+  {
+    Garbage * g = *it;
+    if( !g->is_marked() )
+    {
+      delete g;
+      it = Garbage::heap.erase( it );
+    }
+    else
+    {
+      g->set_marked( false );
+      ++it;
+    }
+  }
 }
 
 void delete_all()
 {
-   for( Garbage * g : Garbage::heap )
-   {
-      delete g;
-   }
-   Garbage::heap.clear();
+  for( Garbage * g : Garbage::heap )
+  {
+    delete g;
+  }
+  Garbage::heap.clear();
 }
 
 #if 0

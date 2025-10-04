@@ -26,133 +26,133 @@ struct Expr;
 
 struct Macro
 {
-   Expr * params;
-   Expr * body;
-   Context * env;
+  Expr * params;
+  Expr * body;
+  Context * env;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Lambda
 {
-   Expr * params;
-   Expr * body;
-   Context * env;
+  Expr * params;
+  Expr * body;
+  Context * env;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Atom
 {
-   enum Type
-   {
-      ATOM_NIL,
-      ATOM_BOOLEAN,
-      ATOM_REAL,
-      ATOM_INTEGER,
-      ATOM_SYMBOL,
-      ATOM_STRING,
-      ATOM_LAMBDA,
-      ATOM_NATIVE,
-      ATOM_ERROR,
-      ATOM_MACRO,
-   };
+  enum Type
+  {
+    ATOM_NIL,
+    ATOM_BOOLEAN,
+    ATOM_REAL,
+    ATOM_INTEGER,
+    ATOM_SYMBOL,
+    ATOM_STRING,
+    ATOM_LAMBDA,
+    ATOM_NATIVE,
+    ATOM_ERROR,
+    ATOM_MACRO,
+  };
 
-   Type type;
-   union
-   {
-      bool boolean;
-      double real;
-      int integer;
-      char * symbol;
-      char * string;
-      char * error;
-      Lambda lambda;
-      Native native;
-      Macro macro;
-   };
+  Type type;
+  union
+  {
+    bool boolean;
+    double real;
+    int integer;
+    char * symbol;
+    char * string;
+    char * error;
+    Lambda lambda;
+    Native native;
+    Macro macro;
+  };
 
-   ~Atom();
-   Atom();
-   Atom( Atom && other ) noexcept;
+  ~Atom();
+  Atom();
+  Atom( Atom && other ) noexcept;
 
-   bool is_truthy() const;
-   bool is_numeric() const;
-   double as_numeric() const;
+  bool is_truthy() const;
+  bool is_numeric() const;
+  double as_numeric() const;
 
-   std::string to_json() const;
+  std::string to_json() const;
 
-   bool operator==( const Atom & other ) const;
-   bool operator>( const Atom & other ) const;
+  bool operator==( const Atom & other ) const;
+  bool operator>( const Atom & other ) const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Cons
 {
-   Expr * car; // data
-   Expr * cdr; // next
+  Expr * car; // data
+  Expr * cdr; // next
 
-   Cons( Expr * _car, Expr * _cdr );
+  Cons( Expr * _car, Expr * _cdr );
 
-   std::string to_json() const;
+  std::string to_json() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 struct Expr : public gc::Garbage
 {
-   enum Type
-   {
-      EXPR_VOID,
-      EXPR_ATOM,
-      EXPR_CONS,
-   };
+  enum Type
+  {
+    EXPR_VOID,
+    EXPR_ATOM,
+    EXPR_CONS,
+  };
 
-   Type type;
-   union
-   {
-      Atom atom;
-      Cons cons;
-   };
+  Type type;
+  union
+  {
+    Atom atom;
+    Cons cons;
+  };
 
-   ~Expr();
-   Expr();
-   Expr( Atom && a );
-   Expr( Cons c );
+  ~Expr();
+  Expr();
+  Expr( Atom && a );
+  Expr( Cons c );
 
-   std::string to_json() const;
+  std::string to_json() const;
 
-   bool is_void() const;
-   bool is_cons() const;
-   bool is_atom() const;
-   bool is_atom( Atom::Type atype ) const;
-   bool is_nil() const;
-   bool is_string() const;
-   bool is_real() const;
-   bool is_integer() const;
-   bool is_number() const;
-   bool is_symbol() const;
-   bool is_symbol( const char * symbol ) const;
-   bool is_lambda() const;
-   bool is_native() const;
-   bool is_procedure() const;
-   bool is_error() const;
-   bool is_macro() const;
-   bool is_truthy() const;
+  bool is_void() const;
+  bool is_cons() const;
+  bool is_atom() const;
+  bool is_atom( Atom::Type atype ) const;
+  bool is_nil() const;
+  bool is_string() const;
+  bool is_real() const;
+  bool is_integer() const;
+  bool is_number() const;
+  bool is_symbol() const;
+  bool is_symbol( const char * symbol ) const;
+  bool is_lambda() const;
+  bool is_native() const;
+  bool is_procedure() const;
+  bool is_error() const;
+  bool is_macro() const;
+  bool is_truthy() const;
 
-   void mark() override;
+  void mark() override;
 
-   Expr * car();
-   Expr * cdr();
+  Expr * car();
+  Expr * cdr();
 
-   bool as_boolean() const;
-   double as_real() const;
-   int as_integer() const;
-   double as_number() const;
-   const char * as_string() const;
-   const char * as_error() const;
-   const char * as_symbol() const;
+  bool as_boolean() const;
+  double as_real() const;
+  int as_integer() const;
+  double as_number() const;
+  const char * as_string() const;
+  const char * as_error() const;
+  const char * as_symbol() const;
 };
 
 Expr * cast_to_string( Expr * );
@@ -165,168 +165,168 @@ std::string to_string_repr( Expr * expr );
 
 inline Expr * make_void()
 {
-   return gc::alloc<Expr>();
+  return gc::alloc<Expr>();
 }
 
 inline Expr * make_expr( Atom && atom )
 {
-   return gc::alloc<Expr>( std::move( atom ) );
+  return gc::alloc<Expr>( std::move( atom ) );
 }
 
 inline Expr * make_expr( Cons cons )
 {
-   return gc::alloc<Expr>( cons );
+  return gc::alloc<Expr>( cons );
 }
 
 inline Expr * make_nil()
 {
-   return gc::alloc<Expr>( Atom() );
+  return gc::alloc<Expr>( Atom() );
 }
 
 inline Expr * make_cons( Expr * a, Expr * b )
 {
-   Cons cons( a, b );
-   return make_expr( cons );
+  Cons cons( a, b );
+  return make_expr( cons );
 }
 
 inline Expr * make_boolean( bool boolean )
 {
-   Atom atom;
-   atom.type    = Atom::ATOM_BOOLEAN;
-   atom.boolean = boolean;
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type    = Atom::ATOM_BOOLEAN;
+  atom.boolean = boolean;
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_real( double real )
 {
-   Atom atom;
-   atom.type = Atom::ATOM_REAL;
-   atom.real = real;
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type = Atom::ATOM_REAL;
+  atom.real = real;
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_integer( int integer )
 {
-   Atom atom;
-   atom.type    = Atom::ATOM_INTEGER;
-   atom.integer = integer;
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type    = Atom::ATOM_INTEGER;
+  atom.integer = integer;
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_symbol( const char * symbol )
 {
-   Atom atom;
-   atom.type   = Atom::ATOM_SYMBOL;
-   atom.symbol = STRDUP( symbol );
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type   = Atom::ATOM_SYMBOL;
+  atom.symbol = STRDUP( symbol );
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_error( const char * error )
 {
-   Atom atom;
-   atom.type  = Atom::ATOM_ERROR;
-   atom.error = STRDUP( error );
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type  = Atom::ATOM_ERROR;
+  atom.error = STRDUP( error );
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_string( const char * string )
 {
-   Atom atom;
-   atom.type   = Atom::ATOM_STRING;
-   atom.string = STRDUP( string );
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type   = Atom::ATOM_STRING;
+  atom.string = STRDUP( string );
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_native( Native fn )
 {
-   Atom atom;
-   atom.type   = Atom::ATOM_NATIVE;
-   atom.native = fn;
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type   = Atom::ATOM_NATIVE;
+  atom.native = fn;
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_lambda( Expr * params, Expr * body, Context * env )
 {
-   Atom atom;
-   atom.type   = Atom::ATOM_LAMBDA;
-   atom.lambda = Lambda{ params, body, env };
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type   = Atom::ATOM_LAMBDA;
+  atom.lambda = Lambda{ params, body, env };
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_macro( Expr * params, Expr * body, Context * env )
 {
-   Atom atom;
-   atom.type  = Atom::ATOM_MACRO;
-   atom.macro = Macro{ params, body, env };
-   return make_expr( std::move( atom ) );
+  Atom atom;
+  atom.type  = Atom::ATOM_MACRO;
+  atom.macro = Macro{ params, body, env };
+  return make_expr( std::move( atom ) );
 }
 
 inline Expr * make_copy( Expr * e )
 {
-   switch( e->type )
-   {
-      case Expr::EXPR_ATOM :
-         {
-            switch( e->atom.type )
-            {
-               case Atom::ATOM_REAL :
-                  return make_real( e->atom.real );
-               case Atom::ATOM_INTEGER :
-                  return make_integer( e->atom.integer );
-               default :
-                  break;
-            }
+  switch( e->type )
+  {
+    case Expr::EXPR_ATOM :
+      {
+        switch( e->atom.type )
+        {
+          case Atom::ATOM_REAL :
+            return make_real( e->atom.real );
+          case Atom::ATOM_INTEGER :
+            return make_integer( e->atom.integer );
+          default :
             break;
-         }
-      default :
-         break;
-   }
-   UNREACHABLE;
-   return make_nil();
+        }
+        break;
+      }
+    default :
+      break;
+  }
+  UNREACHABLE;
+  return make_nil();
 }
 
 inline Expr * make_list()
 {
-   return make_nil();
+  return make_nil();
 }
 
 template <typename Car, typename... Cdr>
 inline Expr * make_list( Car car, Cdr... cdr )
 {
-   return make_cons( car, make_list( cdr... ) );
+  return make_cons( car, make_list( cdr... ) );
 }
 
 class ListBuilder
 {
- public:
-   ListBuilder()
-       : head( nullptr )
-       , tail( nullptr )
-   {
-   }
+public:
+  ListBuilder()
+      : head( nullptr )
+      , tail( nullptr )
+  {
+  }
 
-   void append( Expr * data )
-   {
-      Expr * cons = make_cons( data, make_nil() );
-      if( head == nullptr )
-      {
-         head = tail = cons;
-      }
-      else
-      {
-         tail->cons.cdr = cons;
-         tail           = tail->cdr();
-      }
-   }
+  void append( Expr * data )
+  {
+    Expr * cons = make_cons( data, make_nil() );
+    if( head == nullptr )
+    {
+      head = tail = cons;
+    }
+    else
+    {
+      tail->cons.cdr = cons;
+      tail           = tail->cdr();
+    }
+  }
 
-   Expr * list()
-   {
-      return head;
-   }
+  Expr * list()
+  {
+    return head;
+  }
 
- private:
-   Expr * head;
-   Expr * tail;
+private:
+  Expr * head;
+  Expr * tail;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
