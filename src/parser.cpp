@@ -90,7 +90,7 @@ Expr * Parser::parse_expr()
          {
             advance();
             double num = std::strtod( tkn.lexeme.c_str(), nullptr );
-            return make_number( num );
+            return make_real( num );
          }
       case TokenType ::STRING :
          {

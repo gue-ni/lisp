@@ -2,6 +2,12 @@
 #include "builtin.h"
 #include "expr.h"
 #include "gc.h"
+#include "util.h"
+#include "version.h"
+#ifdef __linux__
+#include "shell.h"
+#include <unistd.h>
+#endif
 #include "logger.h"
 #include "parser.h"
 #include "tokenizer.h"
@@ -27,9 +33,9 @@ namespace lisp
 
 Context::Context( Context * parent )
     : gc::Garbage()
-    , m_parent( parent )
     , exit( false )
     , exit_code( false )
+    , m_parent( parent )
 {
    if( is_root() )
    {
@@ -86,7 +92,7 @@ Expr * Context::lookup( const char * symbol ) const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Context::define( const char * symbol, Expr * expr )
+void Context::defvar( const char * symbol, Expr * expr )
 {
    std::string key( symbol );
    m_env[key] = expr;
@@ -147,54 +153,76 @@ bool Context::is_root() const
 
 void Context::load_runtime()
 {
-   define( "+", make_native( builtin::f_add ) );
-   define( "-", make_native( builtin::f_sub ) );
-   define( "*", make_native( builtin::f_mul ) );
-   define( "/", make_native( builtin::f_div ) );
+   defvar( "+", make_native( builtin::f_add ) );
+   defvar( "-", make_native( builtin::f_sub ) );
+   defvar( "*", make_native( builtin::f_mul ) );
+   defvar( "/", make_native( builtin::f_div ) );
 
-   define( "=", make_native( builtin::f_eq ) );
-   define( ">", make_native( builtin::f_gt ) );
-   define( ">=", make_native( builtin::f_ge ) );
-   define( "<", make_native( builtin::f_lt ) );
-   define( "<=", make_native( builtin::f_le ) );
-   define( "not", make_native( builtin::f_not ) );
+   defvar( "=", make_native( builtin::f_eq ) );
+   defvar( ">", make_native( builtin::f_gt ) );
+   defvar( ">=", make_native( builtin::f_ge ) );
+   defvar( "<", make_native( builtin::f_lt ) );
+   defvar( "<=", make_native( builtin::f_le ) );
+   defvar( "not", make_native( builtin::f_not ) );
 
-   define( KW_NIL, make_symbol( KW_NIL ) );
-   define( KW_IF, make_symbol( KW_IF ) );
-   define( KW_LAMBDA, make_symbol( KW_LAMBDA ) );
-   define( KW_DEFINE, make_symbol( KW_DEFINE ) );
-   define( KW_QUOTE, make_symbol( KW_QUOTE ) );
-   define( KW_PROGN, make_symbol( KW_PROGN ) );
-   define( KW_DEFUN, make_symbol( KW_DEFUN ) );
+   defvar( KW_NIL, make_symbol( KW_NIL ) );
+   defvar( KW_IF, make_symbol( KW_IF ) );
+   defvar( KW_LAMBDA, make_symbol( KW_LAMBDA ) );
+   defvar( KW_DEFINE, make_symbol( KW_DEFINE ) );
+   defvar( KW_QUOTE, make_symbol( KW_QUOTE ) );
+   defvar( KW_PROGN, make_symbol( KW_PROGN ) );
+   defvar( KW_DEFUN, make_symbol( KW_DEFUN ) );
 
-   define( "str", make_native( builtin::f_str ) );
-   define( "print", make_native( builtin::f_print ) );
-   define( "println", make_native( builtin::f_println ) );
-   define( "to-json", make_native( builtin::f_to_json ) );
+   defvar( "str", make_native( builtin::f_str ) );
+   defvar( "print", make_native( builtin::f_print ) );
+   defvar( "println", make_native( builtin::f_println ) );
+   defvar( "to-json", make_native( builtin::f_to_json ) );
 
-   define( KW_CAR, make_native( builtin::f_car ) );
-   define( KW_CDR, make_native( builtin::f_cdr ) );
-   define( KW_CONS, make_native( builtin::f_cons ) );
-   define( KW_APPEND, make_native( builtin::f_append ) );
-   define( "list", make_native( builtin::f_list ) );
-   define( "length", make_native( builtin::f_length ) );
+   defvar( KW_CAR, make_native( builtin::f_car ) );
+   defvar( KW_CDR, make_native( builtin::f_cdr ) );
+   defvar( KW_CONS, make_native( builtin::f_cons ) );
+   defvar( KW_APPEND, make_native( builtin::f_append ) );
+   defvar( "list", make_native( builtin::f_list ) );
+   defvar( "length", make_native( builtin::f_length ) );
 
-   define( "read", make_native( builtin::f_read ) );
-   define( "eval", make_native( builtin::f_eval ) );
+   defvar( "read", make_native( builtin::f_read ) );
+   defvar( "eval", make_native( builtin::f_eval ) );
 
-   define( "read-file", make_native( builtin::f_read_file ) );
+   defvar( "read-file", make_native( builtin::f_read_file ) );
 
-   define( "exit", make_native( builtin::f_exit ) );
-   define( "error", make_native( builtin::f_error ) );
+   defvar( "exit", make_native( builtin::f_exit ) );
+   defvar( "error", make_native( builtin::f_error ) );
 
-   define( "null?", make_native( builtin::f_is_null ) );
-   define( "number?", make_native( builtin::f_is_number ) );
-   define( "string?", make_native( builtin::f_is_string ) );
-   define( "error?", make_native( builtin::f_is_error ) );
+   defvar( "null?", make_native( builtin::f_is_null ) );
+   defvar( "number?", make_native( builtin::f_is_real ) );
+   defvar( "string?", make_native( builtin::f_is_string ) );
+   defvar( "error?", make_native( builtin::f_is_error ) );
+   defvar( "symbol?", make_native( builtin::f_is_symbol ) );
+   defvar( "symbol-name", make_native( builtin::f_symbol_name ) );
 
-   define( "map", make_native( builtin::f_map ) );
-   define( "filter", make_native( builtin::f_filter ) );
-   define( "load", make_native( builtin::f_load ) );
+   defvar( "map", make_native( builtin::f_map ) );
+   defvar( "filter", make_native( builtin::f_filter ) );
+   defvar( "apply", make_native( builtin::f_apply ) );
+   defvar( "load", make_native( builtin::f_load ) );
+
+#ifdef __linux__
+   defvar( "exec", make_native( shell::f_exec ) );
+   defvar( KW_PIPE, make_symbol( KW_PIPE ) );
+   defvar( KW_FROM_STREAM, make_symbol( KW_FROM_STREAM ) );
+   defvar( KW_TO_STREAM, make_symbol( KW_TO_STREAM ) );
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+std::string init_script()
+{
+   const char * home = getenv( "HOME" );
+   assert( home != nullptr );
+
+   std::string profile = ".profile.lsp";
+
+   return "(load \"" + std::string( home ) + "/" + profile + "\")";
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -206,19 +234,19 @@ Expr * eval_atom( Expr * expr, Context & context, const IO & io )
    {
       case Atom::ATOM_NIL :
       case Atom::ATOM_BOOLEAN :
-      case Atom::ATOM_NUMBER :
+      case Atom::ATOM_REAL :
+      case Atom::ATOM_INTEGER :
       case Atom::ATOM_STRING :
-
       case Atom::ATOM_ERROR :
       case Atom::ATOM_LAMBDA :
+      case Atom::ATOM_MACRO :
       case Atom::ATOM_NATIVE :
          return expr;
       case Atom::ATOM_SYMBOL :
          return context.lookup( expr->atom.symbol );
-      default :
-         assert( false && "unreachable" );
-         return make_nil();
    }
+   UNREACHABLE
+   return make_nil();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -229,9 +257,7 @@ Expr * eval_program( Expr * program, Context & context, const IO & io )
    for( ; program->is_cons(); program = program->cdr() )
    {
       Expr * expr = program->car();
-      log() << "in: " << expr->to_json() << std::endl;
-      result = eval( expr, context, io );
-      log() << "out: " << result->to_json() << std::endl;
+      result      = eval( expr, context, io );
    }
    return result;
 }
@@ -263,14 +289,17 @@ void bind_params( Context * local, Expr * params, Expr * args )
    for( arg = args, param = params; param->is_cons() && arg->is_cons(); arg = arg->cdr(), param = param->cdr() )
    {
       const char * symbol = param->car()->as_symbol();
+      assert( symbol != nullptr );
 
-      if( symbol[0] == '&' )
+      if( strncmp( symbol, "&rest", 5 ) == 0 )
       {
-         local->define( symbol + 1, arg );
+         const char * next_symbol = param->cdr()->car()->as_symbol();
+         assert( next_symbol != nullptr );
+         local->defvar( next_symbol, arg );
          break;
       }
 
-      local->define( symbol, arg->car() );
+      local->defvar( symbol, arg->car() );
    }
 }
 
@@ -283,17 +312,11 @@ Expr * expand( Expr * ast )
       Expr * car = ast->car();
       Expr * cdr = ast->cdr();
 
-      log() << __FUNCTION__ << std::endl;
-      log() << "CAR: " << car->to_json() << std::endl;
-      log() << "CDR: " << cdr->to_json() << std::endl;
-
       if( car->is_cons() && car->car()->is_symbol( KW_UNQUOTE ) )
       {
          Expr * sy       = make_symbol( KW_CONS );
          Expr * unquoted = car->cdr()->car();
-         log() << "UNQUOTED: " << unquoted->to_json() << std::endl;
-         Expr * rest = expand( cdr );
-         log() << "REST: " << rest->to_json() << std::endl;
+         Expr * rest     = expand( cdr );
          return make_list( sy, unquoted, rest );
       }
 
@@ -301,18 +324,13 @@ Expr * expand( Expr * ast )
       {
          Expr * sy       = make_symbol( KW_APPEND );
          Expr * unquoted = car->cdr()->car();
-         log() << "UNQUOTED: " << unquoted->to_json() << std::endl;
-         Expr * rest = expand( cdr );
-         log() << "REST: " << rest->to_json() << std::endl;
+         Expr * rest     = expand( cdr );
          return make_list( sy, unquoted, rest );
       }
 
       Expr * sy    = make_symbol( KW_CONS );
       Expr * first = expand( car );
-      log() << "FIRST:" << first->to_json() << std::endl;
-
-      Expr * rest = expand( cdr );
-      log() << "REST: " << rest->to_json() << std::endl;
+      Expr * rest  = expand( cdr );
       return make_list( sy, first, rest );
    }
    else if( ast->is_nil() )
@@ -323,7 +341,6 @@ Expr * expand( Expr * ast )
    else
    {
       // if ast is atom, return quoted atom
-      log() << ast->to_json() << std::endl;
       return make_list( make_symbol( KW_QUOTE ), ast );
    }
 }
@@ -339,7 +356,6 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
       {
          case Expr::EXPR_ATOM :
             {
-               log() << "ATOM: " << expr->to_json() << std::endl;
                return eval_atom( expr, *context, io );
             }
          case Expr::EXPR_CONS :
@@ -347,31 +363,26 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                Expr * op   = expr->car();
                Expr * args = expr->cdr();
 
-               log() << "OP  : " << op->to_json() << std::endl;
-               log() << "ARG : " << args->to_json() << std::endl;
-
                if( op->is_symbol( KW_QUOTE ) )
                {
                   return args->car();
                }
                else if( op->is_symbol( KW_UNQUOTE ) )
                {
-                  assert( false && "eval unquote is unreachable" );
-                  log( LL_WARNING ) << "is this correct? Or should this be replaced in the expansion?" << std::endl;
+                  UNREACHABLE
                   return args->car();
                }
                else if( op->is_symbol( KW_QUASIQUOTE ) )
                {
                   Expr * a = args->car();
                   expr     = expand( a );
-                  log() << "QUASIQUOTE : " << expr->to_json() << std::endl;
                   continue;
                }
                else if( op->is_symbol( KW_DEFINE ) )
                {
                   Expr * var   = args->car();
                   Expr * value = eval( args->cdr()->car(), *context, io );
-                  context->define( var->atom.symbol, value );
+                  context->defvar( var->atom.symbol, value );
                   return make_void();
                }
                else if( op->is_symbol( KW_LAMBDA ) )
@@ -416,7 +427,7 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                      Expr * symbol  = binding->car();
                      Expr * value   = binding->cdr()->car();
                      value          = eval( value, *local, io );
-                     local->define( symbol->as_symbol(), value );
+                     local->defvar( symbol->as_symbol(), value );
                   }
 
                   context = local;
@@ -471,29 +482,105 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
                   Expr * body   = args->cdr();
                   return make_macro( params, body, context );
                }
+#ifdef __linux__
+               else if( op->is_symbol( KW_TO_STREAM ) )
+               {
+                  Expr * r         = eval( args, *context, io );
+                  std::string data = to_string( r );
+
+                  ssize_t n;
+                  ssize_t total = 0;
+
+                  while( total < ( ssize_t ) data.size() )
+                  {
+                     n = write( io.pipe_stdout, data.data() + total, data.size() - total );
+                     if( n < 0 )
+                     {
+                        break;
+                     }
+                     total += n;
+                  }
+
+                  if( io.pipe_stdout != STDOUT_FILENO )
+                  {
+                     close( io.pipe_stdout );
+                  }
+               }
+               else if( op->is_symbol( KW_FROM_STREAM ) )
+               {
+                  int fds[2];
+                  pipe( fds );
+
+                  IO local_io;
+                  local_io.pipe_stdin  = io.pipe_stdin;
+                  local_io.pipe_stdout = fds[1];
+
+                  Expr * r = eval( args, *context, local_io );
+                  if( r->is_error() )
+                  {
+                     return r;
+                  }
+
+                  char buffer[1024];
+                  ssize_t n = read( fds[0], buffer, sizeof( buffer ) - 1 );
+                  if( n > 0 )
+                  {
+                     buffer[n] = '\0';
+                  }
+
+                  close( fds[0] );
+                  close( fds[1] );
+
+                  return make_string( buffer );
+               }
+               else if( op->is_symbol( KW_PIPE ) )
+               {
+                  Expr * exec1 = args->car();
+                  Expr * exec2 = args->cdr()->car();
+
+                  int fds[2];
+                  pipe( fds );
+                  Expr * r;
+
+                  {
+                     Context * local = gc::alloc<Context>( context );
+                     IO local_io;
+                     local_io.pipe_stdin  = io.pipe_stdin;
+                     local_io.pipe_stdout = fds[1];
+                     ( void ) eval( exec1, *local, local_io );
+                  }
+                  {
+
+                     Context * local = gc::alloc<Context>( context );
+                     IO local_io;
+                     local_io.pipe_stdin  = fds[0];
+                     local_io.pipe_stdout = io.pipe_stdout;
+                     r                    = eval( exec2, *local, local_io );
+                  }
+
+                  close( fds[0] );
+                  close( fds[1] );
+                  return r;
+               }
+#endif
                else
                {
                   Expr * fn = eval( op, *context, io );
-                  log() << "FN  : " << fn->to_json() << std::endl;
                   if( fn->is_macro() )
                   {
-                     Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
+                     // Context * new_env = gc::alloc<Context>( fn->atom.macro.env );
+                     Context * new_env = gc::alloc<Context>( context );
                      bind_params( new_env, fn->atom.macro.params, args );
 
                      expr    = fn->atom.macro.body->car();
                      context = new_env;
 
-                     log() << "before expansion: " << expr->to_json() << std::endl;
-
                      expr = eval( expr, *context, io );
-
-                     log() << "after expansion: " << expr->to_json() << std::endl;
                      continue;
                   }
                   else
                   {
                      args = eval_list( args, *context, io );
-                     log() << "ARGS: " << args->to_json() << std::endl;
 
                      if( fn->is_native() )
                      {
@@ -527,8 +614,7 @@ void print_debug( std::ostream & os, const Tokens & tokens )
 {
    for( const Token & tkn : tokens )
    {
-      os << "'" << tkn.lexeme << "'"
-         << ", ";
+      os << "'" << tkn.lexeme << "'" << ", ";
    }
    os << std::endl;
 }
@@ -578,7 +664,7 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 
    if( res->is_error() )
    {
-      io.err << to_string_repr( res );
+      io.err << to_string_repr( res ) << std::endl;
    }
    else if( ( flags & FLAG_INTERACTIVE ) && !res->is_void() )
    {
@@ -596,6 +682,12 @@ int eval( const std::string & source, Flags flags )
 {
    IO io;
    Context ctx;
+
+   if( flags & FLAG_INIT )
+   {
+      ( void ) eval( init_script(), ctx, io );
+   }
+
    return eval( source, ctx, io, flags );
 }
 
@@ -631,11 +723,19 @@ void print_compiler_info()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void print_copyright_info()
+{
+   std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void print_repl_header()
 {
    std::cout << "Welcome to my LISP Interpreter!" << std::endl;
+   print_copyright_info();
+   print_version_info();
    print_compiler_info();
-   std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
    std::cout << std::endl;
    std::cout << "Type (exit) to quit." << std::endl;
    std::cout << std::endl;
@@ -643,9 +743,16 @@ void print_repl_header()
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void print_version_info()
+{
+   std::cout << "Git Hash: " << GIT_HASH << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 bool read_line( const char * prompt, std::string & line )
 {
-#if defined( __linux__ ) && 0
+#ifdef __linux__
    char * input;
    if( ( input = readline( prompt ) ) == NULL )
       return false;
@@ -675,6 +782,8 @@ int repl()
    const char * prompt = "> ";
 
    print_repl_header();
+
+   ( void ) eval( init_script(), ctx, io );
 
    do
    {

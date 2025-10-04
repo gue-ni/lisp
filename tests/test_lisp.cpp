@@ -1,38 +1,14 @@
 #include <gtest/gtest.h>
 
-#include "lisp.h"
-#include "parser.h"
-#include "tokenizer.h"
+#include "util.h"
 
 using namespace lisp;
-
-class LispTest : public ::testing::Test
-{
- public:
-   LispTest()
-       : io( out, err )
-   {
-   }
-
-   void SetUp() override
-   {
-   }
-
-   void TearDown() override
-   {
-   }
-
- protected:
-   Context ctx;
-   std::ostringstream out, err;
-   IO io;
-};
 
 TEST_F( LispTest, test_parse_01 )
 {
    std::string src = "(+ 1 2";
    eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "(error: missing-parenthesis)" );
+   EXPECT_EQ( err.str(), "(error \"missing-parenthesis\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -40,7 +16,7 @@ TEST_F( LispTest, test_parse_02 )
 {
    std::string src = "(+ 1 2 (* 3 4 )";
    eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "(error: missing-parenthesis)" );
+   EXPECT_EQ( err.str(), "(error \"missing-parenthesis\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -48,7 +24,7 @@ TEST_F( LispTest, test_parse_03 )
 {
    std::string src = "(+ 1 2))";
    eval( src, ctx, io );
-   EXPECT_EQ( err.str(), "(error: unexpected-parenthesis)" );
+   EXPECT_EQ( err.str(), "(error \"unexpected-parenthesis\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -69,7 +45,7 @@ TEST_F( LispTest, test_eval_symbol_01 )
 TEST_F( LispTest, test_eval_non_existing_symbol_01 )
 {
    eval( "does-not-exist", ctx, io );
-   EXPECT_EQ( err.str(), "(error: undefined symbol 'does-not-exist')" );
+   EXPECT_EQ( err.str(), "(error \"undefined symbol 'does-not-exist'\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -111,7 +87,7 @@ TEST_F( LispTest, test_div_01 )
 TEST_F( LispTest, test_div_02 )
 {
    eval( "(/ 5 0)", ctx, io );
-   EXPECT_EQ( err.str(), "(error: division by zero)" );
+   EXPECT_EQ( err.str(), "(error \"division by zero\")\n" );
    EXPECT_EQ( out.str(), "" );
 }
 
@@ -157,7 +133,7 @@ TEST_F( LispTest, test_eval_math_02 )
 
 TEST_F( LispTest, test_define_01 )
 {
-   std::string source = "(define x 42) (print x)";
+   std::string source = "(defvar x 42) (print x)";
    int r              = eval( source, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -193,7 +169,7 @@ TEST_F( LispTest, test_lambda_01 )
 
 TEST_F( LispTest, test_lambda_02 )
 {
-   std::string source = "(define fn (lambda (x) (* x 2))) (fn 8)";
+   std::string source = "(defvar fn (lambda (x) (* x 2))) (fn 8)";
    int r              = eval( source, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -211,7 +187,7 @@ TEST_F( LispTest, test_lambda_03 )
 
 TEST_F( LispTest, test_lambda_04 )
 {
-   std::string src = "(define add (lambda (x y) (+ x y))) (add 2 3)";
+   std::string src = "(defvar add (lambda (x y) (+ x y))) (add 2 3)";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -265,7 +241,7 @@ TEST_F( LispTest, test_car_03 )
 
 TEST_F( LispTest, test_car_04 )
 {
-   std::string src = "(define x '(1 2 3)) (car x)";
+   std::string src = "(defvar x '(1 2 3)) (car x)";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -301,7 +277,7 @@ TEST_F( LispTest, test_cdr_03 )
 
 TEST_F( LispTest, test_cdr_04 )
 {
-   std::string src = "(define x '(1 2 3)) (cdr x)";
+   std::string src = "(defvar x '(1 2 3)) (cdr x)";
    int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
@@ -426,7 +402,7 @@ TEST_F( LispTest, test_lambda_05 )
 (defun make-adder (a)
   (lambda (b) (+ a b)))
 
-(define add5 (make-adder 5))
+(defvar add5 (make-adder 5))
 
 (add5 3)
   )";
@@ -440,9 +416,9 @@ TEST_F( LispTest, test_lambda_05 )
 TEST_F( LispTest, test_lambda_06 )
 {
    std::string src = R"(
-(define pi 3.14159265359)
+(defvar pi 3.14159265359)
 
-(define circle-area
+(defvar circle-area
   (lambda (r)
     (* pi (* r r))))
 
@@ -703,20 +679,20 @@ TEST_F( LispTest, test_unquote_splice_01 )
    EXPECT_EQ( out.str(), "(1 2 3 4)" );
 }
 
-TEST_F( LispTest, test_rest_argument_01 )
+TEST_F( LispTest, test_rest_01 )
 {
    std::string src = R"(
-(defun my-fn (a b & rest)
-  rest)
+(defun my-fn (a b &rest c)
+  (list a b c))
 
-(my-fn 1 2 3 4)
+(my-fn 1 2 3 4 5)
    )";
 
    int r = eval( src, ctx, io );
 
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
-   EXPECT_EQ( out.str(), "(3 4)" );
+   EXPECT_EQ( out.str(), "(1 2 (3 4 5))" );
 }
 
 TEST_F( LispTest, test_negative_number_01 )
@@ -867,9 +843,9 @@ TEST_F( LispTest, test_filter_03 )
 TEST_F( LispTest, test_back_inserter_01 )
 {
    ListBuilder builder;
-   builder.append( make_number( 1 ) );
-   builder.append( make_number( 2 ) );
-   builder.append( make_number( 3 ) );
+   builder.append( make_integer( 1 ) );
+   builder.append( make_integer( 2 ) );
+   builder.append( make_integer( 3 ) );
    Expr * list = builder.list();
 
    EXPECT_EQ( to_string( list ), "(1 2 3)" );
@@ -878,7 +854,7 @@ TEST_F( LispTest, test_back_inserter_01 )
 TEST_F( LispTest, test_loop_01 )
 {
    std::string src = R"(
-(define my-list (list 1 2 3 4 5))
+(defvar my-list (list 1 2 3 4 5))
 
 (progn
    (defun my-loop (l)
@@ -899,7 +875,7 @@ TEST_F( LispTest, test_loop_01 )
 TEST_F( LispTest, test_macro_04 )
 {
    std::string src = R"(
-(define my-list (list 1 2 3))
+(defvar my-list (list 1 2 3))
 
 (defmacro my-macro (lst)
    `(print ,lst))
@@ -916,7 +892,7 @@ TEST_F( LispTest, test_macro_04 )
 TEST_F( LispTest, test_macro_05 )
 {
    std::string src = R"(
-(define my-list (list 1 2 3))
+(defvar my-list (list 1 2 3))
 
 (defmacro my-macro (lst)
    `(if (null? ,lst) 1 2))
@@ -955,9 +931,9 @@ TEST_F( LispTest, test_comment_02 )
 TEST_F( LispTest, test_cond_01 )
 {
    std::string src = R"(
-(define x 5)
+(defvar x 5)
 
-(print (cond 
+(print (cond
   ((> x 3) "option 1")
   ((= x 3) "option 2")
   (true    "option 3")))
@@ -972,9 +948,9 @@ TEST_F( LispTest, test_cond_01 )
 TEST_F( LispTest, test_cond_02 )
 {
    std::string src = R"(
-(define x 3)
+(defvar x 3)
 
-(print (cond 
+(print (cond
   ((> x 3) "option 1")
   ((= x 3) "option 2")
   (true    "option 3")))
@@ -989,9 +965,9 @@ TEST_F( LispTest, test_cond_02 )
 TEST_F( LispTest, test_cond_03 )
 {
    std::string src = R"(
-(define x -1)
+(defvar x -1)
 
-(print (cond 
+(print (cond
   ((> x 3) "option 1")
   ((= x 3) "option 2")
   (true    "option 3")))
@@ -1006,7 +982,7 @@ TEST_F( LispTest, test_cond_03 )
 TEST_F( LispTest, test_logic_01 )
 {
    std::string src = "(and true false)";
-   int r = eval( src, ctx, io );
+   int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "false" );
@@ -1015,7 +991,7 @@ TEST_F( LispTest, test_logic_01 )
 TEST_F( LispTest, test_logic_02 )
 {
    std::string src = "(or true false)";
-   int r = eval( src, ctx, io );
+   int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "true" );
@@ -1024,8 +1000,17 @@ TEST_F( LispTest, test_logic_02 )
 TEST_F( LispTest, test_logic_03 )
 {
    std::string src = "(and (or nil 1) (or \"hello world\" false))";
-   int r = eval( src, ctx, io );
+   int r           = eval( src, ctx, io );
    EXPECT_EQ( r, 0 );
    EXPECT_EQ( err.str(), "" );
    EXPECT_EQ( out.str(), "true" );
+}
+
+TEST_F( LispTest, test_apply_1 )
+{
+   std::string src = "(apply + (list 1 2 3))";
+   int r           = eval( src, ctx, io );
+   EXPECT_EQ( r, 0 );
+   EXPECT_EQ( err.str(), "" );
+   EXPECT_EQ( out.str(), "6" );
 }

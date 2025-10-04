@@ -1,7 +1,7 @@
-(define make-adder
+(defvar make-adder
   (lambda (x)
     (lambda (y) (+ x y))))
 
-(define add-5 (make-adder 5))
+(defvar add-5 (make-adder 5))
 
 (println (add-5 3))
