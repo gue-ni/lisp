@@ -5,8 +5,8 @@
 (defvar arch
   (let ((uname-arch (strip ($ (sh uname -m)))))
     (cond
-      ((= ("aarch64"  uname-arch)) "arm64")
-      ((= ("x86_64"   uname-arch)) "amd64")
+      ((= "aarch64" uname-arch) "arm64")
+      ((= "x86_64"  uname-arch) "amd64")
       (true "unknown"))))
 
 (defvar current-dir (strip ($ (sh pwd))))
