@@ -76,9 +76,20 @@ Expr * f_exec( Expr * arg, Context & context, const IO & io )
   return make_boolean( status == 0 );
 }
 
+Expr * f_getenv( Expr * args, Context & context, const IO & io )
+{
+  Expr * arg_1 = args->car();
+  if( !arg_1->is_string() )
+    return make_error( "getenv expects a string argument" );
+
+  const char * env = getenv( arg_1->as_string() );
+  return make_string( env );
+}
+
 void load( Context & ctx )
 {
   ctx.defvar( "exec", make_native( shell::f_exec ) );
+  ctx.defvar( "getenv", make_native( shell::f_getenv ) );
   ctx.defvar( KW_PIPE, make_symbol( KW_PIPE ) );
   ctx.defvar( KW_FROM_STREAM, make_symbol( KW_FROM_STREAM ) );
   ctx.defvar( KW_TO_STREAM, make_symbol( KW_TO_STREAM ) );

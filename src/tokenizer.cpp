@@ -15,13 +15,10 @@ Tokens tokenize( const std::string & source )
 }
 
 std::map<std::string, TokenType> keywords
-    = { { KW_QUOTE, TokenType::QUOTE },
-        { KW_NIL, TokenType::NIL },
-        { KW_TRUE, TokenType::TRUE },
-        { KW_FALSE, TokenType::FALSE },
-        { KW_QUASIQUOTE, TokenType::QUASIQUOTE },
-        { KW_UNQUOTE, TokenType::UNQUOTE },
-        { KW_UNQUOTE_SPLICE, TokenType::UNQUOTE_SPLICING } };
+    = { { KW_QUOTE, TokenType::QUOTE },     { KW_NIL, TokenType::NIL },
+        { KW_TRUE, TokenType::TRUE },       { KW_T, TokenType::TRUE },
+        { KW_FALSE, TokenType::FALSE },     { KW_QUASIQUOTE, TokenType::QUASIQUOTE },
+        { KW_UNQUOTE, TokenType::UNQUOTE }, { KW_UNQUOTE_SPLICE, TokenType::UNQUOTE_SPLICING } };
 
 Tokenizer::Tokenizer( const std::string & source )
     : m_source( source )

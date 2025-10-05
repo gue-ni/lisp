@@ -5,6 +5,7 @@
 - [Getting Started](#getting-started)
   - [Content](#content)
   - [Basics](#basics)
+  - [Literals](#literals)
   - [Special Forms](#special-forms)
     - [`quote`](#quote)
     - [`list`](#list)
@@ -17,7 +18,6 @@
     - [`defun`](#defun)
     - [`defmacro`](#defmacro)
   - [Builtin Functions](#builtin-functions)
-
 
 ## Basics
 
@@ -32,6 +32,39 @@ arguments.
 
 For example, `(+ 2 3 (* 4 5))` is equal to `2 + 3 + 4 * 5` and `(fn 1 2)`
 is equal to something like `fn(1, 2)` in a language like python.
+
+## Literals
+
+_Lisp_ supports the usual basic data types, such as _nil_, _boolean_, _real_
+(floating point numbers), _integer_ and _string_.
+
+```lisp
+; nil
+nil
+
+; boolean literals
+; => true
+true
+t
+
+; => false
+false
+f
+
+; floating point literal
+2.5
+
+; integer literal
+-10
+
+; string literals
+"my string"
+
+; list literal
+(list "hello" 2 3 t)
+; => ("hello" 2 3 true)
+```
+
 
 ## Special Forms
 
@@ -138,8 +171,8 @@ Define a named function.
 
 ### `defmacro`
 
-Define a macro, unlike a function, the arguments are not evaluated before
-passing them to the macro.
+Define a macro. Unlike a function, the arguments are not evaluated before
+passing them to the macro. Arguments can be unquoted with `,` and `,@`.
 
 ```lisp
 ; macro to test if a symbol is defined.
@@ -155,10 +188,10 @@ passing them to the macro.
 | `=`, `<`, `>`, `<=`, `>=`               | Logic operations                              | `(= 2 3)`, `(< 2 3)`                         |
 | `and` , `or`, `not`                     | Boolean operators                             |                                              |
 | `print` , `println`                     | Print to command line                         |                                              |
-| `car`                                   | Access _car_ of _cons_ cell                   |                                              |
-| `cdr`                                   | Access _cdr_ of _cons_ cell                   |                                              |
-| `cons`                                  | Create cons cell                              |                                              |
-| `append`                                | Concatinate lists                             |                                              |
+| `cons`                                  | Create cons cell                              | `(cons 1 (cons 2 (cons 3 nil)))`             |
+| `car`                                   | Access _car_ of _cons_ cell                   | `(car (cons 1 2))`                           |
+| `cdr`                                   | Access _cdr_ of _cons_ cell                   | `(cdr (cons 1 2))`                           |
+| `append`                                | Concatinate lists                             | `(append (list 1 2 3) (list 4 5 6))`         |
 | `map`                                   | Return list of elements with function applied | `(map (lambda (x) (* x x)) (list 1 2 3))`    |
 | `filter` `(filter pred lst)`            | Return list of elements for wich pred is true | `(filter (lambda (x) (> x 1)) (list 1 2 3))` |
 | `apply`                                 | Apply function to list of arguments           | `(apply + (list 1 2 3))`                     |
@@ -172,3 +205,4 @@ passing them to the macro.
 | `strcmp`                                | Compare string                                |                                              |
 | `strlen`                                | Get length of string                          |                                              |
 | `strip`                                 | Remove leading or trailing whitespace         |                                              |
+| `getenv`                                | Get environment variable                      | `(getenv "HOME")`                            |

@@ -1,3 +1,8 @@
-;
-(load "/usr/local/share/lisp/lib/util.lsp")
-(load "/usr/local/share/lisp/lib/shell.lsp")
+
+(let ((home (getenv "HOME"))
+      (lib (strcat home "/.local/share/lisp/lib/")))
+  (progn
+    (load (strcat lib "util.lsp"))
+    (load (strcat lib "shell.lsp"))))
+
+(println "Loaded profile.")

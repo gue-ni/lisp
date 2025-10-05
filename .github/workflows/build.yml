@@ -38,3 +38,21 @@ jobs:
           time ${{ github.workspace }}/build/src/lisp $file
         done
 
+    - name: Build bundle
+      run: |
+        mkdir -p ${{ github.workspace }}/release
+        cp -v ${{ github.workspace }}/build/src/lisp ${{ github.workspace }}/release/
+        cp -v -r ${{ github.workspace }}/stdlib ${{ github.workspace }}/release/
+        tar -czvf lisp-linux-amd64.tar.gz -C ${{ github.workspace }}/release lisp stdlib
+        pwd
+        ls -la
+
+    - name: Publish
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        source: "lisp-linux-amd64.tar.gz"
+        target: "/var/www/files/lisp/release/latest"

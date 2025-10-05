@@ -155,6 +155,7 @@ void eval_profile( Context & context, const IO & io )
   std::ifstream file( path );
   if( !file.is_open() )
   {
+    io.err << "Could not load '" << path << "'" << std::endl;
     return;
   }
 

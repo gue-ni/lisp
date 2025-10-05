@@ -1,10 +1,17 @@
 # A Lisp Interpreter for Shell Scripting
 
+![build workflow status](https://github.com/gue-ni/lisp/actions/workflows/build.yml/badge.svg)
+
 This project is a lightweight Lisp interpreter written in C++ with a focus on
 shell scripting. It lets you combine the expressive power of Lisp with the
 practicality of the Unix shell: you can run commands, capture output, pipe
 between processes, and still use Lisp syntax for logic and structure. Think of
 it as writing your shell scripts in Lisp instead of Bash.
+
+- [A Lisp Interpreter for Shell Scripting](#a-lisp-interpreter-for-shell-scripting)
+  - [How to install](#how-to-install)
+  - [Examples](#examples)
+  - [Documentation](#documentation)
 
 ## How to install
 
@@ -12,16 +19,35 @@ it as writing your shell scripts in Lisp instead of Bash.
 bash <(curl -s https://www.jakobmaier.at/files/lisp/release/install-lisp.sh)
 ```
 
-## Features
-
-- [x] Interactive REPL
-- [x] Arithmetic, conditionals and list manipulation
-- [x] Garbage Collection
-- [x] Functions and lambdas
-- [x] Macros
-- [x] Shell Scripting
-
 ## Examples
+
+```lisp
+; pipe output of 'ls' to 'grep'
+(pipe (sh ls -la) (sh grep "*.txt"))
+
+; save the output of 'cat' to variable 'content'
+(defvar content ($ (sh cat "my-file.txt")))
+
+; pipe the output of the function 'hello' into the 'rev' command
+(defun hello (name)
+  (strcat "Hello " name "!"))
+
+(pipe (<<< (hello "Jakob")) (sh rev))
+; => !bokaJ olleH
+
+; eqivalent to 'sudo apt update && sudo apt upgrade -y' in bash
+(and (sh sudo apt update) (sh sudo apt upgrade -y))
+
+; define a function that uses 'scp' to upload some files to a server
+(defun upload (source)
+  (let ((user "root")
+        (host "example.com")
+        (target-dir "/var/www/files/")
+        (target (strcat user "@" host ":" target-dir)))
+    (sh scp source target)))
+
+(upload "my-file.txt")
+```
 
 ```lisp
 ; recursive functions

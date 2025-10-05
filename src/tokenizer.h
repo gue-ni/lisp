@@ -6,6 +6,7 @@
 // keywords
 #define KW_NIL "nil"
 #define KW_TRUE "true"
+#define KW_T "t"
 #define KW_FALSE "false"
 #define KW_CAR "car"
 #define KW_CDR "cdr"
