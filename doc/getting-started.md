@@ -5,6 +5,7 @@
 - [Getting Started](#getting-started)
   - [Content](#content)
   - [Basics](#basics)
+  - [Literals](#literals)
   - [Special Forms](#special-forms)
     - [`quote`](#quote)
     - [`list`](#list)
@@ -32,8 +33,38 @@ arguments.
 For example, `(+ 2 3 (* 4 5))` is equal to `2 + 3 + 4 * 5` and `(fn 1 2)`
 is equal to something like `fn(1, 2)` in a language like python.
 
+## Literals
+
 _Lisp_ supports the usual basic data types, such as _nil_, _boolean_, _real_
 (floating point numbers), _integer_ and _string_.
+
+```lisp
+; nil
+nil
+
+; boolean literals
+; => true
+true
+t
+
+; => false
+false
+f
+
+; floating point literal
+2.5
+
+; integer literal
+-10
+
+; string literals
+"my string"
+
+; list literal
+(list "hello" 2 3 t)
+; => ("hello" 2 3 true)
+```
+
 
 ## Special Forms
 
