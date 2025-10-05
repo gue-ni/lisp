@@ -1,6 +1,7 @@
 #include "shell.h"
 #include "eval.h"
 #include "expr.h"
+#include "tokenizer.h"
 #include <cstddef>
 #include <cstdio>
 #include <string>
@@ -73,6 +74,14 @@ Expr * f_exec( Expr * arg, Context & context, const IO & io )
   }
 
   return make_boolean( status == 0 );
+}
+
+void load( Context & ctx )
+{
+  ctx.defvar( "exec", make_native( shell::f_exec ) );
+  ctx.defvar( KW_PIPE, make_symbol( KW_PIPE ) );
+  ctx.defvar( KW_FROM_STREAM, make_symbol( KW_FROM_STREAM ) );
+  ctx.defvar( KW_TO_STREAM, make_symbol( KW_TO_STREAM ) );
 }
 
 } // namespace shell
