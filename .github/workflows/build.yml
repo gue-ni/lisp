@@ -56,4 +56,3 @@ jobs:
         port: ${{ secrets.PORT }}
         source: "lisp.tar.gz"
         target: "/var/www/files/lisp/release/latest"
-        strip_components: 1
