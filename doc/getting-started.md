@@ -188,10 +188,10 @@ passing them to the macro. Arguments can be unquoted with `,` and `,@`.
 | `=`, `<`, `>`, `<=`, `>=`               | Logic operations                              | `(= 2 3)`, `(< 2 3)`                         |
 | `and` , `or`, `not`                     | Boolean operators                             |                                              |
 | `print` , `println`                     | Print to command line                         |                                              |
-| `car`                                   | Access _car_ of _cons_ cell                   |                                              |
-| `cdr`                                   | Access _cdr_ of _cons_ cell                   |                                              |
-| `cons`                                  | Create cons cell                              |                                              |
-| `append`                                | Concatinate lists                             |                                              |
+| `cons`                                  | Create cons cell                              | `(cons 1 (cons 2 (cons 3 nil)))`             |
+| `car`                                   | Access _car_ of _cons_ cell                   | `(car (cons 1 2))`                           |
+| `cdr`                                   | Access _cdr_ of _cons_ cell                   | `(cdr (cons 1 2))`                           |
+| `append`                                | Concatinate lists                             | `(append (list 1 2 3) (list 4 5 6))`         |
 | `map`                                   | Return list of elements with function applied | `(map (lambda (x) (* x x)) (list 1 2 3))`    |
 | `filter` `(filter pred lst)`            | Return list of elements for wich pred is true | `(filter (lambda (x) (> x 1)) (list 1 2 3))` |
 | `apply`                                 | Apply function to list of arguments           | `(apply + (list 1 2 3))`                     |
@@ -205,3 +205,4 @@ passing them to the macro. Arguments can be unquoted with `,` and `,@`.
 | `strcmp`                                | Compare string                                |                                              |
 | `strlen`                                | Get length of string                          |                                              |
 | `strip`                                 | Remove leading or trailing whitespace         |                                              |
+| `getenv`                                | Get environment variable                      | `(getenv "HOME")`                            |
