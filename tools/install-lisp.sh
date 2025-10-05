@@ -38,6 +38,7 @@ mkdir -p $LIBDIR
 cp $TMPDIR/stdlib/* $LIBDIR
 
 # Install binary (requires sudo)
+mkdir -p $BINDIR
 cp $TMPDIR/lisp $BINDIR
 chmod +x $BINDIR/lisp
 
@@ -49,6 +50,12 @@ if ! ldconfig -p | grep -q readline; then
   echo "Warning: readline library not found."
   echo "On Debian/Ubuntu: sudo apt install libreadline-dev"
   echo "On Fedora: sudo dnf install readline-devel"
+fi
+
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+  echo "Warning: $HOME/.local/bin is not in your PATH" >&2
+  echo "Add this line to your shell startup file (e.g. ~/.bashrc):"
+  echo "export PATH=\"\$HOME/.local/bin:\$PATH\""
 fi
 
 echo "Successfully installed lisp to ${BINDIR}"
