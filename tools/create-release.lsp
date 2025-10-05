@@ -39,6 +39,7 @@
   (bundle-relase release-name "build-release")
   (upload-release release-name)
   (sh rm -v release-name)
+  (sh rm -rf "build-release")
 )
 
 (println "Uploaded release " release-name)
