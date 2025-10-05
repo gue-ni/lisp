@@ -738,10 +738,10 @@ Expr * f_load( Expr * arg, Context & context, const IO & io )
 
   // register libraries at root context
   Context * root = &context;
-    while( root->parent() )
-    {
-      root = root->parent();
-    }
+  while( root->parent() )
+  {
+    root = root->parent();
+  }
 
   return f_eval( make_list( r, make_nil() ), *root, io );
 }
