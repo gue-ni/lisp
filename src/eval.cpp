@@ -468,6 +468,12 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
               buffer[n] = '\0';
             }
 
+            // remove trailing newline
+            if( buffer[n - 1] == '\n' )
+            {
+              buffer[n - 1] = '\0';
+            }
+
             close( fds[0] );
             close( fds[1] );
 
