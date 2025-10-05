@@ -34,12 +34,10 @@
         (upload-target (strcat server ":" target)))
     (sh scp source upload-target)))
 
-(build-release "build" "lisp")
-
-(bundle-relase release-name)
-
-(upload-release release-name)
-
-(sh rm -v release-name)
+(and
+  (build-release "build" "lisp")
+  (bundle-relase release-name)
+  (upload-release release-name)
+  (sh rm -v release-name))
 
 (println "Uploaded release " release-name)
