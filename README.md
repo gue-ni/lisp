@@ -6,6 +6,11 @@ practicality of the Unix shell: you can run commands, capture output, pipe
 between processes, and still use Lisp syntax for logic and structure. Think of
 it as writing your shell scripts in Lisp instead of Bash.
 
+- [A Lisp Interpreter for Shell Scripting](#a-lisp-interpreter-for-shell-scripting)
+  - [How to install](#how-to-install)
+  - [Examples](#examples)
+  - [Documentation](#documentation)
+
 ## How to install
 
 ```bash

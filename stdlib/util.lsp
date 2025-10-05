@@ -25,4 +25,4 @@
   (cond
     ((null? lst) nil)
     ((= n 0) (car lst))
-    (true (nth (- n 1) (cdr lst)))))
+    (t (nth (- n 1) (cdr lst)))))

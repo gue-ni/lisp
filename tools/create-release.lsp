@@ -11,7 +11,7 @@
 
 (defvar current-dir (strip ($ (sh pwd))))
 
-(defvar workspace (strcat current-dir "/build"))
+(defvar workspace (strcat current-dir "/" "build-release"))
 
 (defvar release-name (strcat "lisp-" os "-" arch ".tar.gz"))
 
@@ -20,10 +20,10 @@
     (sh cmake -B build-dir)
     (sh cmake --build build-dir --parallel --target target)))
 
-(defun bundle-relase (archive-name)
+(defun bundle-relase (archive-name build-dir)
   (let ((tmp-dir (strip ($ (sh mktemp -d)))))
     (and
-      (sh cp -v "build/src/lisp" tmp-dir)
+      (sh cp -v (strcat build-dir "/" "src/lisp") tmp-dir)
       (sh cp -vr "stdlib" tmp-dir)
       (sh tar -czvf archive-name -C tmp-dir "lisp" "stdlib")
       (sh rm -rfv tmp-dir))))
@@ -35,9 +35,10 @@
     (sh scp source upload-target)))
 
 (and
-  (build-release "build" "lisp")
-  (bundle-relase release-name)
+  (build-release "build-release" "lisp")
+  (bundle-relase release-name "build-release")
   (upload-release release-name)
-  (sh rm -v release-name))
+  (sh rm -v release-name)
+)
 
 (println "Uploaded release " release-name)
