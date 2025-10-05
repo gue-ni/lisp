@@ -54,5 +54,6 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "${{ github.workspace }}/lisp.tar.gz"
+        source: "lisp.tar.gz"
         target: "/var/www/files/lisp/release/latest"
+        strip_components: 1
