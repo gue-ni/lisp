@@ -31,14 +31,19 @@ jobs:
       working-directory: ${{github.workspace}}
       run: ./build/tests/tests --gtest_print_time
 
-    - name: Run Lisp scripts
+    - name: Run Lisp Scripts
       run: |
         for file in ${{ github.workspace }}/tests/programs/*.lsp; do
           echo "Executing $file"
           time ${{ github.workspace }}/build/src/lisp $file
         done
 
-    - name: Build bundle
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+    - name: Bundle Release
       run: |
         mkdir -p ${{ github.workspace }}/release
         cp -v ${{ github.workspace }}/build/src/lisp ${{ github.workspace }}/release/
@@ -47,12 +52,12 @@ jobs:
         pwd
         ls -la
 
-    - name: Publish
+    - name: Publish Relase
       uses: appleboy/scp-action@master
       with:
-        host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
-        key: ${{ secrets.KEY }}
+        host: ${{ secrets.HOST }}
         port: ${{ secrets.PORT }}
+        key: ${{ secrets.KEY }}
         source: "lisp-linux-amd64.tar.gz"
         target: "/var/www/files/lisp/release/latest"
