@@ -736,7 +736,14 @@ Expr * f_load( Expr * arg, Context & context, const IO & io )
   if( r->is_error() )
     return r;
 
-  return f_eval( make_list( r, make_nil() ), context, io );
+  // register libraries at root context
+  Context * root = &context;
+    while( root->parent() )
+    {
+      root = root->parent();
+    }
+
+  return f_eval( make_list( r, make_nil() ), *root, io );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,7 @@
 # A Lisp Interpreter for Shell Scripting
 
+![build workflow status](https://github.com/gue-ni/lisp/actions/workflows/build.yml/badge.svg)
+
 This project is a lightweight Lisp interpreter written in C++ with a focus on
 shell scripting. It lets you combine the expressive power of Lisp with the
 practicality of the Unix shell: you can run commands, capture output, pipe
