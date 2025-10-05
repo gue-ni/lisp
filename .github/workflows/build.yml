@@ -38,7 +38,6 @@ jobs:
           time ${{ github.workspace }}/build/src/lisp $file
         done
 
-    steps:
     - name: Bundle Release
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       run: |
