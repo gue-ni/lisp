@@ -44,6 +44,8 @@ jobs:
         cp -v ${{ github.workspace }}/build/src/lisp ${{ github.workspace }}/release/
         cp -v -r ${{ github.workspace }}/stdlib ${{ github.workspace }}/release/
         tar -czvf lisp.tar.gz -C ${{ github.workspace }}/release lisp stdlib
+        pwd
+        ls -la
 
     - name: Publish
       uses: appleboy/scp-action@master
@@ -52,5 +54,5 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
-        source: "release/lisp.tar.gz"
+        source: "${{ github.workspace }}/lisp.tar.gz"
         target: "/var/www/files/lisp/release/latest"
