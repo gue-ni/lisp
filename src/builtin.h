@@ -27,6 +27,8 @@ Expr * f_strlen( Expr * arg, Context & context, const IO & io );
 
 Expr * f_strcmp( Expr * arg, Context & context, const IO & io );
 
+Expr * f_strip( Expr * arg, Context & context, const IO & io );
+
 Expr * f_print( Expr * arg, Context & context, const IO & io );
 
 Expr * f_println( Expr * arg, Context & context, const IO & io );
@@ -98,6 +100,8 @@ Expr * f_apply( Expr * arg, Context & context, const IO & io );
 Expr * f_load( Expr * arg, Context & context, const IO & io );
 
 Expr * f_symbol_name( Expr * arg, Context & context, const IO & io );
+
+void load( Context & context );
 
 } // namespace builtin
 

@@ -20,7 +20,7 @@ TEST_F( LispTest, test_shell_01 )
    )";
   int r           = eval( src, ctx, io );
   EXPECT_EQ( err.str(), "" );
-  EXPECT_EQ( out.str(), "src/lisp.h\n" );
+  EXPECT_EQ( out.str(), "src/lisp.h" );
 }
 
 TEST_F( LispTest, test_shell_02 )
@@ -50,7 +50,7 @@ TEST_F( LispTest, test_shell_03 )
    )";
   int r           = eval( src, ctx, io );
   EXPECT_EQ( err.str(), "" );
-  EXPECT_EQ( out.str(), "GNU/Linux\n" );
+  EXPECT_EQ( out.str(), "GNU/Linux" );
 }
 
 #endif

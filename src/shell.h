@@ -13,6 +13,8 @@ namespace shell
 
 Expr * f_exec( Expr * arg, Context & context, const IO & io );
 
+void load( Context & ctx );
+
 } // namespace shell
 
 } // namespace lisp

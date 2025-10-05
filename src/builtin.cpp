@@ -1,3 +1,4 @@
+#include <cctype>
 #include <cstring>
 #include <fstream>
 #include <sstream>
@@ -141,6 +142,36 @@ Expr * f_strcmp( Expr * args, Context & context, const IO & io )
   }
 
   return make_boolean( true );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_strip( Expr * args, Context & context, const IO & io )
+{
+  ASSERT_ARG_COUNT( args, 1 );
+
+  Expr * arg_1 = args->car();
+  ASSERT_ARG_TYPE( arg_1, Atom::ATOM_STRING );
+
+  char * str = STRDUP( arg_1->as_string() );
+
+  char * start = str;
+  while( *start && isspace( *start ) )
+  {
+    start++;
+  }
+
+  char * end = start + strlen( start ) - 1;
+  while( end > start && isspace( *end ) )
+  {
+    end--;
+  }
+
+  *( end + 1 ) = '\0';
+
+  Expr * stripped = make_string( start );
+  free( str );
+  return stripped;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -718,6 +749,61 @@ Expr * f_symbol_name( Expr * arg, Context & context, const IO & io )
     return make_error( "symbol-name expects a symbol" );
   }
   return make_string( arg1->atom.symbol );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void load( Context & ctx )
+{
+  ctx.defvar( "+", make_native( builtin::f_add ) );
+  ctx.defvar( "-", make_native( builtin::f_sub ) );
+  ctx.defvar( "*", make_native( builtin::f_mul ) );
+  ctx.defvar( "/", make_native( builtin::f_div ) );
+  ctx.defvar( "=", make_native( builtin::f_eq ) );
+  ctx.defvar( ">", make_native( builtin::f_gt ) );
+  ctx.defvar( ">=", make_native( builtin::f_ge ) );
+  ctx.defvar( "<", make_native( builtin::f_lt ) );
+  ctx.defvar( "<=", make_native( builtin::f_le ) );
+  ctx.defvar( "not", make_native( builtin::f_not ) );
+  ctx.defvar( KW_NIL, make_symbol( KW_NIL ) );
+  ctx.defvar( KW_IF, make_symbol( KW_IF ) );
+  ctx.defvar( KW_LAMBDA, make_symbol( KW_LAMBDA ) );
+  ctx.defvar( KW_DEFINE, make_symbol( KW_DEFINE ) );
+  ctx.defvar( KW_QUOTE, make_symbol( KW_QUOTE ) );
+  ctx.defvar( KW_PROGN, make_symbol( KW_PROGN ) );
+  ctx.defvar( KW_DEFUN, make_symbol( KW_DEFUN ) );
+  ctx.defvar( "str", make_native( builtin::f_str ) );
+  ctx.defvar( "strtok", make_native( builtin::f_strtok ) );
+  ctx.defvar( "strlen", make_native( builtin::f_strlen ) );
+  ctx.defvar( "strcmp", make_native( builtin::f_strcmp ) );
+  ctx.defvar( "strcat", make_native( builtin::f_str ) );
+  ctx.defvar( "strip", make_native( builtin::f_strip ) );
+  ctx.defvar( "print", make_native( builtin::f_print ) );
+  ctx.defvar( "println", make_native( builtin::f_println ) );
+  ctx.defvar( "to-json", make_native( builtin::f_to_json ) );
+  ctx.defvar( KW_CAR, make_native( builtin::f_car ) );
+  ctx.defvar( KW_CDR, make_native( builtin::f_cdr ) );
+  ctx.defvar( KW_CONS, make_native( builtin::f_cons ) );
+  ctx.defvar( KW_APPEND, make_native( builtin::f_append ) );
+  ctx.defvar( "list", make_native( builtin::f_list ) );
+  ctx.defvar( "length", make_native( builtin::f_length ) );
+  ctx.defvar( "read", make_native( builtin::f_read ) );
+  ctx.defvar( "eval", make_native( builtin::f_eval ) );
+  ctx.defvar( "read-file", make_native( builtin::f_read_file ) );
+  ctx.defvar( "exit", make_native( builtin::f_exit ) );
+  ctx.defvar( "error", make_native( builtin::f_error ) );
+  ctx.defvar( "null?", make_native( builtin::f_is_null ) );
+  ctx.defvar( "string?", make_native( builtin::f_is_string ) );
+  ctx.defvar( "error?", make_native( builtin::f_is_error ) );
+  ctx.defvar( "symbol?", make_native( builtin::f_is_symbol ) );
+  ctx.defvar( "real?", make_native( builtin::f_is_real ) );
+  ctx.defvar( "int?", make_native( builtin::f_is_integer ) );
+  ctx.defvar( "number?", make_native( builtin::f_is_number ) );
+  ctx.defvar( "symbol-name", make_native( builtin::f_symbol_name ) );
+  ctx.defvar( "map", make_native( builtin::f_map ) );
+  ctx.defvar( "filter", make_native( builtin::f_filter ) );
+  ctx.defvar( "apply", make_native( builtin::f_apply ) );
+  ctx.defvar( "load", make_native( builtin::f_load ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

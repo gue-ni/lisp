@@ -39,9 +39,9 @@ Context::Context( Context * parent )
 {
   if( is_root() )
   {
-    load_runtime();
-#if 0
-      load_stdlib();
+    builtin::load( *this );
+#if defined( __linux__ )
+    shell::load( *this );
 #endif
   }
 }
@@ -129,76 +129,6 @@ void Context::mark()
 bool Context::is_root() const
 {
   return m_parent == nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void Context::load_runtime()
-{
-  defvar( "+", make_native( builtin::f_add ) );
-  defvar( "-", make_native( builtin::f_sub ) );
-  defvar( "*", make_native( builtin::f_mul ) );
-  defvar( "/", make_native( builtin::f_div ) );
-
-  defvar( "=", make_native( builtin::f_eq ) );
-  defvar( ">", make_native( builtin::f_gt ) );
-  defvar( ">=", make_native( builtin::f_ge ) );
-  defvar( "<", make_native( builtin::f_lt ) );
-  defvar( "<=", make_native( builtin::f_le ) );
-  defvar( "not", make_native( builtin::f_not ) );
-
-  defvar( KW_NIL, make_symbol( KW_NIL ) );
-  defvar( KW_IF, make_symbol( KW_IF ) );
-  defvar( KW_LAMBDA, make_symbol( KW_LAMBDA ) );
-  defvar( KW_DEFINE, make_symbol( KW_DEFINE ) );
-  defvar( KW_QUOTE, make_symbol( KW_QUOTE ) );
-  defvar( KW_PROGN, make_symbol( KW_PROGN ) );
-  defvar( KW_DEFUN, make_symbol( KW_DEFUN ) );
-
-  defvar( "str", make_native( builtin::f_str ) );
-  defvar( "strtok", make_native( builtin::f_strtok ) );
-  defvar( "strlen", make_native( builtin::f_strlen ) );
-  defvar( "strcmp", make_native( builtin::f_strcmp ) );
-
-  defvar( "print", make_native( builtin::f_print ) );
-  defvar( "println", make_native( builtin::f_println ) );
-  defvar( "to-json", make_native( builtin::f_to_json ) );
-
-  defvar( KW_CAR, make_native( builtin::f_car ) );
-  defvar( KW_CDR, make_native( builtin::f_cdr ) );
-  defvar( KW_CONS, make_native( builtin::f_cons ) );
-  defvar( KW_APPEND, make_native( builtin::f_append ) );
-  defvar( "list", make_native( builtin::f_list ) );
-  defvar( "length", make_native( builtin::f_length ) );
-
-  defvar( "read", make_native( builtin::f_read ) );
-  defvar( "eval", make_native( builtin::f_eval ) );
-
-  defvar( "read-file", make_native( builtin::f_read_file ) );
-
-  defvar( "exit", make_native( builtin::f_exit ) );
-  defvar( "error", make_native( builtin::f_error ) );
-
-  defvar( "null?", make_native( builtin::f_is_null ) );
-  defvar( "string?", make_native( builtin::f_is_string ) );
-  defvar( "error?", make_native( builtin::f_is_error ) );
-  defvar( "symbol?", make_native( builtin::f_is_symbol ) );
-  defvar( "real?", make_native( builtin::f_is_real ) );
-  defvar( "int?", make_native( builtin::f_is_integer ) );
-  defvar( "number?", make_native( builtin::f_is_number ) );
-  defvar( "symbol-name", make_native( builtin::f_symbol_name ) );
-
-  defvar( "map", make_native( builtin::f_map ) );
-  defvar( "filter", make_native( builtin::f_filter ) );
-  defvar( "apply", make_native( builtin::f_apply ) );
-  defvar( "load", make_native( builtin::f_load ) );
-
-#ifdef __linux__
-  defvar( "exec", make_native( shell::f_exec ) );
-  defvar( KW_PIPE, make_symbol( KW_PIPE ) );
-  defvar( KW_FROM_STREAM, make_symbol( KW_FROM_STREAM ) );
-  defvar( KW_TO_STREAM, make_symbol( KW_TO_STREAM ) );
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -536,6 +466,12 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
             if( n > 0 )
             {
               buffer[n] = '\0';
+            }
+
+            // remove trailing newline
+            if( buffer[n - 1] == '\n' )
+            {
+              buffer[n - 1] = '\0';
             }
 
             close( fds[0] );

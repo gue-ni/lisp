@@ -149,22 +149,26 @@ passing them to the macro.
 
 ## Builtin Functions
 
-| Keyword                                 | Purpose               | Example                               |
-| --------------------------------------- | --------------------- | ------------------------------------- |
-| `+`, `-`, `*`, `/`                      | Arithemtic operations | `(* 2 3)`                             |
-| `=`, `<`, `>`, `<=`, `>=`               | Logic operations      | `(= 2 3)`, `(< 2 3)`                  |
-| `and` , `or`, `not`                     | Boolean operators     |                                       |
-| `print` , `println`                     |                       |                                       |
-| `car`                                   |                       |                                       |
-| `cdr`                                   |                       |                                       |
-| `cons`                                  |                       |                                       |
-| `append`                                |                       |                                       |
-| `map`                                   |                       |                                       |
-| `apply`                                 |                       | `(apply + (list 1 2 3))`              |
-| `filter`                                |                       | `((lambda (x) (> x 1)) (list 1 2 3))` |
-| `length`                                |                       |                                       |
-| `read`                                  |                       |                                       |
-| `eval`                                  |                       |                                       |
-| `null?`, `number?`, `string?`, `error?` | Check for type        | `(string? "hello")`                   |
-| `load`                                  | Import file           | `(load "my-module.lsp")`              |
-| `str`                                   |                       |                                       |
+| Keyword                                 | Purpose                                       | Example                                      |
+| --------------------------------------- | --------------------------------------------- | -------------------------------------------- |
+| `+`, `-`, `*`, `/`                      | Arithemtic operations                         | `(* 2 3)`                                    |
+| `=`, `<`, `>`, `<=`, `>=`               | Logic operations                              | `(= 2 3)`, `(< 2 3)`                         |
+| `and` , `or`, `not`                     | Boolean operators                             |                                              |
+| `print` , `println`                     | Print to command line                         |                                              |
+| `car`                                   | Access _car_ of _cons_ cell                   |                                              |
+| `cdr`                                   | Access _cdr_ of _cons_ cell                   |                                              |
+| `cons`                                  | Create cons cell                              |                                              |
+| `append`                                | Concatinate lists                             |                                              |
+| `map`                                   | Return list of elements with function applied | `(map (lambda (x) (* x x)) (list 1 2 3))`    |
+| `filter` `(filter pred lst)`            | Return list of elements for wich pred is true | `(filter (lambda (x) (> x 1)) (list 1 2 3))` |
+| `apply`                                 | Apply function to list of arguments           | `(apply + (list 1 2 3))`                     |
+| `length`                                | Get length of list                            |                                              |
+| `read`                                  | Convert string to lisp object                 |                                              |
+| `eval`                                  | Eval lisp object                              |                                              |
+| `null?`, `number?`, `string?`, `error?` | Check for type                                | `(string? "hello")`                          |
+| `load`                                  | Import file                                   | `(load "my-module.lsp")`                     |
+| `str`                                   | Convert expression to string                  |                                              |
+| `strcat`                                | Concatinate strings                           |                                              |
+| `strcmp`                                | Compare string                                |                                              |
+| `strlen`                                | Get length of string                          |                                              |
+| `strip`                                 | Remove leading or trailing whitespace         |                                              |

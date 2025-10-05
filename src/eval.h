@@ -51,7 +51,6 @@ public:
 private:
   Context * m_parent;
   Env m_env;
-  void load_runtime();
   bool is_root() const;
 };
 
