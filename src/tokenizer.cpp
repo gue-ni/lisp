@@ -18,7 +18,9 @@ std::map<std::string, TokenType> keywords
     = { { KW_QUOTE, TokenType::QUOTE },
         { KW_NIL, TokenType::NIL },
         { KW_TRUE, TokenType::TRUE },
+        { KW_T, TokenType::TRUE },
         { KW_FALSE, TokenType::FALSE },
+        { KW_F, TokenType::FALSE },
         { KW_QUASIQUOTE, TokenType::QUASIQUOTE },
         { KW_UNQUOTE, TokenType::UNQUOTE },
         { KW_UNQUOTE_SPLICE, TokenType::UNQUOTE_SPLICING } };

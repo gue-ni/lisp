@@ -522,10 +522,10 @@ TEST_F( LispTest, test_filter_01 )
 TEST_F( LispTest, test_reduce_01 )
 {
   std::string src = R"(
-(defun my-reduce (f init lst)
+(defun my-reduce (fn init lst)
   (if (null? lst)
       init
-      (my-reduce f (f init (car lst)) (cdr lst))))
+      (my-reduce fn (fn init (car lst)) (cdr lst))))
 
 (my-reduce + 0 '(1 2 3 4 5))
    )";
@@ -633,15 +633,12 @@ TEST_F( LispTest, test_macro_01 )
 
 TEST_F( LispTest, test_macro_02 )
 {
-
   std::string src = R"(
-
-(defmacro my-macro (t c1 c2)
-  `(if ,t c1 c2))
+(defmacro my-macro (pred c1 c2)
+  `(if ,pred c1 c2))
 
 (print (my-macro (= 2 3) "c-1" "c-2"))
-
-   )";
+  )";
 
   int r = eval( src, ctx, io );
   EXPECT_EQ( r, 0 );
