@@ -18,7 +18,6 @@
     - [`defmacro`](#defmacro)
   - [Builtin Functions](#builtin-functions)
 
-
 ## Basics
 
 Lisp programs are built from S-expressions, which are either _atoms_ (numbers,
@@ -32,6 +31,9 @@ arguments.
 
 For example, `(+ 2 3 (* 4 5))` is equal to `2 + 3 + 4 * 5` and `(fn 1 2)`
 is equal to something like `fn(1, 2)` in a language like python.
+
+_Lisp_ supports the usual basic data types, such as _nil_, _boolean_, _real_
+(floating point numbers), _integer_ and _string_.
 
 ## Special Forms
 
@@ -138,8 +140,8 @@ Define a named function.
 
 ### `defmacro`
 
-Define a macro, unlike a function, the arguments are not evaluated before
-passing them to the macro.
+Define a macro. Unlike a function, the arguments are not evaluated before
+passing them to the macro. Arguments can be unquoted with `,` and `,@`.
 
 ```lisp
 ; macro to test if a symbol is defined.
