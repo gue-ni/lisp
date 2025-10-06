@@ -1011,3 +1011,21 @@ TEST_F( LispTest, test_apply_1 )
   EXPECT_EQ( err.str(), "" );
   EXPECT_EQ( out.str(), "6" );
 }
+
+TEST_F( LispTest, test_split_01 )
+{
+  std::string src = "(length (split \" \" \"this text if full of spaces\"))";
+  int r           = eval( src, ctx, io );
+  EXPECT_EQ( r, 0 );
+  EXPECT_EQ( err.str(), "" );
+  EXPECT_EQ( out.str(), "6" );
+}
+
+TEST_F( LispTest, test_strip_01 )
+{
+  std::string src = "(print (strip \"  remove leading and trailing whitespace\n  \"))";
+  int r           = eval( src, ctx, io );
+  EXPECT_EQ( r, 0 );
+  EXPECT_EQ( err.str(), "" );
+  EXPECT_EQ( out.str(), "remove leading and trailing whitespace" );
+}
