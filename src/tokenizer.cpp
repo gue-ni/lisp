@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <map>
 #include <iostream>
+#include <map>
 
 namespace lisp
 {
@@ -96,9 +96,9 @@ void Tokenizer::handle_string()
 
   // un-escape newline literals
   std::string::size_type pos = 0;
-  while ((pos = str.find("\\n", pos)) != std::string::npos)
+  while( ( pos = str.find( "\\n", pos ) ) != std::string::npos )
   {
-    str.replace(pos, 2, "\n");
+    str.replace( pos, 2, "\n" );
     ++pos;
   }
 
