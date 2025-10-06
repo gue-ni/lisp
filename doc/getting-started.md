@@ -206,4 +206,5 @@ passing them to the macro. Arguments can be unquoted with `,` and `,@`.
 | `strcmp`                                | Compare string                                |                                              |
 | `strlen`                                | Get length of string                          |                                              |
 | `strip`                                 | Remove leading or trailing whitespace         |                                              |
+| `split`                                 | Split string on delimiteer                    | `(split " " "hello world")`                  |
 | `getenv`                                | Get environment variable                      | `(getenv "HOME")`                            |
