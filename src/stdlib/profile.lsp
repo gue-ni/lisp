@@ -4,5 +4,3 @@
   (progn
     (load (strcat lib "util.lsp"))
     (load (strcat lib "shell.lsp"))))
-
-(println "Loaded profile.")

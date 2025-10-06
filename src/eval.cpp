@@ -730,8 +730,6 @@ int repl()
 
   eval_profile( ctx, io );
 
-  std::cout << std::endl;
-
   do
   {
     std::string line;
