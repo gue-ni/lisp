@@ -647,10 +647,10 @@ const std::string DBG_CMD = "dbg";
 void print_compiler_info()
 {
   std::cout << "Compiled on " << __DATE__ << " at " << __TIME__ << " with ";
-#if defined( __GNUC__ )
-  std::cout << "GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
-#elif defined( __clang__ )
+#if defined( __clang__ )
   std::cout << "Clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+#elif defined( __GNUC__ )
+  std::cout << "GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
 #elif defined( _MSC_VER )
   std::cout << "MSVC " << _MSC_VER;
 #else
