@@ -43,7 +43,7 @@ jobs:
       run: |
         mkdir -p ${{ github.workspace }}/release
         cp -v ${{ github.workspace }}/build/src/lisp ${{ github.workspace }}/release/
-        cp -v -r ${{ github.workspace }}/stdlib ${{ github.workspace }}/release/
+        cp -v -r ${{ github.workspace }}/src/stdlib ${{ github.workspace }}/release/
         tar -czvf lisp-linux-amd64.tar.gz -C ${{ github.workspace }}/release lisp stdlib
         pwd
         ls -la

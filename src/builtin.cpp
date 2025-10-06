@@ -823,6 +823,38 @@ Expr * f_symbol_name( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_dump( Expr * arg, Context & context, const IO & io )
+{
+  Context * root = &context;
+  while( root->parent() )
+    root = root->parent();
+
+  for( const std::pair<const std::string, Expr *> & p : root->env() )
+  {
+
+    if( p.second->is_native() )
+    {
+      continue;
+    }
+
+    if( p.second->is_lambda() )
+    {
+      std::cout << "(defun " << p.first << " " << to_string_repr( p.second ) << ")" << std::endl;
+    }
+    else if( p.second->is_macro() )
+    {
+      // TODO
+    }
+    else
+    {
+      std::cout << "(defvar " << p.first << " " << to_string_repr( p.second ) << ") " << std::endl;
+    }
+  }
+  return make_nil();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void load( Context & ctx )
 {
   ctx.defvar( "+", make_native( builtin::f_add ) );
@@ -877,6 +909,7 @@ void load( Context & ctx )
   ctx.defvar( "filter", make_native( builtin::f_filter ) );
   ctx.defvar( "apply", make_native( builtin::f_apply ) );
   ctx.defvar( "load", make_native( builtin::f_load ) );
+  ctx.defvar( "dump", make_native( builtin::f_dump ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

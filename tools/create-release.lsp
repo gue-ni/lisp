@@ -24,7 +24,7 @@
   (let ((tmp-dir (strip ($ (sh mktemp -d)))))
     (and
       (sh cp -v (strcat build-dir "/" "src/lisp") tmp-dir)
-      (sh cp -vr "stdlib" tmp-dir)
+      (sh cp -vr "src/stdlib" tmp-dir)
       (sh tar -czvf archive-name -C tmp-dir "lisp" "stdlib")
       (sh rm -rfv tmp-dir))))
 
