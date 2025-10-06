@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <map>
+#include <iostream>
 
 namespace lisp
 {
@@ -87,10 +88,19 @@ void Tokenizer::handle_string()
 
   if( end == m_source.cend() )
   {
+    std::cerr << "Expected \" at end of string" << std::endl;
     assert( false );
   }
 
   std::string str( m_current, end );
+
+  // un-escape newline literals
+  std::string::size_type pos = 0;
+  while ((pos = str.find("\\n", pos)) != std::string::npos)
+  {
+    str.replace(pos, 2, "\n");
+    ++pos;
+  }
 
   push( Token( STRING, str ) );
   m_current = end + 1;
