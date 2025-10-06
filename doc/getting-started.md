@@ -65,6 +65,7 @@ f
 ; => ("hello" 2 3 true)
 ```
 
+In the REPL, `_` referers to the result of the last expression.
 
 ## Special Forms
 
