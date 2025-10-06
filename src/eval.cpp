@@ -723,7 +723,7 @@ int repl()
     Expr * form   = parse( line );
     Expr * result = eval( form, ctx, io );
 
-    if (!result->is_error())
+    if( !result->is_error() )
       ctx.defvar( "_", result );
 
     std::cout << to_string_repr( result ) << std::endl;
