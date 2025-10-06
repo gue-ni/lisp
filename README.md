@@ -41,7 +41,14 @@ bash <(curl -s https://raw.githubusercontent.com/gue-ni/lisp/refs/heads/master/t
         (target (strcat user "@" host ":" target-dir)))
     (sh scp source target)))
 
-(upload "my-file.txt")
+; execute 'ls' command, capture result
+($ (sh ls))
+
+; use _ to access result of last expression, split on newline
+(defvar files (split "\n" _))
+
+; upload all files
+(for-each upload files)
 ```
 
 ```lisp

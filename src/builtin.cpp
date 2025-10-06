@@ -785,6 +785,7 @@ void load( Context & ctx )
   ctx.defvar( "strcmp", make_native( builtin::f_strcmp ) );
   ctx.defvar( "strcat", make_native( builtin::f_str ) );
   ctx.defvar( "strip", make_native( builtin::f_strip ) );
+  ctx.defvar( "split", make_native( builtin::f_strtok ) );
   ctx.defvar( "print", make_native( builtin::f_print ) );
   ctx.defvar( "println", make_native( builtin::f_println ) );
   ctx.defvar( "to-json", make_native( builtin::f_to_json ) );

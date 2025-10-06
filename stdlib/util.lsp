@@ -26,3 +26,11 @@
     ((null? lst) nil)
     ((= n 0) (car lst))
     (t (nth (- n 1) (cdr lst)))))
+
+; execute fn on every element of list
+(defun for-each (fn lst)
+  (if (null? lst)
+    nil
+    (progn
+      (fn (car lst))
+      (for-each fn (cdr lst)))))
