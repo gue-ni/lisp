@@ -572,42 +572,15 @@ int eval( const std::string & source, Context & context, const IO & io, Flags fl
 {
   Tokens tokens = tokenize( source );
   if( tokens.empty() )
-  {
     return 1;
-  }
-
-  if( flags & FLAG_DUMP_TOKENS )
-  {
-    io.out << "---begin-tokens---" << std::endl;
-    print_debug( io.out, tokens );
-    io.out << "----end-tokens----" << std::endl;
-  }
 
   Expr * program = parse( tokens );
   if( !program )
-  {
     return 2;
-  }
-
-  if( flags & FLAG_DUMP_AST )
-  {
-    io.out << "---begin-program---" << std::endl;
-    io.out << program->to_json() << std::endl;
-    io.out << "----end-program----" << std::endl;
-  }
 
   Expr * res = eval_program( program, context, io );
   if( !res )
-  {
     return 3;
-  }
-
-  if( flags & FLAG_DUMP_ENV )
-  {
-    io.out << "---begin-env---" << std::endl;
-    context.print( io );
-    io.out << "----env-env----" << std::endl;
-  }
 
   if( res->is_error() )
   {
@@ -747,7 +720,13 @@ int repl()
     if( line.empty() )
       continue;
 
-    res = eval( line, ctx, io, FLAG_NEWLINE | FLAG_INTERACTIVE );
+    Expr * form   = parse( line );
+    Expr * result = eval( form, ctx, io );
+
+    if (!result->is_error())
+      ctx.defvar( "_", result );
+
+    std::cout << to_string_repr( result ) << std::endl;
 
   } while( ( res == 0 ) && ( !ctx.exit ) );
 
