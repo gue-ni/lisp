@@ -4,12 +4,23 @@
 
 using namespace lisp;
 
+class ShellTest : public LispTest {
+  public:
+void SetUp() override
+  {
+  load_shell_macros(ctx,io);
+
+  }
+
+  void TearDown() override
+  {
+  }
+};
+
 #ifdef __linux__
-TEST_F( LispTest, test_shell_01 )
+TEST_F( ShellTest, test_shell_01 )
 {
   std::string src = R"(
-(load "stdlib/shell.lsp")
-
 (defvar result
    ($
       (pipe
@@ -23,11 +34,9 @@ TEST_F( LispTest, test_shell_01 )
   EXPECT_EQ( out.str(), "src/lisp.h" );
 }
 
-TEST_F( LispTest, test_shell_02 )
+TEST_F( ShellTest, test_shell_02 )
 {
   std::string src = R"(
-(load "stdlib/shell.lsp")
-
 (defvar reversed
    ($
       (pipe
@@ -41,11 +50,9 @@ TEST_F( LispTest, test_shell_02 )
   EXPECT_EQ( out.str(), "dlrow olleh" );
 }
 
-TEST_F( LispTest, test_shell_03 )
+TEST_F( ShellTest, test_shell_03 )
 {
   std::string src = R"(
-(load "stdlib/shell.lsp")
-
 (print ($ (sh uname -o)))
    )";
   int r           = eval( src, ctx, io );
