@@ -362,9 +362,9 @@ Expr * f_div( Expr * args, Context & context, const IO & io )
 
 Expr * f_car( Expr * arg, Context & context, const IO & io )
 {
-  if( !arg->is_cons() )
+  if( !arg->car()->is_cons() )
   {
-    make_error( "car expected 1 argument" );
+    return make_error( "car expected cons argument" );
   }
   return arg->car()->car();
 }
@@ -373,9 +373,9 @@ Expr * f_car( Expr * arg, Context & context, const IO & io )
 
 Expr * f_cdr( Expr * arg, Context & context, const IO & io )
 {
-  if( !arg->is_cons() )
+  if( !arg->car()->is_cons() )
   {
-    make_error( "car expected 1 argument" );
+    return make_error( "cdr expected cons argument" );
   }
   return arg->car()->cdr();
 }
