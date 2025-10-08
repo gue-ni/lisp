@@ -162,7 +162,7 @@ Expr * f_strip( Expr * args, Context & context, const IO & io )
   }
 
   char * end = start + strlen( start ) - 1;
-  while( end > start && isspace( *end ) )
+  while( start < end && isspace( *end ) )
   {
     end--;
   }
@@ -198,7 +198,7 @@ Expr * f_substr( Expr * args, Context & context, const IO & io )
   char * str = STRDUP( arg_3->as_string() );
   int len    = strlen( str );
 
-  if( start < 0 || len <= end || start == end )
+  if( start < 0 || len < end || start >= end )
     return make_error( "index out of range" );
 
   str[end] = '\0';
