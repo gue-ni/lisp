@@ -823,6 +823,13 @@ Expr * f_symbol_name( Expr * arg, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_dump( Expr * arg, Context & context, const IO & io )
+{
+  return make_nil();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void load( Context & ctx )
 {
   ctx.defvar( "+", make_native( builtin::f_add ) );
@@ -877,6 +884,7 @@ void load( Context & ctx )
   ctx.defvar( "filter", make_native( builtin::f_filter ) );
   ctx.defvar( "apply", make_native( builtin::f_apply ) );
   ctx.defvar( "load", make_native( builtin::f_load ) );
+  ctx.defvar( "dump", make_native( builtin::f_dump ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

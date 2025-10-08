@@ -16,14 +16,6 @@ public:
   {
   }
 
-  void SetUp() override
-  {
-  }
-
-  void TearDown() override
-  {
-  }
-
 protected:
   Context ctx;
   std::ostringstream out, err;

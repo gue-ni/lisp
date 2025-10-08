@@ -68,6 +68,8 @@ int eval( const std::string & source, Flags flags = FLAG_NEWLINE | FLAG_INTERACT
 
 Expr * eval_program( Expr * program, Context & context, const IO & io );
 
+void load_shell_macros( Context & context, const IO & io );
+
 int repl();
 
 ///////////////////////////////////////////////////////////////////////////////

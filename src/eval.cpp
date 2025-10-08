@@ -133,19 +133,7 @@ bool Context::is_root() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string init_script()
-{
-  const char * home = getenv( "HOME" );
-  assert( home != nullptr );
-
-  std::string profile = ".profile.lsp";
-
-  return "(load \"" + std::string( home ) + "/" + profile + "\")";
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void eval_profile( Context & context, const IO & io )
+void load_shell_macros( Context & context, const IO & io )
 {
   const std::string shell_macros = R"(
 ; test if a symbol is defined
@@ -165,6 +153,13 @@ void eval_profile( Context & context, const IO & io )
   )";
 
   ( void ) eval( shell_macros, context, io );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void eval_profile( Context & context, const IO & io )
+{
+  load_shell_macros( context, io );
 
   const char * home = getenv( "HOME" );
   assert( home != nullptr );
@@ -729,8 +724,6 @@ int repl()
   print_repl_header();
 
   eval_profile( ctx, io );
-
-  std::cout << std::endl;
 
   do
   {
