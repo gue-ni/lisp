@@ -1,12 +1,13 @@
-# A Lisp Interpreter for Shell Scripting
+# trilo - A Lisp Interpreter for Shell Scripting
 
 ![build workflow status](https://github.com/gue-ni/lisp/actions/workflows/build.yml/badge.svg)
 
-This project is a lightweight Lisp interpreter written in C++ with a focus on
-shell scripting. It lets you combine the expressive power of Lisp with the
-practicality of the Unix shell: you can run commands, capture output, pipe
-between processes, and still use Lisp syntax for logic and structure. Think of
-it as writing your shell scripts in Lisp instead of Bash.
+_trilo_ (short for [trilobite](https://en.wikipedia.org/wiki/Trilobite)) is
+a lightweight Lisp interpreter written in C++ with a focus on shell scripting.
+It lets you combine the expressive power of Lisp with the practicality of the
+Unix shell: you can run commands, capture output, pipe between processes, and
+still use Lisp syntax for logic and structure. Think of it as writing your shell
+scripts in Lisp instead of Bash.
 
 ## How to install
 
