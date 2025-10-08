@@ -16,8 +16,6 @@ public:
   {
   }
 
-
-
 protected:
   Context ctx;
   std::ostringstream out, err;

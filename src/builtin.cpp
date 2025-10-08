@@ -825,31 +825,6 @@ Expr * f_symbol_name( Expr * arg, Context & context, const IO & io )
 
 Expr * f_dump( Expr * arg, Context & context, const IO & io )
 {
-  Context * root = &context;
-  while( root->parent() )
-    root = root->parent();
-
-  for( const std::pair<const std::string, Expr *> & p : root->env() )
-  {
-
-    if( p.second->is_native() )
-    {
-      continue;
-    }
-
-    if( p.second->is_lambda() )
-    {
-      std::cout << "(defun " << p.first << " " << to_string_repr( p.second ) << ")" << std::endl;
-    }
-    else if( p.second->is_macro() )
-    {
-      // TODO
-    }
-    else
-    {
-      std::cout << "(defvar " << p.first << " " << to_string_repr( p.second ) << ") " << std::endl;
-    }
-  }
   return make_nil();
 }
 

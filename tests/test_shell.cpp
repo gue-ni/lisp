@@ -4,16 +4,12 @@
 
 using namespace lisp;
 
-class ShellTest : public LispTest {
-  public:
-void SetUp() override
+class ShellTest : public LispTest
+{
+public:
+  void SetUp() override
   {
-  load_shell_macros(ctx,io);
-
-  }
-
-  void TearDown() override
-  {
+    load_shell_macros( ctx, io );
   }
 };
 
@@ -24,14 +20,14 @@ TEST_F( ShellTest, test_shell_01 )
 (defvar result
    ($
       (pipe
-         (sh find "src")
-         (sh grep "lisp.h"))))
+         (sh ls "/")
+         (sh grep "var"))))
 
 (print result)
    )";
   int r           = eval( src, ctx, io );
   EXPECT_EQ( err.str(), "" );
-  EXPECT_EQ( out.str(), "src/lisp.h" );
+  EXPECT_EQ( out.str(), "var" );
 }
 
 TEST_F( ShellTest, test_shell_02 )
