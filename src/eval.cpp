@@ -133,18 +133,6 @@ bool Context::is_root() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string init_script()
-{
-  const char * home = getenv( "HOME" );
-  assert( home != nullptr );
-
-  std::string profile = ".profile.lsp";
-
-  return "(load \"" + std::string( home ) + "/" + profile + "\")";
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 void load_shell_macros( Context & context, const IO & io )
 {
   const std::string shell_macros = R"(
