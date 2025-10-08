@@ -39,8 +39,8 @@ cp $TMPDIR/stdlib/* $LIBDIR
 
 # Install binary (requires sudo)
 mkdir -p $BINDIR
-cp $TMPDIR/redstart $BINDIR
-chmod +x $BINDIR/redstart
+cp $TMPDIR/rst $BINDIR
+chmod +x $BINDIR/rst
 
 # Cleanup
 rm -rf "$TMPDIR"
@@ -58,4 +58,4 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   echo "export PATH=\"\$HOME/.local/bin:\$PATH\""
 fi
 
-echo "Successfully installed redstart to ${BINDIR}"
+echo "Successfully installed Redstart to ${BINDIR}"
