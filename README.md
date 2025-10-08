@@ -12,7 +12,7 @@ scripts in Lisp instead of Bash.
 ## How to install
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/gue-ni/lisp/refs/heads/master/tools/install-lisp.sh)
+bash <(curl -s https://raw.githubusercontent.com/gue-ni/lisp/refs/heads/master/tools/install.sh)
 ```
 
 ## Examples
