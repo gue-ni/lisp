@@ -12,20 +12,20 @@ elif [ "$ARCH" = "aarch64" ]; then
     ARCH="arm64"
 fi
 
-RELEASE="lisp-${OS}-${ARCH}.tar.gz"
+RELEASE="redstart-${OS}-${ARCH}.tar.gz"
 
-BINARY_URL="https://www.jakobmaier.at/files/lisp/release/latest/${RELEASE}"
+BINARY_URL="https://www.jakobmaier.at/files/redstart/release/latest/${RELEASE}"
 
 # Temp directory
 TMPDIR="$(mktemp -d)"
-echo "Downloading lisp interpreter to ${TMPDIR}..."
+echo "Downloading interpreter to ${TMPDIR}..."
 
-curl -L "${BINARY_URL}" -o "${TMPDIR}/lisp.tar.gz"
+curl -L "${BINARY_URL}" -o "${TMPDIR}/redstart.tar.gz"
 
 # Extract
-tar -xzf "${TMPDIR}/lisp.tar.gz" -C "${TMPDIR}"
+tar -xzf "${TMPDIR}/redstart.tar.gz" -C "${TMPDIR}"
 
-LIBDIR=~/.local/share/lisp/lib/
+LIBDIR=~/.local/share/redstart/lib/
 BINDIR=~/.local/bin/
 
 # Install startup script
@@ -33,14 +33,14 @@ if [ ! -e ~/.profile.lsp ]; then
   cp $TMPDIR/stdlib/profile.lsp ~/.profile.lsp
 fi
 
-# Install lisp libraries (required sudo)
+# Install redstart libraries (required sudo)
 mkdir -p $LIBDIR
 cp $TMPDIR/stdlib/* $LIBDIR
 
 # Install binary (requires sudo)
 mkdir -p $BINDIR
-cp $TMPDIR/lisp $BINDIR
-chmod +x $BINDIR/lisp
+cp $TMPDIR/redstart $BINDIR
+chmod +x $BINDIR/redstart
 
 # Cleanup
 rm -rf "$TMPDIR"
@@ -58,4 +58,4 @@ if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
   echo "export PATH=\"\$HOME/.local/bin:\$PATH\""
 fi
 
-echo "Successfully installed lisp to ${BINDIR}"
+echo "Successfully installed redstart to ${BINDIR}"

@@ -43,8 +43,8 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET lisp_lib PROPERTY CXX_STANDARD 20)
 endif()
 
-add_executable(lisp "main.cpp")
-target_link_libraries(lisp lisp_lib)
+add_executable(rst "main.cpp")
+target_link_libraries(rst lisp_lib)
 
 if (ENABLE_LISP_ASAN AND UNIX AND NOT APPLE)
   message(STATUS "Building lisp with AddressSanitizer")
@@ -52,7 +52,7 @@ if (ENABLE_LISP_ASAN AND UNIX AND NOT APPLE)
   target_compile_options(lisp_lib PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
   target_link_options(lisp_lib PRIVATE -fsanitize=address)
 
-  target_compile_options(lisp PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
-  target_link_options(lisp PRIVATE -fsanitize=address)
+  target_compile_options(rst PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
+  target_link_options(rst PRIVATE -fsanitize=address)
 
 endif()

@@ -35,16 +35,16 @@ jobs:
       run: |
         for file in ${{ github.workspace }}/tests/programs/*.lsp; do
           echo "Executing $file"
-          time ${{ github.workspace }}/build/src/lisp $file
+          time ${{ github.workspace }}/build/src/rst $file
         done
 
     - name: Bundle Release
       if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       run: |
         mkdir -p ${{ github.workspace }}/release
-        cp -v ${{ github.workspace }}/build/src/lisp ${{ github.workspace }}/release/
+        cp -v ${{ github.workspace }}/build/src/rst ${{ github.workspace }}/release/
         cp -v -r ${{ github.workspace }}/src/stdlib ${{ github.workspace }}/release/
-        tar -czvf lisp-linux-amd64.tar.gz -C ${{ github.workspace }}/release lisp stdlib
+        tar -czvf redstart-linux-amd64.tar.gz -C ${{ github.workspace }}/release rst stdlib
         pwd
         ls -la
 
@@ -56,5 +56,5 @@ jobs:
         host: ${{ secrets.HOST }}
         port: ${{ secrets.PORT }}
         key: ${{ secrets.KEY }}
-        source: "lisp-linux-amd64.tar.gz"
-        target: "/var/www/files/lisp/release/latest"
+        source: "redstart-linux-amd64.tar.gz"
+        target: "/var/www/files/redstart/release/latest"
