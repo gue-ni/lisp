@@ -176,6 +176,69 @@ Expr * f_strip( Expr * args, Context & context, const IO & io )
 
 ///////////////////////////////////////////////////////////////////////////////
 
+Expr * f_substr( Expr * args, Context & context, const IO & io )
+{
+  ASSERT_ARG_COUNT( args, 3 );
+
+  Expr * arg_1 = args->car();
+  Expr * arg_2 = args->cdr()->car();
+  Expr * arg_3 = args->cdr()->cdr()->car();
+
+  if( !arg_1->is_number() )
+    return make_error( "substr expects arg 1 to be a number" );
+
+  if( !arg_2->is_number() )
+    return make_error( "substr expects arg 2 to be a number" );
+
+  if( !arg_3->is_string() )
+    return make_error( "substr expects arg 3 to be a string" );
+
+  int start  = ( int ) arg_1->as_number();
+  int end    = ( int ) arg_2->as_number();
+  char * str = STRDUP( arg_3->as_string() );
+  int len    = strlen( str );
+
+  if( start < 0 || len <= end || start == end )
+    return make_error( "index out of range" );
+
+  str[end] = '\0';
+  str += start;
+
+  Expr * result = make_string( str );
+  free( str );
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Expr * f_char_at( Expr * args, Context & context, const IO & io )
+{
+  ASSERT_ARG_COUNT( args, 2 );
+
+  Expr * arg_1 = args->car();
+  if( !arg_1->is_number() )
+    return make_error( "char-at expects number as first arg" );
+
+  Expr * arg_2 = args->cdr()->car();
+  if( !arg_2->is_string() )
+    return make_error( "char-at exprects string as second arg" );
+
+  int index = ( int ) arg_1->as_number();
+
+  const char * str = arg_2->as_string();
+  int len          = strlen( str );
+
+  if( !( 0 <= index && index < len ) )
+    return make_error( "index out-of-bounds" );
+
+  char character[2];
+  character[0] = str[index];
+  character[1] = '\0';
+  return make_string( character );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 Expr * f_print( Expr * arg, Context & context, const IO & io )
 {
   Expr * str = f_str( arg, context, io );
@@ -786,6 +849,8 @@ void load( Context & ctx )
   ctx.defvar( "strcat", make_native( builtin::f_str ) );
   ctx.defvar( "strip", make_native( builtin::f_strip ) );
   ctx.defvar( "split", make_native( builtin::f_strtok ) );
+  ctx.defvar( "substr", make_native( builtin::f_substr ) );
+  ctx.defvar( "char-at", make_native( builtin::f_char_at ) );
   ctx.defvar( "print", make_native( builtin::f_print ) );
   ctx.defvar( "println", make_native( builtin::f_println ) );
   ctx.defvar( "to-json", make_native( builtin::f_to_json ) );

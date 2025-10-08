@@ -29,6 +29,10 @@ Expr * f_strcmp( Expr * arg, Context & context, const IO & io );
 
 Expr * f_strip( Expr * arg, Context & context, const IO & io );
 
+Expr * f_substr( Expr * arg, Context & context, const IO & io );
+
+Expr * f_char_at( Expr * arg, Context & context, const IO & io );
+
 Expr * f_print( Expr * arg, Context & context, const IO & io );
 
 Expr * f_println( Expr * arg, Context & context, const IO & io );
