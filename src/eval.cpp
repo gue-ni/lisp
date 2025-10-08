@@ -8,7 +8,6 @@
 #include "shell.h"
 #include <unistd.h>
 #endif
-#include "logger.h"
 #include "parser.h"
 #include "tokenizer.h"
 
