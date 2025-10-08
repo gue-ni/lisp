@@ -673,7 +673,7 @@ std::string get_version_info()
 
 void print_repl_header()
 {
-  std::cout << "trilobite (" << get_version_info() << ")" << std::endl;
+  std::cout << "Welcome to Redstart! (" << get_version_info() << ")" << std::endl;
   print_copyright_info();
   print_compiler_info();
   std::cout << std::endl;

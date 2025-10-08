@@ -1,8 +1,8 @@
-# trilo - A Lisp Interpreter for Shell Scripting
+# Redstart - A Lisp Interpreter for Shell Scripting
 
 ![build workflow status](https://github.com/gue-ni/lisp/actions/workflows/build.yml/badge.svg)
 
-_trilo_ (short for [trilobite](https://en.wikipedia.org/wiki/Trilobite)) is
+Redstart (named after the [bird](https://en.wikipedia.org/wiki/Common_redstart)) is
 a lightweight Lisp interpreter written in C++ with a focus on shell scripting.
 It lets you combine the expressive power of Lisp with the practicality of the
 Unix shell: you can run commands, capture output, pipe between processes, and
@@ -12,7 +12,17 @@ scripts in Lisp instead of Bash.
 ## How to install
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/gue-ni/lisp/refs/heads/master/tools/install.sh)
+bash <(curl -s https://raw.githubusercontent.com/gue-ni/redstart/refs/heads/master/tools/install.sh)
+```
+
+## Quickstart
+
+```bash
+# Start the REPL
+rst
+
+# Run a script
+rst my_script.lsp
 ```
 
 ## Examples
