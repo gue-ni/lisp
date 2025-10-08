@@ -147,7 +147,7 @@ std::string init_script()
 
 void eval_profile( Context & context, const IO & io )
 {
-  const std::string lib = R"(
+  const std::string shell_macros = R"(
 ; test if a symbol is defined
 (defmacro symbolp (s)
   `(let ((e ,s)) (not (error? e))))
@@ -162,10 +162,10 @@ void eval_profile( Context & context, const IO & io )
 ; (let ((my-file "my_file.txt")) (sh touch my-file))
 (defmacro sh (&rest args)
   `(apply exec (map sh-arg args)))
-)";
+  )";
 
-  (void) eval(lib, context, io);
-    
+  ( void ) eval( shell_macros, context, io );
+
   const char * home = getenv( "HOME" );
   assert( home != nullptr );
 
@@ -183,8 +183,6 @@ void eval_profile( Context & context, const IO & io )
   std::string program = ss.str();
 
   ( void ) eval( program, context, io );
-
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
