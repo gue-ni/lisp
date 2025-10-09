@@ -6,7 +6,6 @@
 #include "version.h"
 #ifdef __linux__
 #include "shell.h"
-#include <unistd.h>
 #endif
 #include "logger.h"
 #include "parser.h"
@@ -159,8 +158,6 @@ void load_shell_macros( Context & context, const IO & io )
 
 void eval_profile( Context & context, const IO & io )
 {
-  load_shell_macros( context, io );
-
   const char * home = getenv( "HOME" );
   assert( home != nullptr );
 
@@ -169,7 +166,6 @@ void eval_profile( Context & context, const IO & io )
   std::ifstream file( path );
   if( !file.is_open() )
   {
-    io.err << "Could not load '" << path << "'" << std::endl;
     return;
   }
 
@@ -178,6 +174,14 @@ void eval_profile( Context & context, const IO & io )
   std::string program = ss.str();
 
   ( void ) eval( program, context, io );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void init( Context & context, const IO & io )
+{
+  load_shell_macros( context, io );
+  eval_profile( context, io );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -619,7 +623,7 @@ int eval( const std::string & source, Flags flags )
 
   if( flags & FLAG_INIT )
   {
-    eval_profile( ctx, io );
+    init( ctx, io );
   }
 
   return eval( source, ctx, io, flags );
@@ -631,51 +635,64 @@ const std::string DBG_CMD = "dbg";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void print_compiler_info()
+std::string get_current_time()
 {
-  std::cout << "Compiled on " << __DATE__ << " at " << __TIME__ << " with ";
-#if defined( __clang__ )
-  std::cout << "Clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
-#elif defined( __GNUC__ )
-  std::cout << "GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
-#elif defined( _MSC_VER )
-  std::cout << "MSVC " << _MSC_VER;
-#else
-  std::cout << "(Unknown Compiler)";
-#endif
-  std::cout << " for ";
-#if defined( __linux__ )
-  std::cout << "Linux" << std::endl;
-#elif defined( _WIN32 )
-  std::cout << "Windows" << std::endl;
-#elif defined( __APPLE__ )
-  std::cout << "macOS" << std::endl;
-#else
-  std::cout << "(Unknown OS)" << std::endl;
-#endif
+  std::stringstream os;
+  os << __DATE__ << ", ";
+  os << __TIME__;
+  return os.str();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void print_copyright_info()
+std::string get_compiler_info()
 {
-  std::cout << "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>" << std::endl;
+  std::stringstream os;
+#if defined( __clang__ )
+  os << "Clang " << __clang_major__ << "." << __clang_minor__ << "." << __clang_patchlevel__;
+#elif defined( __GNUC__ )
+  os << "GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__;
+#elif defined( _MSC_VER )
+  os << "MSVC " << _MSC_VER;
+#else
+  os << "Unknown Compiler";
+#endif
+  os << ", ";
+#if defined( __linux__ )
+  os << "Linux";
+#elif defined( _WIN32 )
+  os << "Windows";
+#elif defined( __APPLE__ )
+  os << "macOS";
+#else
+  os << "(Unknown OS)";
+#endif
+  return os.str();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+std::string get_copyright_info()
+{
+  return "Copyright (C) 2025 Jakob Maier <jakob.g.maier@gmail.com>";
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 std::string get_version_info()
 {
-  return "Version: " + std::string( GIT_HASH );
+  return std::string( GIT_HASH );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void print_repl_header()
 {
-  std::cout << "Welcome to Redstart! (" << get_version_info() << ")" << std::endl;
-  print_copyright_info();
-  print_compiler_info();
+  std::cout << "Welcome to Redstart! (";
+  std::cout << get_version_info() << ", ";
+  std::cout << get_current_time() << ", ";
+  std::cout << get_compiler_info() << ")" << std::endl;
+  // std::cout << get_copyright_info() << std::endl;
   std::cout << std::endl;
   std::cout << "Type (exit) to quit." << std::endl;
   std::cout << std::endl;
@@ -723,7 +740,7 @@ int repl()
 
   print_repl_header();
 
-  eval_profile( ctx, io );
+  init( ctx, io );
 
   do
   {
