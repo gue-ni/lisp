@@ -237,6 +237,14 @@ inline Expr * make_string( const char * string )
   return make_expr( std::move( atom ) );
 }
 
+inline Expr * make_string_take_ownership( char * string )
+{
+  Atom atom;
+  atom.type   = Atom::ATOM_STRING;
+  atom.string = string;
+  return make_expr( std::move( atom ) );
+}
+
 inline Expr * make_native( Native fn )
 {
   Atom atom;

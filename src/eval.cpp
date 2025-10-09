@@ -480,23 +480,37 @@ Expr * eval( Expr * expr, Context & _context, const IO & io )
               return r;
             }
 
-            char buffer[1024];
-            ssize_t n = read( fds[0], buffer, sizeof( buffer ) - 1 );
-            if( n > 0 )
+            char tmp[1024];
+            ssize_t total = 0;
+            char * buffer = nullptr;
+
+            while( true )
             {
-              buffer[n] = '\0';
+              ssize_t bytes_read = read( fds[0], tmp, sizeof( tmp ) );
+              if( bytes_read <= 0 )
+              {
+                break;
+              }
+
+              buffer = ( char * ) realloc( buffer, total + bytes_read + 1 );
+              memcpy( buffer + total, tmp, bytes_read );
+              total += bytes_read;
             }
 
-            // remove trailing newline
-            if( buffer[n - 1] == '\n' )
+            if( total > 0 )
             {
-              buffer[n - 1] = '\0';
+              buffer[total] = '\0';
+              // remove trailing newline
+              if( buffer[total - 1] == '\n' )
+              {
+                buffer[total - 1] = '\0';
+              }
             }
 
             close( fds[0] );
             close( fds[1] );
 
-            return make_string( buffer );
+            return make_string_take_ownership( buffer );
           }
           else if( op->is_symbol( KW_PIPE ) )
           {
